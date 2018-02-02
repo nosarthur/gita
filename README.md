@@ -1,8 +1,6 @@
-# wrapper around git
+# Manage multiple git repos
 
-Manage multiple git repos
-
-The environment variable `REPOPATH` is used to save paths of the repos.
+The repo paths are saved in `~/.gita_path`
 
 ```
 python3 -m gita
@@ -10,7 +8,9 @@ python3 -m gita
 
 ## todo
 
-* gitm ls: display the status of all repos
-    * color
-* gitm add path or environment variable
-* delegate git on each repo
+* `gita add`: add repo path
+* `gita ls`: display the status of all repos
+    * add git status
+* `gita goto`:
+* add test coverage
+* travis ci
