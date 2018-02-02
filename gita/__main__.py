@@ -20,12 +20,10 @@ def update_repos(new_paths=None):
         os.environ['REPOPATH'] = ''
     if new_paths:
         new_paths = [os.path.abspath(p) for p in new_paths if is_git(p)]
-        print(new_paths)
         new_paths = set(filter(lambda p: p not in paths, new_paths))
-        print(new_paths)
         for p in new_paths:
             os.environ['REPOPATH'] += (os.pathsep + p)
-        print(os.environ['REPOPATH'])
+        print(f"export REPOPATH={os.environ['REPOPATH']}")
         paths.update(new_paths)
     return {os.path.basename(os.path.normpath(p)):p for p in paths}
 
@@ -36,6 +34,7 @@ def f_add(args):
 
 def f_ls(args):
     repos = update_repos()
+    ls
     print('ls', args, repos)
 
 def f_repo(args):
@@ -65,7 +64,10 @@ def main(argv=None):
 
     if args.goto:
         print('repos:', args.goto)
-    else:
+    elif 'func' in args:
         args.func(args)
+    else:
+        p.print_help()
+
 
 main()
