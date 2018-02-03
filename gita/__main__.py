@@ -26,14 +26,12 @@ def update_repos(new_paths=None):
         new_paths = set(filter(lambda p: p not in paths, new_paths))
         print(f"new repos: {new_paths}")
         paths.update(new_paths)
-    if new_paths:
-        with open(path_file, 'w+') as f:
+        with open(path_file, 'w') as f:
             f.write(os.pathsep.join(paths))
     return {os.path.basename(os.path.normpath(p)):p for p in paths}
 
 def f_add(args):
-    repos = update_repos(args.repo)
-    print('add', repos)
+    update_repos(args.repo)
 
 
 def f_ls(args):
@@ -50,9 +48,7 @@ def main(argv=None):
     p = argparse.ArgumentParser()
     subparsers = p.add_subparsers()
 
-    p_ls = subparsers.add_parser('ls', description='here')
-    p_ls.add_argument('repo', nargs='*',
-            help="repo(s) to show")
+    p_ls = subparsers.add_parser('ls', description='display all repos')
     p_ls.set_defaults(func=f_ls)
 
     p_add = subparsers.add_parser('add')
