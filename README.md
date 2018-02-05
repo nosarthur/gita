@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
-# Manage multiple git repos
+# A commandline tool to view multiple git repos
 
-It occurs that multiple git repos are related and this is a tool to see their status in one shot.
+Often times multiple git repos are related and it helps to see their status (branch, modification) side by side.
 
 ```
 python3 -m gita
@@ -9,7 +9,7 @@ python3 -m gita
 
 * `gita add`: add repo path
 * `gita ls`: display the status of all repos
-* `gita ls <repo>`: display the absolute path of the specified repo. One can then enter that directory by ``cd `gita ls <repo>` ``
+* `gita ls <repo>`: display the absolute path of the specified repo. One can then enter that directory using ``cd `gita ls <repo>` ``
 
 The repo paths are saved in `~/.gita_path`
 
@@ -18,5 +18,3 @@ The repo paths are saved in `~/.gita_path`
 Download the source and take a look at the Makefile. Or just `pip3 install -e .`.
 
 ## TODO
-
-* add test coverage
