@@ -21,5 +21,5 @@ def describe(repos):
         os.chdir(path)
         dirty = '*' if os.system('git diff --quiet') else ''
         staged = '+' if os.system('git diff --cached --quiet') else ''
-        output += f'{name}\t{green}{head} {dirty}{staged}{end}\n'
+        output += f'{name:<18}{green}{head} {dirty}{staged}{end}\n'
     return output

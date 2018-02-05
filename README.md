@@ -14,7 +14,7 @@ The repo paths are saved in `~/.gita_path`
 
 ## installation
 
-Download the source and take a look at the Makefile.
+Download the source and take a look at the Makefile. Or just `pip3 install -e .`.
 
 ## TODO
 
