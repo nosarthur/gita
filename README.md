@@ -8,7 +8,7 @@ python3 -m gita
 
 * `gita add`: add repo path
 * `gita ls`: display the status of all repos
-* `gita goto`: go to the specified repo
+* `gita ls <repo>`: display the absolute path of the specified repo. One can then enter that directory by ``cd `gita ls <repo>` ``
 
 The repo paths are saved in `~/.gita_path`
 
@@ -18,6 +18,5 @@ Download the source and take a look at the Makefile.
 
 ## TODO
 
-* add detailed git status
 * add test coverage
 * travis ci

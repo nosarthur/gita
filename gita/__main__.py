@@ -36,12 +36,10 @@ def f_add(args):
 
 def f_ls(args):
     repos = update_repos()
-    print(ls.describe(repos))
-
-def f_goto(args):
-    repos = update_repos()
-    os.chdir(repos[args.repo])
-    os.system(os.environ['SHELL'])
+    if args.repo:
+        print(repos[args.repo])
+    else:
+        print(ls.describe(repos))
 
 
 def main(argv=None):
@@ -49,18 +47,15 @@ def main(argv=None):
     subparsers = p.add_subparsers()
 
     p_ls = subparsers.add_parser('ls', description='display all repos')
+    p_ls.add_argument('repo', nargs='?',
+            choices=update_repos(),
+            help="show the directory of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
     p_add = subparsers.add_parser('add')
     p_add.add_argument('repo', nargs='+',
             help="add repositories")
     p_add.set_defaults(func=f_add)
-
-    p_goto = subparsers.add_parser('goto')
-    p_goto.add_argument('repo',
-            choices=update_repos(),
-            help="go to the directory of the chosen repo")
-    p_goto.set_defaults(func=f_goto)
 
     args = p.parse_args(argv)
 

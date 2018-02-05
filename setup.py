@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='gita',
-    version='0.1dev',
+    version='0.1.dev0',
     description='Manage multiple git repos',
-    package=['gita',],
+    packages=['gita',],
     url='https://github.com/nosarthur/gita.git',
     author='Dong Zhou',
     author_email='zhou.dong@gmail.com',
@@ -14,4 +14,10 @@ setup(
             'gita = gita.__main__:main'
             ]
         },
+    classifiers=[
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Development Status :: 2 - Pre-Alpha",
+        "License :: OSI Approved :: MIT License",
+        ],
 )
