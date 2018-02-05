@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 # Manage multiple git repos
 
 It occurs that multiple git repos are related and this is a tool to see their status in one shot.
@@ -19,4 +20,3 @@ Download the source and take a look at the Makefile. Or just `pip3 install -e .`
 ## TODO
 
 * add test coverage
-* travis ci
