@@ -65,7 +65,7 @@ def main(argv=None):
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', help='remove repository')
-    p_rm.add_argument('repo', nargs='?', choices=update_repos(),
+    p_rm.add_argument('repo', choices=update_repos(),
             help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
