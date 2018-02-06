@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gita',
-    version='0.1.dev0',
+    version='0.1',
     description='Manage multiple git repos',
     packages=['gita',],
     url='https://github.com/nosarthur/gita.git',

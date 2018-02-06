@@ -14,8 +14,7 @@ def update_repos(new_paths=None):
 
     :rtype: `dict` of repo name to repo absolute path
     """
-    path_file = os.path.join(
-            os.path.expanduser('~'), '.gita_path')
+    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
     if os.path.exists(path_file):
         with open(path_file) as f:
             paths = set(f.read().split(os.pathsep))
@@ -45,31 +44,28 @@ def f_ls(args):
 def f_rm(args):
     repos = update_repos()
     del repos[args.repo]
-    path_file = os.path.join(
-            os.path.expanduser('~'), '.gita_path')
+    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
     if os.path.exists(path_file):
         with open(path_file, 'w') as f:
             f.write(os.pathsep.join(repos.values()))
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser()
-    subparsers = p.add_subparsers()
+    p = argparse.ArgumentParser(prog='gita')
+    subparsers = p.add_subparsers(title='sub-commands', help='additional help with sub-command -h')
 
-    p_ls = subparsers.add_parser('ls', description='display all repos')
-    p_ls.add_argument('repo', nargs='?',
-            choices=update_repos(),
-            help="show directory of the chosen repo")
+    p_ls = subparsers.add_parser('ls', help='display all repos')
+    p_ls.add_argument('repo', nargs='?', choices=update_repos(),
+            help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
-    p_add = subparsers.add_parser('add')
+    p_add = subparsers.add_parser('add', help='add repositories')
     p_add.add_argument('repo', nargs='+',
             help="add repositories")
     p_add.set_defaults(func=f_add)
 
-    p_rm = subparsers.add_parser('rm')
-    p_rm.add_argument('repo', nargs='?',
-            choices=update_repos(),
+    p_rm = subparsers.add_parser('rm', help='remove repository')
+    p_rm.add_argument('repo', nargs='?', choices=update_repos(),
             help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
