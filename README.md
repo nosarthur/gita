@@ -11,6 +11,11 @@ python3 -m gita
 * `gita ls`: display the status of all repos
 * `gita ls <repo>`: display the absolute path of the specified repo. One can then enter that directory using ``cd `gita ls <repo>` ``
 
+A screenshot is below
+
+![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
+
+
 The repo paths are saved in `~/.gita_path`
 
 ## installation
