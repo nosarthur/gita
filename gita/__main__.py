@@ -42,6 +42,16 @@ def f_ls(args):
         print(ls.describe(repos))
 
 
+def f_rm(args):
+    repos = update_repos()
+    del repos[args.repo]
+    path_file = os.path.join(
+            os.path.expanduser('~'), '.gita_path')
+    if os.path.exists(path_file):
+        with open(path_file, 'w') as f:
+            f.write(os.pathsep.join(repos.values()))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     subparsers = p.add_subparsers()
@@ -49,13 +59,19 @@ def main(argv=None):
     p_ls = subparsers.add_parser('ls', description='display all repos')
     p_ls.add_argument('repo', nargs='?',
             choices=update_repos(),
-            help="show the directory of the chosen repo")
+            help="show directory of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
     p_add = subparsers.add_parser('add')
     p_add.add_argument('repo', nargs='+',
             help="add repositories")
     p_add.set_defaults(func=f_add)
+
+    p_rm = subparsers.add_parser('rm')
+    p_rm.add_argument('repo', nargs='?',
+            choices=update_repos(),
+            help="remove the chosen repo")
+    p_rm.set_defaults(func=f_rm)
 
     args = p.parse_args(argv)
 
