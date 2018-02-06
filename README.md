@@ -11,7 +11,7 @@ The supported commands are
 * `gita add <repo-path>`: add repo path
 * `gita rm <repo-name>`: remove repo
 * `gita ls`: display the status of all repos
-* `gita ls <repo-name>`: display the absolute path of the specified repo. One can then enter that directory using ``cd `gita ls <repo>` ``
+* `gita ls <repo-name>`: display the absolute path of the specified repo
 
 The repo paths are saved in `~/.gita_path`
 
