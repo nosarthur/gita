@@ -17,7 +17,7 @@ The repo paths are saved in `~/.gita_path`
 
 ## installation
 
-Download the source and take a look at the Makefile. Or just `pip3 install -e .`.
+Download the source and `pip3 install -e <gita source folder>`.
 
 I also put the following line in my .bashrc
 ```
@@ -25,3 +25,4 @@ alias gita="python3 -m gita"
 ```
 
 ## TODO
+* auto-completion
