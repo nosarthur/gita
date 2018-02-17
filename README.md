@@ -6,6 +6,15 @@ as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
+Here red color means the local branch is either behind or diverged from the remote branch.
+And green color means the local branch is either the same as or ahead of the remote branch.
+They are determined by the following commands
+
+```bash
+git fetch
+git diff --quiet @{u} `git merge-base @{0} @{u}`
+```
+
 The supported commands are
 
 * `gita add <repo-path>`: add repo path
