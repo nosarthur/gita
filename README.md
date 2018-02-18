@@ -1,19 +1,16 @@
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 # A command-line tool to view multiple git repos
 
-Often times multiple git repos are related and it helps to see their status (branch, modification) side by side,
+In case multiple git repos are related, it helps to see their status (branch, modification) side by side,
 as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-Here red color means the local branch is either behind or diverged from the remote branch.
-And green color means the local branch is either the same as or ahead of the remote branch.
-They are determined by the following commands
+Here the color coding has the following meaning:
 
-```bash
-git fetch
-git diff --quiet @{u} `git merge-base @{0} @{u}`
-```
+* red: the local branch is either behind or diverged from the remote branch.
+* green: the local branch is the same as the remote branch.
+* yellow: the local branch is ahead of the remote branch.
 
 The supported commands are
 
