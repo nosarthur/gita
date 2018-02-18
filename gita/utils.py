@@ -7,6 +7,16 @@ def get_head(path):
         return os.path.basename(f.read()).rstrip()
 
 
+def fetch(repos):
+    """
+    Update the repos
+    """
+    for name, path in repos.items():
+        os.chdir(path)
+        # os.system('git remote update')
+        os.system('git fetch')
+
+
 def describe(repos):
     """
     :type repos: `dict` of repo name to repo absolute path
@@ -21,8 +31,6 @@ def describe(repos):
     for name, path in repos.items():
         head = get_head(path)
         os.chdir(path)
-        # os.system('git remote update')
-        os.system('git fetch')
         # outdated = os.system('git rev-list HEAD...origin/master --count')
         # outdated = os.system('git diff --quiet remotes/origin/HEAD')
         if os.system('git diff --quiet @{u} @{0}'):

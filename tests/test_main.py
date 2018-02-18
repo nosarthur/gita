@@ -1,12 +1,12 @@
 
 from gita import __main__
-from gita import ls
+from gita import utils
 
 
 def test_ls(monkeypatch, capfd):
     monkeypatch.setattr(__main__, 'update_repos',
             lambda: {'repo1':'/a/', 'repo2':'/b/'})
-    monkeypatch.setattr(ls, 'describe', lambda x: x)
+    monkeypatch.setattr(utils, 'describe', lambda x: x)
     __main__.main(['ls'])
     out, err = capfd.readouterr()
     assert out == "{'repo1': '/a/', 'repo2': '/b/'}\n"

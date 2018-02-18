@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from . import ls
+from . import utils
 
 
 def is_git(path):
@@ -38,7 +38,7 @@ def f_ls(args):
     if args.repo:
         print(repos[args.repo])
     else:
-        print(ls.describe(repos))
+        print(utils.describe(repos))
 
 
 def f_rm(args):
@@ -50,6 +50,14 @@ def f_rm(args):
             f.write(os.pathsep.join(repos.values()))
 
 
+def f_fetch(args):
+    repos = update_repos()
+    if args.repo:
+        utils.fetch({args.repo: repos[args.repo]})
+    else:
+        utils.fetch(repos)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog='gita')
     subparsers = p.add_subparsers(title='sub-commands', help='additional help with sub-command -h')
@@ -58,6 +66,11 @@ def main(argv=None):
     p_ls.add_argument('repo', nargs='?', choices=update_repos(),
             help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
+
+    p_fetch = subparsers.add_parser('fetch', help='fetch the remote updates for all repos or one repo')
+    p_fetch.add_argument('repo', nargs='?', choices=update_repos(),
+            help="fetch the remote update for the chosen repo")
+    p_fetch.set_defaults(func=f_fetch)
 
     p_add = subparsers.add_parser('add', help='add repositories')
     p_add.add_argument('repo', nargs='+',

@@ -23,6 +23,7 @@ The supported commands are
 * `gita rm <repo-name>`: remove repo
 * `gita ls`: display the status of all repos
 * `gita ls <repo-name>`: display the absolute path of the specified repo
+* `gita fetch <repo-name>`: fetch the remote updates
 
 The repo paths are saved in `~/.gita_path`
 
