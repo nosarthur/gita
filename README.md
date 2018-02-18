@@ -12,6 +12,11 @@ Here the color coding has the following meaning:
 * green: the local branch is the same as the remote branch.
 * yellow: the local branch is ahead of the remote branch.
 
+And the extra symbols have the following meaning:
+
+* `+`: staged change exists
+* `*`: unstaged change exists
+
 The supported commands are
 
 * `gita add <repo-path>`: add repo path
