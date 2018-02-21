@@ -5,7 +5,7 @@ from gita import utils
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ({'abc': '/root/repo/'}, 'abc               \x1b[31mrepo *+\x1b[0m\n'),
+    ({'abc': '/root/repo/'}, 'abc               \x1b[1;31mrepo *+\x1b[0m\n'),
     ])
 def test_describe(test_input, expected, monkeypatch):
     monkeypatch.setattr(utils, 'get_head', lambda x: 'repo')

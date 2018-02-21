@@ -8,7 +8,8 @@ as in the following screenshot:
 
 Here the color coding has the following meaning:
 
-* red: the local branch is either behind or diverged from the remote branch.
+* red: the local branch is behind the remote branch.
+* red in bold: the local branch is diverged from the remote branch.
 * green: the local branch is the same as the remote branch.
 * yellow: the local branch is ahead of the remote branch.
 
