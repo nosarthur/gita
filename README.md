@@ -6,12 +6,12 @@ as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-Here the color coding has the following meaning:
+Here the color codings denote the four situations between local and remote branches:
 
-* purple: the local branch is behind the remote branch (good for merge).
-* red: the local branch is diverged from the remote branch.
 * green: the local branch is the same as the remote branch.
+* red: the local branch has diverged from the remote branch.
 * yellow: the local branch is ahead of the remote branch (good for push).
+* purple: the local branch is behind the remote branch (good for merge).
 
 And the extra symbols have the following meaning:
 
@@ -20,7 +20,7 @@ And the extra symbols have the following meaning:
 
 The supported commands are
 
-* `gita add <repo-path>`: add repo path
+* `gita add <repo-path>`: add repo
 * `gita rm <repo-name>`: remove repo
 * `gita ls`: display the status of all repos
 * `gita ls <repo-name>`: display the absolute path of the specified repo
@@ -32,7 +32,7 @@ The repo paths are saved in `~/.gita_path`
 
 ## installation
 
-Download the source and `pip3 install -e <gita source folder>`.
+Download the source and run `pip3 install -e <gita source folder>`.
 
 I also put the following line in my .bashrc
 ```
