@@ -9,7 +9,7 @@ def get_head(path):
 
 def merge(path):
     os.chdir(path)
-    os.system('git merge')
+    os.system('git merge @{u}')
 
 
 def fetch(repos):
