@@ -51,6 +51,11 @@ def f_rm(args):
             f.write(os.pathsep.join(repos.values()))
 
 
+def f_merge(args):
+    repos = update_repos()
+    utils.merge(repos[args.repo])
+
+
 def f_fetch(args):
     repos = update_repos()
     if args.repo:
@@ -68,6 +73,11 @@ def main(argv=None):
     p_ls.add_argument('repo', nargs='?', choices=update_repos(),
             help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
+
+    p_merge= subparsers.add_parser('merge', help='merge the remote updates')
+    p_merge.add_argument('repo', choices=update_repos(),
+            help="merge the remote update for the chosen repo")
+    p_merge.set_defaults(func=f_merge)
 
     p_fetch = subparsers.add_parser('fetch',
             help='fetch the remote updates for all repos or one repo')

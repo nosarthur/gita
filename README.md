@@ -8,10 +8,10 @@ as in the following screenshot:
 
 Here the color coding has the following meaning:
 
-* red: the local branch is behind the remote branch.
-* red in bold: the local branch is diverged from the remote branch.
+* purple: the local branch is behind the remote branch (good for merge).
+* red: the local branch is diverged from the remote branch.
 * green: the local branch is the same as the remote branch.
-* yellow: the local branch is ahead of the remote branch.
+* yellow: the local branch is ahead of the remote branch (good for push).
 
 And the extra symbols have the following meaning:
 
@@ -26,6 +26,7 @@ The supported commands are
 * `gita ls <repo-name>`: display the absolute path of the specified repo
 * `gita fetch`: fetch all remote updates
 * `gita fetch <repo-name>`: fetch remote updates for the specified repo
+* `gita merge <repo-name>`: merge remote updates for the specified repo
 
 The repo paths are saved in `~/.gita_path`
 
