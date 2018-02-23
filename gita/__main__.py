@@ -59,9 +59,10 @@ def f_merge(args):
 def f_fetch(args):
     repos = update_repos()
     if args.repo:
-        utils.fetch({args.repo: repos[args.repo]})
+        utils.fetch(repos[args.repo])
     else:
-        utils.fetch(repos)
+        for path in repos.values():
+            utils.fetch(path)
 
 
 def main(argv=None):

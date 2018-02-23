@@ -8,6 +8,7 @@ as in the following screenshot:
 
 Here the color codings denote the four situations between local and remote branches:
 
+* white: the local branch has no remote branch.
 * green: the local branch is the same as the remote branch.
 * red: the local branch has diverged from the remote branch.
 * yellow: the local branch is ahead of the remote branch (good for push).
