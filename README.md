@@ -21,8 +21,8 @@ And the extra symbols have the following meaning:
 
 The supported commands are
 
-* `gita add <repo-path>`: add repo
-* `gita rm <repo-name>`: remove repo
+* `gita add <repo-path>`: add repo to `gita`
+* `gita rm <repo-name>`: remove repo from `gita`
 * `gita ls`: display the status of all repos
 * `gita ls <repo-name>`: display the absolute path of the specified repo
 * `gita fetch`: fetch all remote updates
