@@ -6,7 +6,7 @@ as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-Here the color codings denote the four situations between local and remote branches:
+Here the color codings denote the 5 situations between local and remote branches:
 
 * white: the local branch has no remote branch.
 * green: the local branch is the same as the remote branch.
