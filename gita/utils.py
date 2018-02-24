@@ -36,23 +36,12 @@ def get_commit_msg():
     return result.stdout
 
 
-def merge(path):
+def exec_git(path, cmd):
     """
-    Merge remote changes
-    """
-    os.chdir(path)
-    if has_remote():
-        os.system('git merge @{u}')
-
-
-def fetch(path):
-    """
-    Update the repos
     """
     os.chdir(path)
     if has_remote():
-        # os.system('git remote update')
-        os.system('git fetch')
+        os.system(cmd)
 
 
 def get_repo_status(path):

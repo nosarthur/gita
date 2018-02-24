@@ -53,16 +53,15 @@ def f_rm(args):
 
 def f_merge(args):
     repos = update_repos()
-    utils.merge(repos[args.repo])
+    utils.exec_git(repos[args.repo], 'git merge @{u}')
 
 
 def f_fetch(args):
     repos = update_repos()
     if args.repo:
-        utils.fetch(repos[args.repo])
-    else:
-        for path in repos.values():
-            utils.fetch(path)
+        repos = repos.from_keys(args.repo, repos[args.repo])
+    for path in repos.values():
+        utils.exec_git(path, 'git fetch')
 
 
 def main(argv=None):
