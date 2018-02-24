@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 # A command-line tool to view multiple git repos
 
-In case multiple git repos are related, it helps to see their status (branch, modification) side by side,
+When multiple git repos are related, it helps to see their status (branch, modification) side by side,
 as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
@@ -28,6 +28,7 @@ The supported commands are
 * `gita fetch`: fetch all remote updates
 * `gita fetch <repo-name>`: fetch remote updates for the specified repo
 * `gita merge <repo-name>`: merge remote updates for the specified repo
+* `gita push <repo-name>`: push local updates of the specified repo to remote
 
 The repo paths are saved in `~/.gita_path`
 
