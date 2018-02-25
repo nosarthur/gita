@@ -31,15 +31,18 @@ def is_git(path):
 
 
 def add_repos(new_paths):
-    repos = get_repos()
-    paths = set(repos.values())
-    new_paths = [os.path.abspath(p) for p in new_paths if is_git(p)]
-    new_paths = set(filter(lambda p: p not in paths, new_paths))
-    print(f"new repos: {new_paths}")
-    paths.update(new_paths)
-    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
-    with open(path_file, 'w') as f:
-        f.write(os.pathsep.join(paths))
+    """
+    Write new repo paths to file
+    """
+    paths = set(get_repos().values())
+    new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
+    new_paths = new_paths - paths
+    if new_paths:
+        print(f"new repos: {new_paths}")
+        paths.update(new_paths)
+        path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
+        with open(path_file, 'w') as f:
+            f.write(os.pathsep.join(paths))
 
 
 def get_head(path):
