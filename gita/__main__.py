@@ -55,9 +55,7 @@ def f_git_cmd(args):
     repos = update_repos()
     if args.repo:
         repos = repos.fromkeys([args.repo], repos[args.repo])
-    print(repos)
     for path in repos.values():
-        print(path)
         utils.exec_git(path, args.cmd)
 
 
@@ -80,11 +78,6 @@ def main(argv=None):
             help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
-    p_push = subparsers.add_parser('push', help='push the local updates')
-    p_push.add_argument('repo', choices=update_repos(),
-            help="push the local update to remote for the chosen repo")
-    p_push.set_defaults(func=f_git_cmd, cmd='git push')
-
     p_merge = subparsers.add_parser('merge', help='merge the remote updates')
     p_merge.add_argument('repo', choices=update_repos(),
             help="merge the remote update for the chosen repo")
@@ -95,6 +88,11 @@ def main(argv=None):
     p_fetch.add_argument('repo', nargs='?', choices=update_repos(),
             help="fetch the remote update for the chosen repo")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
+
+    p_push = subparsers.add_parser('push', help='push the local updates')
+    p_push.add_argument('repo', choices=update_repos(),
+            help="push the local update to remote for the chosen repo")
+    p_push.set_defaults(func=f_git_cmd, cmd='git push')
 
     args = p.parse_args(argv)
 

@@ -32,6 +32,7 @@ def test_update_repos():
     pass
 
 
+@patch('gita.utils.has_remote', return_value=True)
 @patch(
     'gita.__main__.update_repos',
     return_value={
