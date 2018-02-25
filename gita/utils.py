@@ -4,10 +4,10 @@ from functools import lru_cache
 
 
 class Color:
-    red = '\x1b[31m'  # local is behind
+    red = '\x1b[31m'  # local diverges
     green = '\x1b[32m'  # local == remote
-    yellow = '\x1b[33m'  # local is ahead
-    purple = '\x1b[35m'  # local diverges
+    yellow = '\x1b[33m'  # local is behind
+    purple = '\x1b[35m'  # local is ahead
     white = '\x1b[37m'  # no remote
     end = '\x1b[0m'
 
@@ -99,9 +99,9 @@ def _get_repo_status(path):
             if outdated:
                 diverged = os.system(
                     'git diff --quiet @{0} `git merge-base @{0} @{u}`')
-                color = Color.red if diverged else Color.purple
+                color = Color.red if diverged else Color.yellow
             else:
-                color = Color.yellow
+                color = Color.purple
         else:  # remote == local
             color = Color.green
     else:

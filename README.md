@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 # A command-line tool to view multiple git repos
 
-When multiple git repos are related, it helps to see their status (branch, modification) side by side,
+In the presence of multiple related git repos, it helps to see their status (branch, modification) side by side,
 as in the following screenshot:
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
@@ -11,10 +11,12 @@ Here the color codings denote the 5 situations between local and remote branches
 * white: the local branch has no remote branch.
 * green: the local branch is the same as the remote branch.
 * red: the local branch has diverged from the remote branch.
-* yellow: the local branch is ahead of the remote branch (good for push).
-* purple: the local branch is behind the remote branch (good for merge).
+* purple: the local branch is ahead of the remote branch (good for push).
+* yellow: the local branch is behind the remote branch (good for merge).
 
-And the extra symbols have the following meaning:
+The color choices of purple for ahead and yellow for behind is motivated by [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift).
+
+The extra status symbols have the following meaning:
 
 * `+`: staged change exists
 * `*`: unstaged change exists
