@@ -4,38 +4,12 @@ import argparse
 from . import utils
 
 
-def is_git(path):
-    return os.path.isdir(os.path.join(path, '.git'))
-
-
-def update_repos(new_paths=None):
-    """
-    :type new_paths: `list` of `str` or `None`
-
-    :rtype: `dict` of repo name to repo absolute path
-    """
-    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
-    if os.path.exists(path_file):
-        with open(path_file) as f:
-            paths = set(f.read().split(os.pathsep))
-    else:
-        paths = set()
-    if new_paths:
-        new_paths = [os.path.abspath(p) for p in new_paths if is_git(p)]
-        new_paths = set(filter(lambda p: p not in paths, new_paths))
-        print(f"new repos: {new_paths}")
-        paths.update(new_paths)
-        with open(path_file, 'w') as f:
-            f.write(os.pathsep.join(paths))
-    return {os.path.basename(os.path.normpath(p)):p for p in paths}
-
-
 def f_add(args):
-    update_repos(args.repo)
+    utils.add_repos(args.repo)
 
 
 def f_ls(args):
-    repos = update_repos()
+    repos = utils.get_repos()
     if args.repo:
         print(repos[args.repo])
     else:
@@ -43,7 +17,7 @@ def f_ls(args):
 
 
 def f_rm(args):
-    repos = update_repos()
+    repos = utils.get_repos()
     del repos[args.repo]
     path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
     if os.path.exists(path_file):
@@ -52,7 +26,7 @@ def f_rm(args):
 
 
 def f_git_cmd(args):
-    repos = update_repos()
+    repos = utils.get_repos()
     if args.repo:
         repos = repos.fromkeys([args.repo], repos[args.repo])
     for path in repos.values():
@@ -65,7 +39,7 @@ def main(argv=None):
                                   help='additional help with sub-command -h')
 
     p_ls = subparsers.add_parser('ls', help='display all repos')
-    p_ls.add_argument('repo', nargs='?', choices=update_repos(),
+    p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),
             help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
@@ -74,23 +48,23 @@ def main(argv=None):
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', help='remove repository')
-    p_rm.add_argument('repo', choices=update_repos(),
+    p_rm.add_argument('repo', choices=utils.get_repos(),
             help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
     p_merge = subparsers.add_parser('merge', help='merge the remote updates')
-    p_merge.add_argument('repo', choices=update_repos(),
+    p_merge.add_argument('repo', choices=utils.get_repos(),
             help="merge the remote update for the chosen repo")
     p_merge.set_defaults(func=f_git_cmd, cmd='git merge @{u}')
 
     p_fetch = subparsers.add_parser('fetch',
             help='fetch the remote updates for all repos or one repo')
-    p_fetch.add_argument('repo', nargs='?', choices=update_repos(),
+    p_fetch.add_argument('repo', nargs='?', choices=utils.get_repos(),
             help="fetch the remote update for the chosen repo")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
 
     p_push = subparsers.add_parser('push', help='push the local updates')
-    p_push.add_argument('repo', choices=update_repos(),
+    p_push.add_argument('repo', choices=utils.get_repos(),
             help="push the local update to remote for the chosen repo")
     p_push.set_defaults(func=f_git_cmd, cmd='git push')
 
@@ -99,8 +73,8 @@ def main(argv=None):
     if 'func' in args:
         args.func(args)
     else:
-        p.print_help()
+        p.print_help()  # pragma: no cover
 
 
 if __name__ == '__main__':
-    main()
+    main()  # pragma: no cover

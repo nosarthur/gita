@@ -1,5 +1,6 @@
 import os
 import subprocess
+from functools import lru_cache
 
 
 class Color:
@@ -11,8 +12,38 @@ class Color:
     end = '\x1b[0m'
 
 
+@lru_cache()
+def get_repos():
+    """
+    :rtype: `dict` of repo name to repo absolute path
+    """
+    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
+    if os.path.exists(path_file):
+        with open(path_file) as f:
+            paths = set(f.read().splitlines()[0].split(os.pathsep))
+    else:
+        paths = set()
+    return {os.path.basename(os.path.normpath(p)):p for p in paths}
+
+
+def is_git(path):
+    return os.path.isdir(os.path.join(path, '.git'))
+
+
+def add_repos(new_paths):
+    repos = get_repos()
+    paths = set(repos.values())
+    new_paths = [os.path.abspath(p) for p in new_paths if is_git(p)]
+    new_paths = set(filter(lambda p: p not in paths, new_paths))
+    print(f"new repos: {new_paths}")
+    paths.update(new_paths)
+    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
+    with open(path_file, 'w') as f:
+        f.write(os.pathsep.join(paths))
+
+
 def get_head(path):
-    head = os.path.join(path, '.git/HEAD')
+    head = os.path.join(path, '.git', 'HEAD')
     with open(head) as f:
         return os.path.basename(f.read()).rstrip()
 
@@ -32,19 +63,23 @@ def get_commit_msg():
     result = subprocess.run(
         'git show -s --format=%s'.split(),
         stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         universal_newlines=True)
+    if result.stderr:
+        print(f'ERROR in getting commit message: {result.stderr}')
     return result.stdout
 
 
 def exec_git(path, cmd):
     """
+    Execute `cmd` in the `path` directory
     """
     os.chdir(path)
     if has_remote():
         os.system(cmd)
 
 
-def get_repo_status(path):
+def _get_repo_status(path):
     """
     :param path: path to the repo
 
@@ -80,6 +115,6 @@ def describe(repos):
     output = ''
     for name, path in repos.items():
         head = get_head(path)
-        dirty, staged, color = get_repo_status(path)
+        dirty, staged, color = _get_repo_status(path)
         output += f'{name:<18}{color}{head+" "+dirty+staged:<10}{Color.end} {get_commit_msg()}'
     return output

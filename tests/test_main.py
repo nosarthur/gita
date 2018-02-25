@@ -5,7 +5,7 @@ from gita import utils
 
 
 def test_ls(monkeypatch, capfd):
-    monkeypatch.setattr(__main__, 'update_repos',
+    monkeypatch.setattr(utils, 'get_repos',
             lambda: {'repo1':'/a/', 'repo2':'/b/'})
     monkeypatch.setattr(utils, 'describe', lambda x: x)
     __main__.main(['ls'])
@@ -17,7 +17,7 @@ def test_ls(monkeypatch, capfd):
 
 
 def test_rm(monkeypatch):
-    monkeypatch.setattr(__main__, 'update_repos',
+    monkeypatch.setattr(utils, 'get_repos',
             lambda: {'repo1':'/a/', 'repo2':'/b/'})
     monkeypatch.setattr('os.path.exists', lambda x: False)  # bypass the fwrite
     __main__.main(['rm', 'repo1'])
@@ -28,13 +28,9 @@ def test_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-def test_update_repos():
-    pass
-
-
 @patch('gita.utils.has_remote', return_value=True)
 @patch(
-    'gita.__main__.update_repos',
+    'gita.utils.get_repos',
     return_value={
         'repo1': '/a/bc',
         'repo2': '/d/efg'
