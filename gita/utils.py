@@ -56,7 +56,7 @@ def has_remote():
     Return `True` if remote branch exists. It should be run inside the repo
     """
     result = subprocess.run(
-        ['git', 'checkout'], stdout=subprocess.PIPE, universal_newlines=True)
+        ['git', 'remote'], stdout=subprocess.PIPE, universal_newlines=True)
     return bool(result.stdout)
 
 
