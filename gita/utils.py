@@ -12,26 +12,36 @@ class Color:
     end = '\x1b[0m'
 
 
+def get_path_fname():
+    """
+    """
+    return os.path.join(os.path.expanduser('~'), '.gita_path')
+
+
 @lru_cache()
 def get_repos():
     """
     :rtype: `dict` of repo name to repo absolute path
     """
-    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
+    path_file = get_path_fname()
     if os.path.exists(path_file):
         with open(path_file) as f:
             paths = set(f.read().splitlines()[0].split(os.pathsep))
     else:
         paths = set()
-    return {os.path.basename(os.path.normpath(p)):p for p in paths}
+    return {os.path.basename(os.path.normpath(p)): p for p in paths}
 
 
 def is_git(path):
+    """
+    :type path: `str`
+    """
     return os.path.isdir(os.path.join(path, '.git'))
 
 
 def add_repos(new_paths):
     """
+    :type new_paths: `list` of `str`
     Write new repo paths to file
     """
     paths = set(get_repos().values())
@@ -40,9 +50,8 @@ def add_repos(new_paths):
     if new_paths:
         print(f"new repos: {new_paths}")
         paths.update(new_paths)
-        path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
-        with open(path_file, 'w') as f:
-            f.write(os.pathsep.join(paths))
+        with open(get_path_fname(), 'w') as f:
+            f.write(os.pathsep.join(sorted(paths)))
 
 
 def get_head(path):
@@ -100,11 +109,11 @@ def _get_repo_status(path):
                 diverged = os.system(
                     'git diff --quiet @{0} `git merge-base @{0} @{u}`')
                 color = Color.red if diverged else Color.yellow
-            else:
+            else:  # local is ahead of remote
                 color = Color.purple
         else:  # remote == local
             color = Color.green
-    else:
+    else:  # no remote
         color = Color.white
     return dirty, staged, color
 

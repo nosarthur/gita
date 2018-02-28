@@ -1,4 +1,5 @@
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
+import argparse
 
 from gita import __main__
 from gita import utils
@@ -16,14 +17,20 @@ def test_ls(monkeypatch, capfd):
     assert out == '/a/\n'
 
 
-def test_rm(monkeypatch):
-    monkeypatch.setattr(utils, 'get_repos',
-            lambda: {'repo1':'/a/', 'repo2':'/b/'})
-    monkeypatch.setattr('os.path.exists', lambda x: False)  # bypass the fwrite
-    __main__.main(['rm', 'repo1'])
+@patch('os.path.exists', return_value=True)
+@patch('gita.utils.get_path_fname', return_value='some path')
+@patch('gita.utils.get_repos', return_value={'repo1':'/a/', 'repo2':'/b/'})
+def test_rm(*_):
+    args = argparse.Namespace()
+    args.repo = 'repo1'
+    with patch('builtins.open', mock_open()) as mock_file:
+        __main__.f_rm(args)
+    mock_file.assert_called_with('some path', 'w')
+    handle = mock_file()
+    handle.write.assert_called_once_with('/b/')
 
 
-def test_add():
+def test_not_add():
     # this won't write to disk because the repo is not valid
     __main__.main(['add', '/home/some/repo/'])
 

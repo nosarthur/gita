@@ -17,17 +17,20 @@ def f_ls(args):
 
 
 def f_rm(args):
-    repos = utils.get_repos()
-    del repos[args.repo]
-    path_file = os.path.join(os.path.expanduser('~'), '.gita_path')
+    path_file = utils.get_path_fname()
     if os.path.exists(path_file):
+        repos = utils.get_repos()
+        del repos[args.repo]
         with open(path_file, 'w') as f:
             f.write(os.pathsep.join(repos.values()))
 
 
 def f_git_cmd(args):
+    """
+    Delegate git command
+    """
     repos = utils.get_repos()
-    if args.repo:
+    if args.repo:  # with a user specified repo
         repos = repos.fromkeys([args.repo], repos[args.repo])
     for path in repos.values():
         utils.exec_git(path, args.cmd)

@@ -36,7 +36,7 @@ The repo paths are saved in `~/.gita_path`
 
 ## installation
 
-Download the source and run `pip3 install -e <gita source folder>`.
+Download the source code and run `pip3 install -e <gita source folder>`.
 
 I also put the following line in my .bashrc
 ```
