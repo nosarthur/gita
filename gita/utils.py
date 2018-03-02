@@ -65,8 +65,8 @@ def has_remote():
     Return `True` if remote branch exists. It should be run inside the repo
     """
     result = subprocess.run(
-        ['git', 'remote'], stdout=subprocess.PIPE, universal_newlines=True)
-    return bool(result.stdout)
+        'git diff --quiet @{u} @{0}'.split(), stderr=subprocess.PIPE)
+    return not bool(result.stderr)
 
 
 def get_commit_msg():
