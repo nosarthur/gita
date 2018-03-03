@@ -50,3 +50,8 @@ def test_fetch(mock_sys, mock_chdir, *_):
     mock_chdir.assert_any_call('/d/efg')
     mock_sys.assert_any_call('git fetch')
     assert mock_sys.call_count == 2
+
+
+def test_merge():
+    pass
+

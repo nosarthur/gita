@@ -30,8 +30,8 @@ def f_git_cmd(args):
     Delegate git command
     """
     repos = utils.get_repos()
-    if args.repo:  # with a user specified repo
-        repos = repos.fromkeys([args.repo], repos[args.repo])
+    if args.repo:  # with user specified repo(s)
+        repos = {k: repos[k] for k in args.repo}
     for path in repos.values():
         utils.exec_git(path, args.cmd)
 
@@ -46,29 +46,29 @@ def main(argv=None):
             help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
-    p_add = subparsers.add_parser('add', help='add repositories')
-    p_add.add_argument('repo', nargs='+', help="add repositories")
+    p_add = subparsers.add_parser('add', help='add repo(s)')
+    p_add.add_argument('repo', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
 
-    p_rm = subparsers.add_parser('rm', help='remove repository')
+    p_rm = subparsers.add_parser('rm', help='remove repo')
     p_rm.add_argument('repo', choices=utils.get_repos(),
             help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
-    p_merge = subparsers.add_parser('merge', help='merge the remote updates')
-    p_merge.add_argument('repo', choices=utils.get_repos(),
-            help="merge the remote update for the chosen repo")
-    p_merge.set_defaults(func=f_git_cmd, cmd='git merge @{u}')
-
     p_fetch = subparsers.add_parser('fetch',
-            help='fetch the remote updates for all repos or one repo')
-    p_fetch.add_argument('repo', nargs='?', choices=utils.get_repos(),
-            help="fetch the remote update for the chosen repo")
+            help='fetch remote updates for all repos or the chosen repo(s)')
+    p_fetch.add_argument('repo', nargs='*', choices=utils.get_choices(),
+            help="fetch remote update for the chosen repo(s)")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
 
+    p_merge = subparsers.add_parser('merge', help='merge remote updates')
+    p_merge.add_argument('repo', nargs='+', choices=utils.get_repos(),
+            help="merge remote update for the chosen repo(s)")
+    p_merge.set_defaults(func=f_git_cmd, cmd='git merge @{u}')
+
     p_push = subparsers.add_parser('push', help='push the local updates')
-    p_push.add_argument('repo', choices=utils.get_repos(),
-            help="push the local update to remote for the chosen repo")
+    p_push.add_argument('repo', nargs='+', choices=utils.get_repos(),
+            help="push the local update to remote for the chosen repo(s)")
     p_push.set_defaults(func=f_git_cmd, cmd='git push')
 
     args = p.parse_args(argv)

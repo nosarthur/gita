@@ -28,9 +28,9 @@ The supported commands are
 * `gita ls`: display the status of all repos
 * `gita ls <repo-name>`: display the absolute path of the specified repo
 * `gita fetch`: fetch all remote updates
-* `gita fetch <repo-name>`: fetch remote updates for the specified repo
-* `gita merge <repo-name>`: merge remote updates for the specified repo
-* `gita push <repo-name>`: push local updates of the specified repo to remote
+* `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
+* `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
+* `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
 
 The repo paths are saved in `~/.gita_path`
 

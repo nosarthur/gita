@@ -32,6 +32,18 @@ def get_repos():
     return {os.path.basename(os.path.normpath(p)): p for p in paths}
 
 
+def get_choices():
+    """
+    Return all repo names and an empty list. This is a workaround of argparse's
+    problem with coexisting nargs='*' and choices
+
+    :rtype: `list`
+    """
+    repos = list(get_repos())
+    repos.append([])
+    return repos
+
+
 def is_git(path):
     """
     :type path: `str`
