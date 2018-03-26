@@ -60,10 +60,12 @@ def add_repos(new_paths):
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
     new_paths = new_paths - paths
     if new_paths:
-        print(f"new repos: {new_paths}")
+        print(f"Found {len(new_paths)} new repo(s): {new_paths}.")
         paths.update(new_paths)
         with open(get_path_fname(), 'w') as f:
             f.write(os.pathsep.join(sorted(paths)))
+    else:
+        print('No new repos found!')
 
 
 def get_head(path):
