@@ -90,7 +90,8 @@ def get_commit_msg():
         stderr=subprocess.PIPE,
         universal_newlines=True)
     if result.stderr:
-        print(f'ERROR in getting commit message: {result.stderr}')
+        # no commit yet
+        return '\n'
     return result.stdout
 
 
