@@ -28,8 +28,9 @@ def test_describe(test_input, has_remote, expected, monkeypatch):
     assert expected == utils.describe(test_input)
 
 
+@patch('gita.utils.is_git', return_value=True)
 @patch('os.path.join', return_value=PATH_FNAME)
-def test_get_repos(_):
+def test_get_repos(*_):
     utils.get_repos.cache_clear()
     repos = utils.get_repos()
     assert repos == {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2'}

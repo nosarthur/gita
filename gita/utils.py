@@ -29,7 +29,7 @@ def get_repos():
             paths = set(f.read().splitlines()[0].split(os.pathsep))
     else:
         paths = set()
-    return {os.path.basename(os.path.normpath(p)): p for p in paths}
+    return {os.path.basename(os.path.normpath(p)): p for p in paths if is_git(p)}
 
 
 def get_choices():
