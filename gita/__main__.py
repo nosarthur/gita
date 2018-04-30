@@ -61,6 +61,11 @@ def main(argv=None):
             help="fetch remote update for the chosen repo(s)")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
 
+    p_pull = subparsers.add_parser('pull', help='pull remote updates')
+    p_pull.add_argument('repo', nargs='+', choices=utils.get_repos(),
+            help="pull remote update for the chosen repo(s)")
+    p_pull.set_defaults(func=f_git_cmd, cmd='git pull')
+
     p_merge = subparsers.add_parser('merge', help='merge remote updates')
     p_merge.add_argument('repo', nargs='+', choices=utils.get_repos(),
             help="merge remote update for the chosen repo(s)")
