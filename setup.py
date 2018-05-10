@@ -1,11 +1,19 @@
 from setuptools import setup
 
+long_description = None
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
     name='gita',
-    version='0.4',
-    description='Manage multiple git repos',
     packages=['gita',],
-    url='https://github.com/nosarthur/gita.git',
+    version='0.4.1',
+    description='Manage multiple git repos',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/nosarthur/gita',
+    download_url='https://github.com/nosarthur/gita/archive/v0.4.tar.gz',
+    keywords=['git', 'manage multiple repositories'],
     author='Dong Zhou',
     author_email='zhou.dong@gmail.com',
     license='MIT',
