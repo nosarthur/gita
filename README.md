@@ -44,10 +44,12 @@ pip3 install gita
 ```
 
 Alternatively, you can download the source code and run `pip3 install -e <gita source folder>`.
-I also put the following line in my .bashrc file
+This is known as the development mode.
+In this case, calling `gita` in bash may not work, and you can put the following line in the .bashrc file
 ```
 alias gita="python3 -m gita"
 ```
 
 ## TODO
+* add versioning
 * auto-completion

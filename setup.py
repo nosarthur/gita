@@ -7,12 +7,11 @@ with open('README.md') as f:
 setup(
     name='gita',
     packages=['gita',],
-    version='0.4.1',
+    version='0.4.2',
     description='Manage multiple git repos',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/nosarthur/gita',
-    download_url='https://github.com/nosarthur/gita/archive/v0.4.tar.gz',
     keywords=['git', 'manage multiple repositories'],
     author='Dong Zhou',
     author_email='zhou.dong@gmail.com',
@@ -23,7 +22,6 @@ setup(
             ]
         },
     classifiers=[
-        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: MIT License",
