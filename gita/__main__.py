@@ -1,5 +1,6 @@
 import os
 import argparse
+import pkg_resources
 
 from . import utils
 
@@ -40,6 +41,9 @@ def main(argv=None):
     p = argparse.ArgumentParser(prog='gita')
     subparsers = p.add_subparsers(title='sub-commands',
                                   help='additional help with sub-command -h')
+
+    version = pkg_resources.require('gita')[0].version
+    p.add_argument('--version', action='version', version=f'%(prog)s {version}')
 
     p_ls = subparsers.add_parser('ls', help='display all repos')
     p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),

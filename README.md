@@ -51,5 +51,4 @@ alias gita="python3 -m gita"
 ```
 
 ## TODO
-* add versioning
 * auto-completion
