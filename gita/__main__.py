@@ -45,6 +45,7 @@ def main(argv=None):
     version = pkg_resources.require('gita')[0].version
     p.add_argument('--version', action='version', version=f'%(prog)s {version}')
 
+    # git related sub-commands
     p_ls = subparsers.add_parser('ls', help='display all repos')
     p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),
             help="show path of the chosen repo")
