@@ -10,7 +10,7 @@ def f_add(args):
 
 def f_ls(args):
     repos = utils.get_repos()
-    if args.repo:
+    if args.repo:  # one repo, show its path
         print(repos[args.repo])
     else:
         print(utils.describe(repos))

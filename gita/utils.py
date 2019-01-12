@@ -140,7 +140,8 @@ def describe(repos):
     :rtype: `str`
     """
     output = ''
-    for name, path in repos.items():
+    for name in sorted(repos):
+        path = repos[name]
         head = get_head(path)
         dirty, staged, color = _get_repo_status(path)
         output += f'{name:<18}{color}{head+" "+dirty+staged:<10}{Color.end} {get_commit_msg()}'
