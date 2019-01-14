@@ -1,5 +1,5 @@
 import os
-from subprocess import run, PIPE
+import subprocess
 from functools import lru_cache
 from typing import List, Dict, Tuple
 
@@ -73,14 +73,14 @@ def has_remote() -> bool:
     """
     Return `True` if remote branch exists. It should be run inside the repo
     """
-    result = run('git diff --quiet @{u} @{0}', stderr=PIPE, shell=True)
+    result = subprocess.run('git diff --quiet @{u} @{0}', stderr=subprocess.PIPE, shell=True)
     return not bool(result.stderr)
 
 
 def get_commit_msg() -> str:
     """
     """
-    result = run('git show -s --format=%s', stdout=PIPE, stderr=PIPE, shell=True,
+    result = subprocess.run('git show -s --format=%s', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
                  universal_newlines=True)
     if result.stderr:  # no commit yet
         return '\n'
@@ -93,7 +93,7 @@ def exec_git(path: str, cmd: str):
     """
     os.chdir(path)
     if has_remote():
-        run(cmd, shell=True)
+        subprocess.run(cmd, shell=True)
 
 
 def _get_repo_status(path: str) -> Tuple[str]:
@@ -101,17 +101,17 @@ def _get_repo_status(path: str) -> Tuple[str]:
     Return repo status
     """
     os.chdir(path)
-    dirty = '*' if run('git diff --quiet', shell=True).returncode else ''
-    staged = '+' if run('git diff --cached --quiet', shell=True).returncode else ''
+    dirty = '*' if subprocess.run('git diff --quiet', shell=True).returncode else ''
+    staged = '+' if subprocess.run('git diff --cached --quiet', shell=True).returncode else ''
 
     if has_remote():
-        if run('git diff --quiet @{u} @{0}', shell=True).returncode:
-            merge_base = str(run('git merge-base @{0} @{u}',
-                            stdout=PIPE, shell=True).stdout)
-            outdated = run('git diff --quiet @{u}' + merge_base,
+        if subprocess.run('git diff --quiet @{u} @{0}', shell=True).returncode:
+            merge_base = str(subprocess.run('git merge-base @{0} @{u}',
+                            stdout=subprocess.PIPE, shell=True).stdout)
+            outdated = subprocess.run('git diff --quiet @{u}' + merge_base,
                            shell=True).returncode
             if outdated:
-                diverged = run('git diff --quiet @{0}' + merge_base,
+                diverged = subprocess.run('git diff --quiet @{0}' + merge_base,
                                shell=True).returncode
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
