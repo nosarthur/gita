@@ -1,25 +1,26 @@
 import os
-import subprocess
+from subprocess import run, PIPE
 from functools import lru_cache
+from typing import List, Dict, Tuple
 
 
 class Color:
-    red = '\x1b[31m'  # local diverges
+    red = '\x1b[31m'  # local diverges from remote
     green = '\x1b[32m'  # local == remote
     yellow = '\x1b[33m'  # local is behind
     purple = '\x1b[35m'  # local is ahead
-    white = '\x1b[37m'  # no remote
+    white = '\x1b[37m'  # no remote branch
     end = '\x1b[0m'
 
 
-def get_path_fname():
+def get_path_fname() -> str:
     """
     """
     return os.path.join(os.path.expanduser('~'), '.gita_path')
 
 
 @lru_cache()
-def get_repos():
+def get_repos() -> Dict[str, str]:
     """
     :rtype: `dict` of repo name to repo absolute path
     """
@@ -32,28 +33,22 @@ def get_repos():
     return {os.path.basename(os.path.normpath(p)): p for p in paths if is_git(p)}
 
 
-def get_choices():
+def get_choices() -> List[str]:
     """
-    Return all repo names and an empty list. This is a workaround of argparse's
-    problem with coexisting nargs='*' and choices
-
-    :rtype: `list`
+    Return all repo names and an additional empty list. This is a workaround of
+    argparse's problem with coexisting nargs='*' and choices
     """
     repos = list(get_repos())
     repos.append([])
     return repos
 
 
-def is_git(path):
-    """
-    :type path: `str`
-    """
+def is_git(path: str) -> bool:
     return os.path.isdir(os.path.join(path, '.git'))
 
 
-def add_repos(new_paths):
+def add_repos(new_paths: List[str]):
     """
-    :type new_paths: `list` of `str`
     Write new repo paths to file
     """
     paths = set(get_repos().values())
@@ -68,61 +63,56 @@ def add_repos(new_paths):
         print('No new repos found!')
 
 
-def get_head(path):
+def get_head(path: str) -> str:
     head = os.path.join(path, '.git', 'HEAD')
     with open(head) as f:
         return os.path.basename(f.read()).rstrip()
 
 
-def has_remote():
+def has_remote() -> bool:
     """
     Return `True` if remote branch exists. It should be run inside the repo
     """
-    result = subprocess.run(
-        'git diff --quiet @{u} @{0}'.split(), stderr=subprocess.PIPE)
+    result = run('git diff --quiet @{u} @{0}', stderr=PIPE, shell=True)
     return not bool(result.stderr)
 
 
-def get_commit_msg():
+def get_commit_msg() -> str:
     """
     """
-    result = subprocess.run(
-        'git show -s --format=%s'.split(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
-    if result.stderr:
-        # no commit yet
+    result = run('git show -s --format=%s', stdout=PIPE, stderr=PIPE, shell=True,
+                 universal_newlines=True)
+    if result.stderr:  # no commit yet
         return '\n'
     return result.stdout
 
 
-def exec_git(path, cmd):
+def exec_git(path: str, cmd: str):
     """
     Execute `cmd` in the `path` directory
     """
     os.chdir(path)
     if has_remote():
-        os.system(cmd)
+        run(cmd, shell=True)
 
 
-def _get_repo_status(path):
+def _get_repo_status(path: str) -> Tuple[str]:
     """
-    :param path: path to the repo
-
-    :return: status of the repo
+    Return repo status
     """
     os.chdir(path)
-    dirty = '*' if os.system('git diff --quiet') else ''
-    staged = '+' if os.system('git diff --cached --quiet') else ''
+    dirty = '*' if run('git diff --quiet', shell=True).returncode else ''
+    staged = '+' if run('git diff --cached --quiet', shell=True).returncode else ''
 
     if has_remote():
-        if os.system('git diff --quiet @{u} @{0}'):
-            outdated = os.system(
-                'git diff --quiet @{u} `git merge-base @{0} @{u}`')
+        if run('git diff --quiet @{u} @{0}', shell=True).returncode:
+            merge_base = str(run('git merge-base @{0} @{u}',
+                            stdout=PIPE, shell=True).stdout)
+            outdated = run('git diff --quiet @{u}' + merge_base,
+                           shell=True).returncode
             if outdated:
-                diverged = os.system(
-                    'git diff --quiet @{0} `git merge-base @{0} @{u}`')
+                diverged = run('git diff --quiet @{0}' + merge_base,
+                               shell=True).returncode
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
                 color = Color.purple
@@ -133,11 +123,9 @@ def _get_repo_status(path):
     return dirty, staged, color
 
 
-def describe(repos):
+def describe(repos: Dict[str, str]) -> str:
     """
-    :type repos: `dict` of repo name to repo absolute path
-
-    :rtype: `str`
+    Return the status of all repos
     """
     output = ''
     for name in sorted(repos):
