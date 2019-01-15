@@ -43,14 +43,15 @@ def test_not_add():
         'repo2': '/d/efg'
     })
 @patch('os.chdir')
-@patch('subprocess.run')
-def test_fetch(mock_run, mock_chdir, *_):
+@patch('os.system')
+def test_fetch(mock_sys, mock_chdir, *_):
     __main__.main(['fetch'])
     mock_chdir.assert_any_call('/a/bc')
     mock_chdir.assert_any_call('/d/efg')
-    assert mock_run.call_count == 2
-    mock_run.assert_any_call('git fetch', shell=True)
+    mock_sys.assert_any_call('git fetch')
+    assert mock_sys.call_count == 2
 
 
 def test_merge():
     pass
+

@@ -22,7 +22,7 @@ def get_path_fname() -> str:
 @lru_cache()
 def get_repos() -> Dict[str, str]:
     """
-    :rtype: `dict` of repo name to repo absolute path
+    Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
     if os.path.exists(path_file):
@@ -36,7 +36,7 @@ def get_repos() -> Dict[str, str]:
 def get_choices() -> List[str]:
     """
     Return all repo names and an additional empty list. This is a workaround of
-    argparse's problem with coexisting nargs='*' and choices
+    argparse's problem with coexisting nargs='*' and choices.
     """
     repos = list(get_repos())
     repos.append([])
@@ -44,6 +44,9 @@ def get_choices() -> List[str]:
 
 
 def is_git(path: str) -> bool:
+    """
+    Return True if the path hosts a git repo
+    """
     return os.path.isdir(os.path.join(path, '.git'))
 
 
@@ -71,17 +74,21 @@ def get_head(path: str) -> str:
 
 def has_remote() -> bool:
     """
-    Return `True` if remote branch exists. It should be run inside the repo
+    Return True if remote branch exists. It should be run inside the repo.
     """
-    result = subprocess.run('git diff --quiet @{u} @{0}', stderr=subprocess.PIPE, shell=True)
+    result = subprocess.run(
+        'git diff --quiet @{u} @{0}'.split(), stderr=subprocess.PIPE)
     return not bool(result.stderr)
 
 
 def get_commit_msg() -> str:
     """
     """
-    result = subprocess.run('git show -s --format=%s', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
-                 universal_newlines=True)
+    result = subprocess.run(
+        'git show -s --format=%s'.split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
     if result.stderr:  # no commit yet
         return '\n'
     return result.stdout
@@ -93,26 +100,23 @@ def exec_git(path: str, cmd: str):
     """
     os.chdir(path)
     if has_remote():
-        subprocess.run(cmd, shell=True)
+        os.system(cmd)
 
 
 def _get_repo_status(path: str) -> Tuple[str]:
     """
-    Return repo status
     """
     os.chdir(path)
-    dirty = '*' if subprocess.run('git diff --quiet', shell=True).returncode else ''
-    staged = '+' if subprocess.run('git diff --cached --quiet', shell=True).returncode else ''
+    dirty = '*' if os.system('git diff --quiet') else ''
+    staged = '+' if os.system('git diff --cached --quiet') else ''
 
     if has_remote():
-        if subprocess.run('git diff --quiet @{u} @{0}', shell=True).returncode:
-            merge_base = str(subprocess.run('git merge-base @{0} @{u}',
-                            stdout=subprocess.PIPE, shell=True).stdout)
-            outdated = subprocess.run('git diff --quiet @{u}' + merge_base,
-                           shell=True).returncode
+        if os.system('git diff --quiet @{u} @{0}'):
+            outdated = os.system(
+                'git diff --quiet @{u} `git merge-base @{0} @{u}`')
             if outdated:
-                diverged = subprocess.run('git diff --quiet @{0}' + merge_base,
-                               shell=True).returncode
+                diverged = os.system(
+                    'git diff --quiet @{0} `git merge-base @{0} @{u}`')
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
                 color = Color.purple
