@@ -81,6 +81,13 @@ def has_remote() -> bool:
     return not bool(result.stderr)
 
 
+def has_untracked() -> bool:
+    result = subprocess.run(
+        'git ls-files -zo --exclude-standard'.split(),
+        stdout=subprocess.PIPE)
+    return bool(result.stdout)
+
+
 def get_commit_msg() -> str:
     """
     """
@@ -109,6 +116,7 @@ def _get_repo_status(path: str) -> Tuple[str]:
     os.chdir(path)
     dirty = '*' if os.system('git diff --quiet') else ''
     staged = '+' if os.system('git diff --cached --quiet') else ''
+    untracked = '_' if has_untracked() else ''
 
     if has_remote():
         if os.system('git diff --quiet @{u} @{0}'):
@@ -124,7 +132,7 @@ def _get_repo_status(path: str) -> Tuple[str]:
             color = Color.green
     else:  # no remote
         color = Color.white
-    return dirty, staged, color
+    return dirty, staged, untracked, color
 
 
 def describe(repos: Dict[str, str]) -> str:
@@ -135,6 +143,6 @@ def describe(repos: Dict[str, str]) -> str:
     for name in sorted(repos):
         path = repos[name]
         head = get_head(path)
-        dirty, staged, color = _get_repo_status(path)
-        output += f'{name:<18}{color}{head+" "+dirty+staged:<10}{Color.end} {get_commit_msg()}'
+        dirty, staged, untracked, color = _get_repo_status(path)
+        output += f'{name:<18}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
     return output

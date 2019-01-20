@@ -27,6 +27,7 @@ The additional status symbols have the following meaning:
 
 * `+`: staged change exists
 * `*`: unstaged change exists
+* `_`: untracked files/directories exist
 
 The supported sub-commands for git delegation are
 
