@@ -5,16 +5,20 @@ from typing import List, Dict, Tuple
 
 
 class Color:
-    red = '\x1b[31m'  # local diverges from remote
+    """
+    Terminal color
+    """
+    red = '\x1b[31m'    # local diverges from remote
     green = '\x1b[32m'  # local == remote
-    yellow = '\x1b[33m'  # local is behind
-    purple = '\x1b[35m'  # local is ahead
+    yellow = '\x1b[33m' # local is behind
+    purple = '\x1b[35m' # local is ahead
     white = '\x1b[37m'  # no remote branch
     end = '\x1b[0m'
 
 
 def get_path_fname() -> str:
     """
+    Return the file name that stores the repo locations.
     """
     return os.path.join(os.path.expanduser('~'), '.gita_path')
 
@@ -45,7 +49,7 @@ def get_choices() -> List[str]:
 
 def is_git(path: str) -> bool:
     """
-    Return True if the path hosts a git repo
+    Return True if the path is a git repo.
     """
     return os.path.isdir(os.path.join(path, '.git'))
 
@@ -54,14 +58,14 @@ def add_repos(new_paths: List[str]):
     """
     Write new repo paths to file
     """
-    paths = set(get_repos().values())
+    existing_paths = set(get_repos().values())
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
-    new_paths = new_paths - paths
+    new_paths = new_paths - existing_paths
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s): {new_paths}.")
-        paths.update(new_paths)
+        existing_paths.update(new_paths)
         with open(get_path_fname(), 'w') as f:
-            f.write(os.pathsep.join(sorted(paths)))
+            f.write(os.pathsep.join(sorted(existing_paths)))
     else:
         print('No new repos found!')
 
@@ -82,6 +86,9 @@ def has_remote() -> bool:
 
 
 def has_untracked() -> bool:
+    """
+    Return True if untracked file/folder exists
+    """
     result = subprocess.run(
         'git ls-files -zo --exclude-standard'.split(),
         stdout=subprocess.PIPE)
@@ -90,6 +97,7 @@ def has_untracked() -> bool:
 
 def get_commit_msg() -> str:
     """
+    Return the last commit message.
     """
     result = subprocess.run(
         'git show -s --format=%s'.split(),
@@ -110,8 +118,20 @@ def exec_git(path: str, cmd: str):
         os.system(cmd)
 
 
+def get_common_commit() -> str:
+    """
+    Return the hash of the common commit of the local and upstream branches.
+    """
+    result = subprocess.run(
+        'git merge-base @{0} @{u}'.split(),
+        stdout=subprocess.PIPE,
+        universal_newlines=True)
+    return result.stdout
+
+
 def _get_repo_status(path: str) -> Tuple[str]:
     """
+    Return the status of one repo
     """
     os.chdir(path)
     dirty = '*' if os.system('git diff --quiet') else ''
@@ -120,11 +140,12 @@ def _get_repo_status(path: str) -> Tuple[str]:
 
     if has_remote():
         if os.system('git diff --quiet @{u} @{0}'):
+            common_commit = get_common_commit()
             outdated = os.system(
-                'git diff --quiet @{u} `git merge-base @{0} @{u}`')
+                'git diff --quiet @{u} ' + common_commit)
             if outdated:
                 diverged = os.system(
-                    'git diff --quiet @{0} `git merge-base @{0} @{u}`')
+                    'git diff --quiet @{0} ' + common_commit)
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
                 color = Color.purple
