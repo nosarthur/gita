@@ -14,7 +14,8 @@ def f_ls(args):
     if args.repo:  # one repo, show its path
         print(repos[args.repo])
     else:
-        print(utils.describe(repos))
+        for line in utils.describe(repos):
+            print(line, end='')
 
 
 def f_rm(args):

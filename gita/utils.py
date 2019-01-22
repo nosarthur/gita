@@ -160,10 +160,8 @@ def describe(repos: Dict[str, str]) -> str:
     """
     Return the status of all repos
     """
-    output = ''
     for name in sorted(repos):
         path = repos[name]
         head = get_head(path)
         dirty, staged, untracked, color = _get_repo_status(path)
-        output += f'{name:<18}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
-    return output
+        yield f'{name:<18}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'

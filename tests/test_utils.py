@@ -25,8 +25,8 @@ def test_describe(test_input, has_remote, expected, monkeypatch):
     # Returns of os.system determine the repo status
     monkeypatch.setattr('os.system', lambda x: True)
     print('expected: ', repr(expected))
-    print('got:      ', repr(utils.describe(test_input)))
-    assert expected == utils.describe(test_input)
+    print('got:      ', repr(next(utils.describe(test_input))))
+    assert expected == next(utils.describe(test_input))
 
 
 @patch('gita.utils.is_git', return_value=True)

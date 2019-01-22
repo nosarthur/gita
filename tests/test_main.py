@@ -11,9 +11,11 @@ def test_ls(monkeypatch, capfd):
     monkeypatch.setattr(utils, 'describe', lambda x: x)
     __main__.main(['ls'])
     out, err = capfd.readouterr()
-    assert out == "{'repo1': '/a/', 'repo2': '/b/'}\n"
+    assert err == ''
+    assert out == "repo1repo2"
     __main__.main(['ls', 'repo1'])
     out, err = capfd.readouterr()
+    assert err == ''
     assert out == '/a/\n'
 
 
