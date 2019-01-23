@@ -4,10 +4,8 @@
 
 This tool does two things
 
-* display the status (branch, modification) of multiple git repos side by side
-* delegate git commands for registered repos
-
-See the following screenshot for example:
+* display the status of multiple git repos such as branch, modification, commit message side by side
+* delegate git commands for the repos
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
@@ -19,7 +17,7 @@ Here the colors denote the 5 situations between local and remote branches:
 * purple: the local branch is ahead of the remote branch (good for push).
 * yellow: the local branch is behind the remote branch (good for merge).
 
-The color choices of purple for ahead and yellow for behind is motivated by
+The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
 using green as baseline.
 
@@ -45,7 +43,7 @@ The repo paths are saved in `~/.gita_path`
 
 ## installation
 
-To install, simply use
+To install the latest version,
 
 ```
 pip3 install gita
