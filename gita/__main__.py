@@ -47,8 +47,7 @@ def main(argv=None):
     version = pkg_resources.require('gita')[0].version
     p.add_argument('--version', action='version', version=f'%(prog)s {version}')
 
-    # git sub-commands
-
+    # delegate git sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
     p_add.add_argument('repo', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
@@ -78,8 +77,10 @@ def main(argv=None):
         help = data['help']
         cmd = data['cmd'] if 'cmd' in data else name
         sp = subparsers.add_parser(name, help=help)
-        sp.add_argument('repo', nargs='+', choices=utils.get_repos(),
-            help=help + 'of the chosen repo(s)')
+        sp.add_argument('repo',
+                        nargs='+',
+                        choices=utils.get_repos(),
+                        help=help + 'of the chosen repo(s)')
         sp.set_defaults(func=f_git_cmd, cmd='git ' + cmd)
 
     args = p.parse_args(argv)

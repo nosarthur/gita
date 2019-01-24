@@ -7,7 +7,7 @@ with open('README.md') as f:
 setup(
     name='gita',
     packages=['gita',],
-    version='0.5.2',
+    version='0.5.5',
     description='Manage multiple git repos',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -23,7 +23,8 @@ setup(
         },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
         ],
+    include_package_data=True,
 )
