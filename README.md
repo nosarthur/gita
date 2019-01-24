@@ -38,6 +38,7 @@ The supported sub-commands for git delegation are
 * `gita pull <repo-name(s)>`: pull remote updates for the specified repo(s)
 * `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
 * `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
+* `gita status <repo-name(s)>`: show repo(s) status
 
 The repo paths are saved in `~/.gita_path`
 

@@ -47,19 +47,10 @@ def main(argv=None):
     p.add_argument('--version', action='version', version=f'%(prog)s {version}')
 
     # git related sub-commands
-    p_ls = subparsers.add_parser('ls', help='display all repos')
-    p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),
-            help="show path of the chosen repo")
-    p_ls.set_defaults(func=f_ls)
 
     p_add = subparsers.add_parser('add', help='add repo(s)')
     p_add.add_argument('repo', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
-
-    p_rm = subparsers.add_parser('rm', help='remove repo')
-    p_rm.add_argument('repo', choices=utils.get_repos(),
-            help="remove the chosen repo")
-    p_rm.set_defaults(func=f_rm)
 
     p_fetch = subparsers.add_parser('fetch',
             help='fetch remote updates for all repos or the chosen repo(s)')
@@ -67,20 +58,35 @@ def main(argv=None):
             help="fetch remote update for the chosen repo(s)")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
 
-    p_pull = subparsers.add_parser('pull', help='pull remote updates')
-    p_pull.add_argument('repo', nargs='+', choices=utils.get_repos(),
-            help="pull remote update for the chosen repo(s)")
-    p_pull.set_defaults(func=f_git_cmd, cmd='git pull')
+    p_ls = subparsers.add_parser('ls', help='display all repos')
+    p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),
+            help="show path of the chosen repo")
+    p_ls.set_defaults(func=f_ls)
 
     p_merge = subparsers.add_parser('merge', help='merge remote updates')
     p_merge.add_argument('repo', nargs='+', choices=utils.get_repos(),
             help="merge remote update for the chosen repo(s)")
     p_merge.set_defaults(func=f_git_cmd, cmd='git merge @{u}')
 
+    p_pull = subparsers.add_parser('pull', help='pull remote updates')
+    p_pull.add_argument('repo', nargs='+', choices=utils.get_repos(),
+            help="pull remote update for the chosen repo(s)")
+    p_pull.set_defaults(func=f_git_cmd, cmd='git pull')
+
     p_push = subparsers.add_parser('push', help='push the local updates')
     p_push.add_argument('repo', nargs='+', choices=utils.get_repos(),
             help="push the local update to remote for the chosen repo(s)")
     p_push.set_defaults(func=f_git_cmd, cmd='git push')
+
+    p_rm = subparsers.add_parser('rm', help='remove repo')
+    p_rm.add_argument('repo', choices=utils.get_repos(),
+            help="remove the chosen repo")
+    p_rm.set_defaults(func=f_rm)
+
+    p_status = subparsers.add_parser('status', help='show repo status')
+    p_status.add_argument('repo', nargs='+', choices=utils.get_repos(),
+            help="show status of the repo")
+    p_status.set_defaults(func=f_git_cmd, cmd='git status')
 
     args = p.parse_args(argv)
 
