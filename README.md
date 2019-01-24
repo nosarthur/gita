@@ -30,6 +30,8 @@ The additional status symbols have the following meaning:
 The supported sub-commands for git delegation are
 
 * `gita add <repo-path>`: add repo to `gita`
+* `gita branch <repo-name(s)>`: show local branches for the specified repo(s)
+* `gita clean <repo-name(s)>`: remove for the specified repo(s)
 * `gita difftool <repo-name(s)>`: show differences for the specified repo(s)
 * `gita fetch`: fetch all remote updates
 * `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
@@ -37,13 +39,16 @@ The supported sub-commands for git delegation are
 * `gita ls`: display the status of all repos
 * `gita ls <repo-name>`: display the absolute path of the specified repo
 * `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
+* `gita patch <repo-name(s)>`: make a patch for the specified repo(s)
 * `gita pull <repo-name(s)>`: pull remote updates for the specified repo(s)
 * `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
 * `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
+* `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
 * `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 * `gita status <repo-name(s)>`: show repo(s) status
 
-The repo paths are saved in `~/.gita_path`
+The git commands arguments can be found in [the cmd.yaml file](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).
+The repo paths are saved in `~/.gita_path`.
 
 ## installation
 

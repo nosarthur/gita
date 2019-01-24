@@ -52,6 +52,11 @@ def main(argv=None):
     p_add.add_argument('repo', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
 
+    p_rm = subparsers.add_parser('rm', help='remove repo')
+    p_rm.add_argument('repo', choices=utils.get_repos(),
+            help="remove the chosen repo")
+    p_rm.set_defaults(func=f_rm)
+
     p_fetch = subparsers.add_parser('fetch',
             help='fetch remote updates for all repos or the chosen repo(s)')
     p_fetch.add_argument('repo', nargs='*', choices=utils.get_choices(),
@@ -62,11 +67,6 @@ def main(argv=None):
     p_ls.add_argument('repo', nargs='?', choices=utils.get_repos(),
             help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
-
-    p_rm = subparsers.add_parser('rm', help='remove repo')
-    p_rm.add_argument('repo', choices=utils.get_repos(),
-            help="remove the chosen repo")
-    p_rm.set_defaults(func=f_rm)
 
     # sub-commands that fit boilerplate
     fname = os.path.join(os.path.dirname(__file__), "cmds.yaml")

@@ -1,3 +1,8 @@
+branch:
+  help: show local branches
+clean:
+  cmd: clean -dfx
+  help: remove all untracked files/folders
 difftool:
   help: show differences
 log:
@@ -5,10 +10,15 @@ log:
 merge:
   cmd: merge @{u}
   help: merge remote updates
+patch:
+  cmd: format-patch HEAD~
+  help: make a patch
 pull:
   help: pull remote updates
 push:
   help: push the local updates
+reflog:
+  help: show ref logs
 remote:
   cmd: remote -v
   help: show remote settings
