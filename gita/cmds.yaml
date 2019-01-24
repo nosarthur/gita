@@ -1,0 +1,13 @@
+difftool:
+  help: show differences
+log:
+  help: show logs
+merge:
+  cmd: merge @{u}
+  help: merge remote updates
+pull:
+  help: pull remote updates
+push:
+  help: push the local updates
+status:
+  help: show repo status
