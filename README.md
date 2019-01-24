@@ -39,6 +39,7 @@ The supported sub-commands for git delegation are
 * `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
 * `gita pull <repo-name(s)>`: pull remote updates for the specified repo(s)
 * `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
+* `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
 * `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 * `gita status <repo-name(s)>`: show repo(s) status
 

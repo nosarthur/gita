@@ -51,6 +51,8 @@ def is_git(path: str) -> bool:
     """
     Return True if the path is a git repo.
     """
+    # An alternative is to call `git rev-parse --is-inside-work-tree`
+    # I don't see why that one is better yet.
     return os.path.isdir(os.path.join(path, '.git'))
 
 
