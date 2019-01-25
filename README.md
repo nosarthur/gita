@@ -31,9 +31,9 @@ The supported sub-commands for git delegation are
 
 * `gita add <repo-path>`: add repo to `gita`
 * `gita branch <repo-name(s)>`: show local branches for the specified repo(s)
-* `gita clean <repo-name(s)>`: remove for the specified repo(s)
+* `gita clean <repo-name(s)>`: remove untracked files/folders for the specified repo(s)
 * `gita difftool <repo-name(s)>`: show differences for the specified repo(s)
-* `gita fetch`: fetch all remote updates
+* `gita fetch`: fetch remote updates for all repos
 * `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
 * `gita log <repo-name(s)>`: show log of the specified repo(s)
 * `gita ls`: display the status of all repos
@@ -47,7 +47,7 @@ The supported sub-commands for git delegation are
 * `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 * `gita status <repo-name(s)>`: show repo(s) status
 
-The git commands arguments can be found in [the cmd.yaml file](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).
+The git commands arguments can be found in the [cmd.yaml file](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).
 The repo paths are saved in `~/.gita_path`.
 
 ## installation
@@ -60,7 +60,7 @@ pip3 install gita
 
 Alternatively, you can download the source code and run `pip3 install -e <gita source folder>`.
 This is known as the development mode.
-In this case, calling `gita` in bash may not work, and you can put the following line in the `.bashrc` file
+In this case, calling `gita` in bash may not work, then you can put the following line in the `.bashrc` file
 ```
 alias gita="python3 -m gita"
 ```
