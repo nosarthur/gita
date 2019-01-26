@@ -45,6 +45,7 @@ The supported sub-commands for git delegation are
 * `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
 * `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
 * `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
+* `gita stat <repo-name(s)>`: show repo(s) edit statistics
 * `gita status <repo-name(s)>`: show repo(s) status
 
 The git commands arguments can be found in the [cmd.yaml file](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).

@@ -22,5 +22,8 @@ reflog:
 remote:
   cmd: remote -v
   help: show remote settings
+stat:
+  cmd: diff --stat
+  help: show edit statistics
 status:
-  help: show repo status
+  help: show status
