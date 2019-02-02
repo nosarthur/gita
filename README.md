@@ -6,7 +6,7 @@
 This tool does two things
 
 * display the status of multiple git repos such as branch, modification, commit message side by side
-* delegate git commands for the repos
+* delegate git commands for the repos from any working directory
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
@@ -24,45 +24,51 @@ using green as baseline.
 
 The additional status symbols have the following meaning:
 
-* `+`: staged change exists
-* `*`: unstaged change exists
-* `_`: untracked files/folders exist
+* `+`: staged changes
+* `*`: unstaged changes
+* `_`: untracked files/folders
 
-The supported sub-commands for git delegation are
+The bookkeeping sub-commands are
 
-* `gita add <repo-path>`: add repo to `gita`
+* `gita add <repo-path(s)>`: add repo(s) to `gita`
+* `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
+* `gita ls`: display the status of all repos
+* `gita ls <repo-name>`: display the absolute path of the specified repo
+
+The repo paths are saved in `~/.gita_path`.
+
+The delegated git sub-commands are
+
 * `gita branch <repo-name(s)>`: show local branches for the specified repo(s)
 * `gita clean <repo-name(s)>`: remove untracked files/folders for the specified repo(s)
 * `gita difftool <repo-name(s)>`: show differences for the specified repo(s)
 * `gita fetch`: fetch remote updates for all repos
 * `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
 * `gita log <repo-name(s)>`: show log of the specified repo(s)
-* `gita ls`: display the status of all repos
-* `gita ls <repo-name>`: display the absolute path of the specified repo
 * `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
 * `gita patch <repo-name(s)>`: make a patch for the specified repo(s)
 * `gita pull <repo-name(s)>`: pull remote updates for the specified repo(s)
 * `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
 * `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
 * `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
-* `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 * `gita stat <repo-name(s)>`: show repo(s) edit statistics
 * `gita status <repo-name(s)>`: show repo(s) status
 
-The git commands arguments can be found in the [cmd.yaml file](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).
-The repo paths are saved in `~/.gita_path`.
+The git commands arguments can be found in
+[cmd.yaml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yaml).
 
 ## installation
 
 To install the latest version,
 
 ```
-pip3 install gita
+pip3 install -U gita
 ```
 
-Alternatively, you can download the source code and run `pip3 install -e <gita source folder>`.
-This is known as the development mode.
-In this case, calling `gita` in bash may not work, then you can put the following line in the `.bashrc` file
+Alternatively, you can download the source code and run `pip3 install -e <gita source folder>`,
+i.e., the development mode.
+In either case, calling `gita` in bash may not work,
+then you can put the following line in the `.bashrc` file.
 ```
 alias gita="python3 -m gita"
 ```
