@@ -6,6 +6,7 @@ from gita import utils
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 PATH_FNAME = os.path.join(TEST_DIR, 'mock_path_file')
+PATH_FNAME_EMPTY = os.path.join(TEST_DIR, 'empty_path_file')
 
 
 @pytest.mark.parametrize('test_input, has_remote, expected', [
@@ -29,12 +30,19 @@ def test_describe(test_input, has_remote, expected, monkeypatch):
     assert expected == next(utils.describe(test_input))
 
 
-@patch('gita.utils.is_git', return_value=True)
-@patch('os.path.join', return_value=PATH_FNAME)
-def test_get_repos(*_):
-    utils.get_repos.cache_clear()
-    repos = utils.get_repos()
-    assert repos == {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2'}
+class TestGetRepos:
+    @patch('gita.utils.is_git', return_value=True)
+    @patch('os.path.join', return_value=PATH_FNAME)
+    def test(self, *_):
+        utils.get_repos.cache_clear()
+        repos = utils.get_repos()
+        assert repos == {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2'}
+
+    @patch('os.path.join', return_value=PATH_FNAME_EMPTY)
+    def testEmptyPath(self, *_):
+        utils.get_repos.cache_clear()
+        repos = utils.get_repos()
+        assert repos == {}
 
 
 @pytest.mark.parametrize(
