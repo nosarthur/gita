@@ -6,8 +6,8 @@ with open('README.md') as f:
 
 setup(
     name='gita',
-    packages=['gita',],
-    version='0.5.9',
+    packages=['gita'],
+    version='0.6.1',
     description='Manage multiple git repos',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -16,16 +16,12 @@ setup(
     author='Dong Zhou',
     author_email='zhou.dong@gmail.com',
     license='MIT',
-    entry_points={
-        'console_scripts':[
-            'gita = gita.__main__:main'
-            ]
-        },
+    entry_points={'console_scripts': ['gita = gita.__main__:main']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
-        ],
+    ],
     include_package_data=True,
 )
