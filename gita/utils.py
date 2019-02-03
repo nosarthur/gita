@@ -29,12 +29,10 @@ def get_repos() -> Dict[str, str]:
     Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
-    if os.path.isfile(path_file):
+    paths = set()
+    if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            # FIXME: empty path file causes traceback
             paths = set(f.read().splitlines()[0].split(os.pathsep))
-    else:
-        paths = set()
     return {
         os.path.basename(os.path.normpath(p)): p
         for p in paths if is_git(p)
