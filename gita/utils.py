@@ -8,10 +8,10 @@ class Color:
     """
     Terminal color
     """
-    red = '\x1b[31m'    # local diverges from remote
+    red = '\x1b[31m'  # local diverges from remote
     green = '\x1b[32m'  # local == remote
-    yellow = '\x1b[33m' # local is behind
-    purple = '\x1b[35m' # local is ahead
+    yellow = '\x1b[33m'  # local is behind
+    purple = '\x1b[35m'  # local is ahead
     white = '\x1b[37m'  # no remote branch
     end = '\x1b[0m'
 
@@ -20,7 +20,7 @@ def get_path_fname() -> str:
     """
     Return the file name that stores the repo locations.
     """
-    return os.path.join(os.path.expanduser('~'), '.gita_path')
+    return os.path.join(os.path.expanduser('~'), '.gita', 'repo_path')
 
 
 @lru_cache()
@@ -29,12 +29,16 @@ def get_repos() -> Dict[str, str]:
     Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
-    if os.path.exists(path_file):
+    if os.path.isfile(path_file):
         with open(path_file) as f:
+            # FIXME: empty path file causes traceback
             paths = set(f.read().splitlines()[0].split(os.pathsep))
     else:
         paths = set()
-    return {os.path.basename(os.path.normpath(p)): p for p in paths if is_git(p)}
+    return {
+        os.path.basename(os.path.normpath(p)): p
+        for p in paths if is_git(p)
+    }
 
 
 def get_choices() -> List[str]:
@@ -66,7 +70,9 @@ def add_repos(new_paths: List[str]):
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s): {new_paths}.")
         existing_paths.update(new_paths)
-        with open(get_path_fname(), 'w') as f:
+        fname = get_path_fname()
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+        with open(fname, 'w') as f:
             f.write(os.pathsep.join(sorted(existing_paths)))
     else:
         print('No new repos found!')
@@ -92,8 +98,7 @@ def has_untracked() -> bool:
     Return True if untracked file/folder exists
     """
     result = subprocess.run(
-        'git ls-files -zo --exclude-standard'.split(),
-        stdout=subprocess.PIPE)
+        'git ls-files -zo --exclude-standard'.split(), stdout=subprocess.PIPE)
     return bool(result.stdout)
 
 
@@ -146,11 +151,9 @@ def _get_repo_status(path: str) -> Tuple[str]:
     if has_remote():
         if os.system('git diff --quiet @{u} @{0}'):
             common_commit = get_common_commit()
-            outdated = os.system(
-                'git diff --quiet @{u} ' + common_commit)
+            outdated = os.system('git diff --quiet @{u} ' + common_commit)
             if outdated:
-                diverged = os.system(
-                    'git diff --quiet @{0} ' + common_commit)
+                diverged = os.system('git diff --quiet @{0} ' + common_commit)
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
                 color = Color.purple

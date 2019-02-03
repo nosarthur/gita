@@ -19,9 +19,9 @@ def test_ls(monkeypatch, capfd):
     assert out == '/a/\n'
 
 
-@patch('os.path.exists', return_value=True)
+@patch('os.path.isfile', return_value=True)
 @patch('gita.utils.get_path_fname', return_value='some path')
-@patch('gita.utils.get_repos', return_value={'repo1':'/a/', 'repo2':'/b/'})
+@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 def test_rm(*_):
     args = argparse.Namespace()
     args.repo = 'repo1'
@@ -39,8 +39,7 @@ def test_not_add():
 
 @patch('gita.utils.has_remote', return_value=True)
 @patch(
-    'gita.utils.get_repos',
-    return_value={
+    'gita.utils.get_repos', return_value={
         'repo1': '/a/bc',
         'repo2': '/d/efg'
     })
@@ -56,4 +55,3 @@ def test_fetch(mock_sys, mock_chdir, *_):
 
 def test_merge():
     pass
-
