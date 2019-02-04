@@ -10,6 +10,9 @@ This tool does two things
 - display the status of multiple git repos such as branch, modification, commit message side by side
 - delegate git commands from any working directory
 
+If several repos need to be compiled against each other, it helps to see their
+status together. I also hated to change directories for the execution of simple git commands.
+
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
 Here the colors denote the 5 situations between local and remote branches:
