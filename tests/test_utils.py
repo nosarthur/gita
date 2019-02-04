@@ -30,6 +30,14 @@ def test_describe(test_input, has_remote, expected, monkeypatch):
     assert expected == next(utils.describe(test_input))
 
 
+def test_get_head():
+    with patch('builtins.open',
+               mock_open(read_data='ref: refs/heads/snake')) as mock_file:
+        head = utils.get_head('/fake')
+    assert head == 'snake'
+    mock_file.assert_called_once_with('/fake/.git/HEAD')
+
+
 class TestGetRepos:
     @patch('gita.utils.is_git', return_value=True)
     @patch('os.path.join', return_value=PATH_FNAME)
