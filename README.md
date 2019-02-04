@@ -72,12 +72,16 @@ stat:
 
 and the delegated command is `git diff --stat`.
 
-## customization
+## Customization
 
 Custom git command aliases can be placed in `~/.gita/cmds.yml`.
 And they shadow the default ones in the case of name clashes.
 
-## installation
+## Requirements
+
+Gita requires Python 3.6 or higher.
+
+## Installation
 
 To install the latest version, run
 
