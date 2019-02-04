@@ -8,23 +8,23 @@
 This tool does two things
 
 - display the status of multiple git repos such as branch, modification, commit message side by side
-- delegate git commands for the repos from any working directory
+- delegate git commands from any working directory
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
 Here the colors denote the 5 situations between local and remote branches:
 
-- white: the local branch has no remote branch.
-- green: the local branch is the same as the remote branch.
-- red: the local branch has diverged from the remote branch.
-- purple: the local branch is ahead of the remote branch (good for push).
-- yellow: the local branch is behind the remote branch (good for merge).
+- white: local branch has no remote branch
+- green: local branch is the same as remote branch
+- red: local branch has diverged from remote branch
+- purple: local branch is ahead of remote branch (good for push)
+- yellow: local branch is behind remote branch (good for merge)
 
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
 using green as baseline.
 
-The additional status symbols have the following meaning:
+The additional status symbols denote
 
 - `+`: staged changes
 - `*`: unstaged changes
@@ -36,8 +36,9 @@ The bookkeeping sub-commands are
 - `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 - `gita ls`: display the status of all repos
 - `gita ls <repo-name>`: display the absolute path of the specified repo
+- `gita --version`: display gita version
 
-The repo paths are saved in `~/.gita/repo_path`.
+Repo paths are saved in `~/.gita/repo_path`.
 
 The delegated git sub-commands are
 
@@ -56,29 +57,9 @@ The delegated git sub-commands are
 - `gita stat <repo-name(s)>`: show repo(s) edit statistics
 - `gita status <repo-name(s)>`: show repo(s) status
 
-The git commands arguments can be found in
+Delegation details are specified in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 
-## installation
-
-To install the latest version,
-
-```
-pip3 install -U gita
-```
-
-Alternatively, you can download the source code and run `pip3 install -e <gita source folder>`,
-i.e., the development mode.
-In either case, calling `gita` in bash may not work,
-then you can put the following line in the `.bashrc` file.
-
-```
-alias gita="python3 -m gita"
-```
-
-## customization
-
-Custom git command aliases can be placed in `~/.gita/cmds.yml`.
 For example, `gita stat <repo-name(s)>` is registered as
 
 ```yaml
@@ -89,9 +70,27 @@ stat:
 
 and the delegated command is `git diff --stat`.
 
-See more examples in the default
-[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
-Note that custom sub-commands shadow the default ones.
+## customization
+
+Custom git command aliases can be placed in `~/.gita/cmds.yml`.
+And they shadow the default ones in the case of name clashes.
+
+## installation
+
+To install the latest version, run
+
+```
+pip3 install -U gita
+```
+
+If development mode is preferred,
+download the source code and run `pip3 install -e <gita-source-folder>`.
+In either case, calling `gita` in terminal may not work,
+then you can put the following line in the `.bashrc` file.
+
+```
+alias gita="python3 -m gita"
+```
 
 ## TODO (not tracked by issues)
 
