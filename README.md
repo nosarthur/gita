@@ -35,7 +35,7 @@ The bookkeeping sub-commands are
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
 - `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 - `gita ls`: display the status of all repos
-- `gita ls <repo-name>`: display the absolute path of the specified repo
+- `gita ls <repo-name>`: display the absolute path of one repo
 - `gita --version`: display gita version
 
 Repo paths are saved in `~/.gita/repo_path`.
@@ -59,7 +59,6 @@ The delegated git sub-commands are
 
 Delegation details are specified in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
-
 For example, `gita stat <repo-name(s)>` is registered as
 
 ```yaml
