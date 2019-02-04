@@ -90,7 +90,7 @@ def main(argv=None):
     cmds.update(custom_cmds)
     for name, data in cmds.items():
         help = data.get('help')
-        cmd = data.get('cmd') and name
+        cmd = data.get('cmd') or name
         sp = subparsers.add_parser(name, help=help)
         sp.add_argument(
             'repo',
