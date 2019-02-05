@@ -29,14 +29,20 @@ def get_repos() -> Dict[str, str]:
     Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
-    paths = set()
+    paths = []
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            paths = set(f.read().splitlines()[0].split(os.pathsep))
-    return {
-        os.path.basename(os.path.normpath(p)): p
-        for p in paths if is_git(p)
-    }
+            paths = f.read().splitlines()[0].split(os.pathsep)
+    data = ((os.path.basename(os.path.normpath(p)), p) for p in paths
+            if is_git(p))
+    repos = {}
+    for name, path in data:
+        if name not in repos:
+            repos[name] = path
+        else:
+            par_name = os.path.basename(os.path.dirname(path))
+            repos[os.path.join(par_name, name)] = path
+    return repos
 
 
 def get_choices() -> List[str]:
