@@ -17,6 +17,7 @@ setup(
     author_email='zhou.dong@gmail.com',
     license='MIT',
     entry_points={'console_scripts': ['gita = gita.__main__:main']},
+    install_requires=['pyyaml'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
