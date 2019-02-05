@@ -16,6 +16,7 @@ def f_ls(args):
         print(repos[args.repo])
     else:
         for line in utils.describe(repos):
+            # commit message contains \n already
             print(line, end='')
 
 
