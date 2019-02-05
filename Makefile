@@ -2,7 +2,7 @@
 
 test: clean
 	pytest tests --cov=./gita $(TEST_ARGS) -n=auto
-dist:
+dist: clean
 	python3 setup.py sdist
 twine:
 	twine upload dist/*
