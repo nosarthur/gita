@@ -7,6 +7,7 @@ from gita import utils
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 PATH_FNAME = os.path.join(TEST_DIR, 'mock_path_file')
 PATH_FNAME_EMPTY = os.path.join(TEST_DIR, 'empty_path_file')
+PATH_FNAME_CLASH = os.path.join(TEST_DIR, 'clash_path_file')
 
 
 @pytest.mark.parametrize('test_input, has_remote, expected', [
@@ -38,19 +39,25 @@ def test_get_head():
     mock_file.assert_called_once_with('/fake/.git/HEAD')
 
 
-class TestGetRepos:
-    @patch('gita.utils.is_git', return_value=True)
-    @patch('os.path.join', return_value=PATH_FNAME)
-    def test(self, *_):
-        utils.get_repos.cache_clear()
-        repos = utils.get_repos()
-        assert repos == {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2'}
-
-    @patch('os.path.join', return_value=PATH_FNAME_EMPTY)
-    def testEmptyPath(self, *_):
-        utils.get_repos.cache_clear()
-        repos = utils.get_repos()
-        assert repos == {}
+@pytest.mark.parametrize('path_fname, expected', [
+    (PATH_FNAME, {
+        'repo1': '/a/bcd/repo1',
+        'repo2': '/e/fgh/repo2'
+    }),
+    (PATH_FNAME_EMPTY, {}),
+    (PATH_FNAME_CLASH, {
+        'repo1': '/a/bcd/repo1',
+        'repo2': '/e/fgh/repo2',
+        'x/repo1': '/root/x/repo1'
+    }),
+])
+@patch('gita.utils.is_git', return_value=True)
+@patch('gita.utils.get_path_fname')
+def test_get_repos(mock_path_fname, _, path_fname, expected):
+    mock_path_fname.return_value = path_fname
+    utils.get_repos.cache_clear()
+    repos = utils.get_repos()
+    assert repos == expected
 
 
 @pytest.mark.parametrize(
