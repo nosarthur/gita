@@ -12,10 +12,10 @@ PATH_FNAME_EMPTY = os.path.join(TEST_DIR, 'empty_path_file')
 @pytest.mark.parametrize('test_input, has_remote, expected', [
     ({
         'abc': '/root/repo/'
-    }, True, 'abc               \x1b[31mrepo *+_  \x1b[0m msg'),
+    }, True, 'abc \x1b[31mrepo *+_  \x1b[0m msg'),
     ({
         'repo': '/root/repo2/'
-    }, False, 'repo              \x1b[37mrepo *+_  \x1b[0m msg'),
+    }, False, 'repo \x1b[37mrepo *+_  \x1b[0m msg'),
 ])
 def test_describe(test_input, has_remote, expected, monkeypatch):
     monkeypatch.setattr(utils, 'get_head', lambda x: 'repo')
