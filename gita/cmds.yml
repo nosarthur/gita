@@ -3,8 +3,10 @@ branch:
 clean:
   cmd: clean -dfx
   help: remove all untracked files/folders
-difftool:
+diff:
   help: show differences
+difftool:
+  help: show differences using a tool
 log:
   help: show logs
 merge:

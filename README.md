@@ -47,7 +47,8 @@ The delegated git sub-commands are
 
 - `gita branch <repo-name(s)>`: show local branches for the specified repo(s)
 - `gita clean <repo-name(s)>`: remove untracked files/folders for the specified repo(s)
-- `gita difftool <repo-name(s)>`: show differences for the specified repo(s)
+- `gita diff <repo-name(s)>`: show differences for the specified repo(s)
+- `gita difftool <repo-name(s)>`: show differences with tool for the specified repo(s)
 - `gita fetch`: fetch remote updates for all repos
 - `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
 - `gita log <repo-name(s)>`: show log of the specified repo(s)
@@ -79,7 +80,8 @@ And they shadow the default ones in the case of name clashes.
 
 ## Requirements
 
-Gita requires Python 3.6 or higher.
+Gita requires Python 3.6 or higher (due to the use of
+[f-string](https://www.python.org/dev/peps/pep-0498/)).
 
 ## Installation
 
