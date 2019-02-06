@@ -100,6 +100,14 @@ then you can put the following line in the `.bashrc` file.
 alias gita="python3 -m gita"
 ```
 
+## Contributing
+
+- report/fix bugs
+- request/implement features
+- star/recommend this repo
+
+To run tests locally, simply do `make`.
+
 ## TODO (not tracked by issues)
 
 - auto-completion
