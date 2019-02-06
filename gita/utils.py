@@ -172,7 +172,8 @@ def describe(repos: Dict[str, str]) -> str:
     """
     Return the status of all repos
     """
-    name_width = max(len(n) for n in repos) + 1
+    if repos:
+        name_width = max(len(n) for n in repos) + 1
     for name in sorted(repos):
         path = repos[name]
         head = get_head(path)
