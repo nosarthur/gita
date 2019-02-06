@@ -3,11 +3,7 @@ import os
 from unittest.mock import patch, mock_open
 
 from gita import utils
-
-TEST_DIR = os.path.abspath(os.path.dirname(__file__))
-PATH_FNAME = os.path.join(TEST_DIR, 'mock_path_file')
-PATH_FNAME_EMPTY = os.path.join(TEST_DIR, 'empty_path_file')
-PATH_FNAME_CLASH = os.path.join(TEST_DIR, 'clash_path_file')
+from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
 
 
 @pytest.mark.parametrize('test_input, has_remote, expected', [
