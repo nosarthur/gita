@@ -5,11 +5,11 @@ import pkg_resources
 from . import utils
 
 
-def f_add(args):
+def f_add(args: argparse.Namespace):
     utils.add_repos(args.repo)
 
 
-def f_ls(args):
+def f_ls(args: argparse.Namespace):
     repos = utils.get_repos()
     if args.repo:  # one repo, show its path
         print(repos[args.repo])
@@ -19,7 +19,7 @@ def f_ls(args):
             print(line, end='')
 
 
-def f_rm(args):
+def f_rm(args: argparse.Namespace):
     """
     Unregister a repo from gita
     """
@@ -31,9 +31,9 @@ def f_rm(args):
             f.write(os.pathsep.join(repos.values()))
 
 
-def f_git_cmd(args):
+def f_git_cmd(args: argparse.Namespace):
     """
-    Delegate git command
+    Delegate git command/alias defined in `args.cmd`
     """
     repos = utils.get_repos()
     if args.repo:  # with user specified repo(s)
@@ -42,14 +42,22 @@ def f_git_cmd(args):
         utils.exec_git(path, args.cmd)
 
 
+def f_super(args):
+    """
+    Delegate git command/alias defined in `args.remainder`, which is a list of
+    unregistered arguments.
+    """
+    args.cmd = ' '.join(args.remainder)
+    f_git_cmd(args)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog='gita')
     subparsers = p.add_subparsers(
         title='sub-commands', help='additional help with sub-command -h')
 
     version = pkg_resources.require('gita')[0].version
-    p.add_argument(
-        '--version', action='version', version=f'%(prog)s {version}')
+    p.add_argument('-v', action='version', version=f'%(prog)s {version}')
 
     # delegate git sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
@@ -80,7 +88,7 @@ def main(argv=None):
         nargs='*',
         choices=utils.get_choices(),
         help="fetch remote update for the chosen repo(s)")
-    p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
+    p_fetch.set_defaults(func=f_git_cmd, cmd='fetch')
 
     # sub-commands that fit boilerplate
     cmds = utils.get_cmds_from_files()
@@ -93,7 +101,21 @@ def main(argv=None):
             nargs='+',
             choices=utils.get_repos(),
             help=help and help + 'of the chosen repo(s)')
-        sp.set_defaults(func=f_git_cmd, cmd='git ' + cmd)
+        sp.set_defaults(func=f_git_cmd, cmd=cmd)
+
+    # superman mode
+    p_super = subparsers.add_parser(
+        'super',
+        help='superman mode: delegate any git command/alias in a repo. '
+        'Example: gita super myrepo1 commit -am "fix a bug"')
+    p_super.add_argument(
+        'repo',
+        nargs=1,
+        choices=utils.get_repos(),
+        help="execute arbitrary git command/alias for <repo-name> "
+        "Example: gita super myrepo1 diff --name-only --staged")
+    p_super.add_argument('remainder', nargs=argparse.REMAINDER)
+    p_super.set_defaults(func=f_super)
 
     args = p.parse_args(argv)
 
