@@ -41,7 +41,7 @@ The bookkeeping sub-commands are
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita --version`: display gita version
 
-Repo paths are saved in `~/.gita/repo_path`.
+Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
 The delegated git sub-commands are
 
@@ -75,7 +75,7 @@ and the delegated command is `git diff --stat`.
 
 ## Customization
 
-Custom git command aliases can be placed in `~/.gita/cmds.yml`.
+Custom git command aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml` (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones in the case of name clashes.
 
 ## Requirements

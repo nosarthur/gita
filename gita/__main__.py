@@ -82,7 +82,8 @@ def main(argv=None):
     with open(fname, 'r') as stream:
         cmds = yaml.load(stream)
 
-    fname = os.path.join(os.path.expanduser('~'), '.gita', 'cmds.yml')
+    root = os.environ.get('XDG_CONFIG_HOME') or os.path.expanduser('~')
+    fname = os.path.join(root, 'gita', 'cmds.yml')
     custom_cmds = {}
     if os.path.isfile(fname):
         with open(fname, 'r') as stream:

@@ -20,7 +20,8 @@ def get_path_fname() -> str:
     """
     Return the file name that stores the repo locations.
     """
-    return os.path.join(os.path.expanduser('~'), '.gita', 'repo_path')
+    root = os.environ.get('XDG_CONFIG_HOME') or os.path.expanduser('~')
+    return os.path.join(root, 'gita', 'repo_path')
 
 
 @lru_cache()

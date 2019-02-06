@@ -69,13 +69,13 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
         (['/home/some/repo1', '/nos/repo'],
          '/home/some/repo1:/nos/repo'),  # add one old one new
     ])
-@patch('os.path.expanduser', return_value='/root')
 @patch('os.makedirs')
 @patch('gita.utils.get_repos', return_value={'repo': '/nos/repo'})
 @patch('gita.utils.is_git', return_value=True)
-def test_add_repos(_0, _1, _2, _3, path_input, expected):
+def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
+    monkeypatch.setenv('XDG_CONFIG_HOME', '/config')
     with patch('builtins.open', mock_open()) as mock_file:
         utils.add_repos(path_input)
-    mock_file.assert_called_with('/root/.gita/repo_path', 'w')
+    mock_file.assert_called_with('/config/gita/repo_path', 'w')
     handle = mock_file()
     handle.write.assert_called_once_with(expected)
