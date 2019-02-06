@@ -1,4 +1,5 @@
 import os
+import yaml
 import subprocess
 from functools import lru_cache
 from typing import List, Dict, Tuple
@@ -181,3 +182,34 @@ def describe(repos: Dict[str, str]) -> str:
         head = get_head(path)
         dirty, staged, untracked, color = _get_repo_status(path)
         yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
+
+
+def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
+    """
+    Parse delegated git commands from default config file
+    and custom config file.
+
+    Example return
+    {
+      'branch': {'help': 'show local branches'},
+      'clean': {'cmd': 'clean -dfx',
+                'help': 'remove all untracked files/folders'},
+    }
+    """
+    # default config file
+    fname = os.path.join(os.path.dirname(__file__), "cmds.yml")
+    with open(fname, 'r') as stream:
+        cmds = yaml.load(stream)
+
+    # custom config file
+    root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
+        os.path.expanduser('~'), '.config')
+    fname = os.path.join(root, 'gita', 'cmds.yml')
+    custom_cmds = {}
+    if os.path.isfile(fname):
+        with open(fname, 'r') as stream:
+            custom_cmds = yaml.load(stream)
+
+    # custom commands shadow default ones
+    cmds.update(custom_cmds)
+    return cmds

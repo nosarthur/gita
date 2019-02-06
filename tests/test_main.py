@@ -5,13 +5,7 @@ import argparse
 
 from gita import __main__
 from gita import utils
-
-# FIXME: these constants are defined in test_utils.py too
-#        maybe put in conftest.py later
-TEST_DIR = os.path.abspath(os.path.dirname(__file__))
-PATH_FNAME = os.path.join(TEST_DIR, 'mock_path_file')
-PATH_FNAME_EMPTY = os.path.join(TEST_DIR, 'empty_path_file')
-PATH_FNAME_CLASH = os.path.join(TEST_DIR, 'clash_path_file')
+from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
 
 
 class TestLs:

@@ -1,5 +1,4 @@
 import os
-import yaml
 import argparse
 import pkg_resources
 
@@ -21,6 +20,9 @@ def f_ls(args):
 
 
 def f_rm(args):
+    """
+    Unregister a repo from gita
+    """
     path_file = utils.get_path_fname()
     if os.path.isfile(path_file):
         repos = utils.get_repos()
@@ -59,6 +61,17 @@ def main(argv=None):
         'repo', choices=utils.get_repos(), help="remove the chosen repo")
     p_rm.set_defaults(func=f_rm)
 
+    p_ls = subparsers.add_parser('ls', help='display summaries of all repos')
+    p_ls.add_argument(
+        'repo',
+        nargs='?',
+        choices=utils.get_repos(),
+        help="show path of the chosen repo")
+    p_ls.set_defaults(func=f_ls)
+
+    # Fetch doesn't fit into the boilerplate below since it is applied to all
+    # repos if no repo is specified. This behavior doesn't make sense to other
+    # sub-commands.
     p_fetch = subparsers.add_parser(
         'fetch',
         help='fetch remote updates for all repos or the chosen repo(s)')
@@ -69,28 +82,8 @@ def main(argv=None):
         help="fetch remote update for the chosen repo(s)")
     p_fetch.set_defaults(func=f_git_cmd, cmd='git fetch')
 
-    p_ls = subparsers.add_parser('ls', help='display summaries of all repos')
-    p_ls.add_argument(
-        'repo',
-        nargs='?',
-        choices=utils.get_repos(),
-        help="show path of the chosen repo")
-    p_ls.set_defaults(func=f_ls)
-
     # sub-commands that fit boilerplate
-    fname = os.path.join(os.path.dirname(__file__), "cmds.yml")
-    with open(fname, 'r') as stream:
-        cmds = yaml.load(stream)
-
-    root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
-        os.path.expanduser('~'), '.config')
-    fname = os.path.join(root, 'gita', 'cmds.yml')
-    custom_cmds = {}
-    if os.path.isfile(fname):
-        with open(fname, 'r') as stream:
-            custom_cmds = yaml.load(stream)
-
-    cmds.update(custom_cmds)
+    cmds = utils.get_cmds_from_files()
     for name, data in cmds.items():
         help = data.get('help')
         cmd = data.get('cmd') or name
