@@ -87,7 +87,8 @@ The superman mode delegates any git command/alias for one repo. Usage:
 gita super <repo-name> <command/alias>
 ```
 
-For example, `gita -s myrepo1 commit -am 'fix a bug'`.
+For example, `gita super myrepo1 commit -am 'fix a bug'`
+executes `git commit -am 'fix a bug'` in the directory of `myrepo1`.
 
 ## Requirements
 
