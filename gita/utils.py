@@ -125,14 +125,14 @@ def get_commit_msg() -> str:
 
 def exec_git(path: str, cmd: str):
     """
-    Execute `cmd` in the `path` directory
+    Execute git `cmd` in the `path` directory
     """
     os.chdir(path)
     # FIXME: I forgot why I check remote here, but it disables git command
     #        execution if the branch has no remote. Maybe this check is still
     #        needed for the commands not in the yml file?
     # if has_remote():
-    os.system(cmd)
+    os.system('git ' + cmd)
 
 
 def get_common_commit() -> str:

@@ -78,5 +78,14 @@ def test_fetch(mock_sys, mock_chdir, *_):
     assert mock_sys.call_count == 2
 
 
-def test_merge():
-    pass
+@pytest.mark.parametrize('input', [
+    'diff --name-only --staged',
+    'commit -am "lala kaka"',
+])
+@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('gita.utils.exec_git')
+def test_superman(mock_exec, _, input):
+    mock_exec.reset_mock()
+    args = ['super', 'repo7'] + input.split()
+    __main__.main(args)
+    mock_exec.assert_called_once_with('path7', input)

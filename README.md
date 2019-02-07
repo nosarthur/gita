@@ -39,7 +39,7 @@ The bookkeeping sub-commands are
 - `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
 - `gita ls`: display the status of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
-- `gita --version`: display gita version
+- `gita -v`: display gita version
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
@@ -75,8 +75,19 @@ and the delegated command is `git diff --stat`.
 
 ## Customization
 
-Custom git command aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml` (most likely `~/.config/gita/cmds.yml`).
+Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
+(most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones in the case of name clashes.
+
+## Superman mode
+
+The superman mode delegates any git command/alias for one repo. Usage:
+
+```
+gita super <repo-name> <command/alias>
+```
+
+For example, `gita -s myrepo1 commit -am 'fix a bug'`.
 
 ## Requirements
 
