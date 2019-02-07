@@ -11,7 +11,7 @@ This tool does two things
 - delegate git commands from any working directory
 
 If several repos need to be compiled against each other, it helps to see their
-status together. I also hated to change directories for the execution of simple git commands.
+status together. I also hated to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
@@ -71,7 +71,7 @@ stat:
   help: show edit statistics
 ```
 
-and the delegated command is `git diff --stat`.
+which executes `git diff --stat`.
 
 ## Customization
 
@@ -88,7 +88,7 @@ gita super <repo-name> <command/alias>
 ```
 
 For example, `gita super myrepo1 commit -am 'fix a bug'`
-executes `git commit -am 'fix a bug'` in the directory of `myrepo1`.
+executes `git commit -am 'fix a bug'` for `myrepo1`.
 
 ## Requirements
 
@@ -113,6 +113,8 @@ alias gita="python3 -m gita"
 ```
 
 ## Contributing
+
+To contribute, you can
 
 - report/fix bugs
 - request/implement features
