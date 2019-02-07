@@ -3,12 +3,12 @@
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
 [![licence](https://img.shields.io/pypi/l/gita.svg?style=flat)](https://github.com/nosarthur/gita/blob/master/LICENSE)
 
-# A command-line tool to manage multiple git repos
+# Gita: A command-line tool to manage multiple git repos
 
 This tool does two things
 
 - display the status of multiple git repos such as branch, modification, commit message side by side
-- delegate git commands from any working directory
+- delegate git commands/aliases from any working directory
 
 If several repos need to be compiled against each other, it helps to see their
 status together. I also hated to change directories to execute git commands.
@@ -120,7 +120,7 @@ To contribute, you can
 - request/implement features
 - star/recommend this repo
 
-To run tests locally, simply do `make`.
+To run tests locally, simply `make`.
 
 ## TODO (not tracked by issues)
 
