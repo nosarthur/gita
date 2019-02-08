@@ -129,6 +129,13 @@ To contribute, you can
 
 To run tests locally, simply `pytest`, or `make`.
 
+## Other multi-repo tools
+
+I haven't tried them but I heard good things about them.
+
+* [myrepos](https://myrepos.branchable.com/)
+* [repo](https://source.android.com/setup/develop/repo)
+
 ## TODO (not tracked by issues)
 
 - auto-completion
