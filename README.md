@@ -11,7 +11,7 @@ This tool does two things
 - delegate git commands/aliases from any working directory
 
 If several repos need to be compiled against each other, it helps to see their
-status together. I also hated to change directories to execute git commands.
+status together. I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
@@ -49,12 +49,11 @@ The delegated git sub-commands are
 - `gita clean <repo-name(s)>`: remove untracked files/folders for the specified repo(s)
 - `gita diff <repo-name(s)>`: show differences for the specified repo(s)
 - `gita difftool <repo-name(s)>`: show differences with tool for the specified repo(s)
-- `gita fetch`: fetch remote updates for all repos
-- `gita fetch <repo-name(s)>`: fetch remote updates for the specified repo(s)
+- `gita fetch [repo-name(s)]`: fetch remote updates for the specified repo(s) or all repos if not specified
 - `gita log <repo-name(s)>`: show log of the specified repo(s)
 - `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
 - `gita patch <repo-name(s)>`: make a patch for the specified repo(s)
-- `gita pull <repo-name(s)>`: pull remote updates for the specified repo(s)
+- `gita pull [repo-name(s)]`: pull remote updates for the specified repo(s) or all repos if not specified
 - `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
 - `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
 - `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
@@ -79,6 +78,19 @@ Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones in the case of name clashes.
 
+If you want the custom command to behave like `gita fetch`, i.e., to apply
+command to all repos if nothing is specified,
+set the `allow_all` option to be `true`.
+For example, adding the following block to `$XDG_CONFIG_HOME/gita/cmds.yml`
+creates a new command `gita comaster [repo-name(s)]` with optional repo name input.
+
+```yaml
+comaster:
+  cmd: checkout master
+  allow_all: true
+  help: checkout the master branch
+```
+
 ## Superman mode
 
 The superman mode delegates any git command/alias for specified or all repo(s).
@@ -93,7 +105,7 @@ For example,
 
 - `gita super myrepo1 commit -am 'fix a bug'`
   executes `git commit -am 'fix a bug'` for `myrepo1`
-- `gita super checkout master` puts all repos on the master branch
+- `gita super checkout master` puts all repos on the master branch (also see the customization example)
 - `gita super frontend_repo backend_repo checkout new-feature` puts the two
   chosen repos on the `new-feature` branch
 

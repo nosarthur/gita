@@ -1,4 +1,18 @@
+'''
+Gita manages multiple git repos. It has two functionalities
+
+   1. display the status of multiple repos side by side
+   2. delegate git commands/aliases from any working directory
+
+Examples:
+    gita ls
+    gita fetch
+    gita stat myrepo2
+    gita super myrepo1 commit -am 'add some cool feature'
+'''
+
 import os
+import shlex
 import argparse
 import pkg_resources
 
@@ -54,20 +68,25 @@ def f_super(args):
             names.append(word)
         else:
             break
-    args.cmd = utils.assemble_shlex_input(args.man[i:])
+    # revert the Unix shell parsing
+    args.cmd = ' '.join(shlex.quote(x) for x in args.man[i:])
     args.repo = names
     f_git_cmd(args)
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(prog='gita')
+    p = argparse.ArgumentParser(
+        prog='gita',
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=__doc__)
     subparsers = p.add_subparsers(
         title='sub-commands', help='additional help with sub-command -h')
 
     version = pkg_resources.require('gita')[0].version
-    p.add_argument('-v', action='version', version=f'%(prog)s {version}')
+    p.add_argument(
+        '-v', '--version', action='version', version=f'%(prog)s {version}')
 
-    # delegate git sub-commands
+    # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
     p_add.add_argument('repo', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
@@ -85,38 +104,13 @@ def main(argv=None):
         help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
-    # Fetch doesn't fit into the boilerplate below since it is applied to all
-    # repos if no repo is specified. This behavior doesn't make sense to other
-    # sub-commands.
-    p_fetch = subparsers.add_parser(
-        'fetch',
-        help='fetch remote updates for all repos or the chosen repo(s)')
-    p_fetch.add_argument(
-        'repo',
-        nargs='*',
-        choices=utils.get_choices(),
-        help="fetch remote update for the chosen repo(s)")
-    p_fetch.set_defaults(func=f_git_cmd, cmd='fetch')
-
-    # sub-commands that fit boilerplate
-    cmds = utils.get_cmds_from_files()
-    for name, data in cmds.items():
-        help = data.get('help')
-        cmd = data.get('cmd') or name
-        sp = subparsers.add_parser(name, help=help)
-        sp.add_argument(
-            'repo',
-            nargs='+',
-            choices=utils.get_repos(),
-            help=help and help + 'of the chosen repo(s)')
-        sp.set_defaults(func=f_git_cmd, cmd=cmd)
-
     # superman mode
     p_super = subparsers.add_parser(
         'super',
         help=
-        'superman mode: delegate any git command/alias in specified or all repo(s). '
-        'Example: gita super myrepo1 commit -am "fix a bug"')
+        'superman mode: delegate any git command/alias in specified or all repo(s).\n'
+        'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
+        '\t gita super repo1 repo2 repo3 checkout new-feature')
     p_super.add_argument(
         'man',
         nargs=argparse.REMAINDER,
@@ -124,6 +118,23 @@ def main(argv=None):
         "Example: gita super myrepo1 diff --name-only --staged "
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
+
+    # sub-commands that fit boilerplate
+    cmds = utils.get_cmds_from_files()
+    for name, data in cmds.items():
+        help = data.get('help')
+        cmd = data.get('cmd') or name
+        if data.get('allow_all'):
+            choices = utils.get_choices()
+            nargs = '*'
+            help += ' for all repos or'
+        else:
+            choices = utils.get_repos()
+            nargs = '+'
+        help += ' for the chosen repo(s)'
+        sp = subparsers.add_parser(name, help=help)
+        sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
+        sp.set_defaults(func=f_git_cmd, cmd=cmd)
 
     args = p.parse_args(argv)
 

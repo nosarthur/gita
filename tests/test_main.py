@@ -81,7 +81,7 @@ def test_fetch(mock_sys, mock_chdir, *_):
 
 @pytest.mark.parametrize('input', [
     'diff --name-only --staged',
-    'commit -am "lala kaka"',
+    "commit -am 'lala kaka'",
 ])
 @patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
 @patch('gita.utils.exec_git')

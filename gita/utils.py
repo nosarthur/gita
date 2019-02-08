@@ -216,13 +216,3 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     # custom commands shadow default ones
     cmds.update(custom_cmds)
     return cmds
-
-
-def assemble_shlex_input(args: List[str]) -> str:
-    """
-    """
-    for i, arg in enumerate(args):
-        # this is a simple detection of multi-word string
-        if arg.count(' ') > 0:
-            args[i] = f'"{arg}"'
-    return ' '.join(args)

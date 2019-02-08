@@ -7,6 +7,9 @@ diff:
   help: show differences
 difftool:
   help: show differences using a tool
+fetch:
+  allow_all: true
+  help: fetch remote update
 log:
   help: show logs
 merge:
@@ -16,6 +19,7 @@ patch:
   cmd: format-patch HEAD~
   help: make a patch
 pull:
+  allow_all: true
   help: pull remote updates
 push:
   help: push the local updates
