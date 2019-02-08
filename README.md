@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
 [![licence](https://img.shields.io/pypi/l/gita.svg?style=flat)](https://github.com/nosarthur/gita/blob/master/LICENSE)
 
-# Gita: A command-line tool to manage multiple git repos
+# Gita: a command-line tool to manage multiple git repos
 
 This tool does two things
 
@@ -81,14 +81,21 @@ And they shadow the default ones in the case of name clashes.
 
 ## Superman mode
 
-The superman mode delegates any git command/alias for one repo. Usage:
+The superman mode delegates any git command/alias for specified or all repo(s).
+Usage:
 
 ```
-gita super <repo-name> <command/alias>
+gita super [repo-name(s)] <command/alias>
 ```
 
-For example, `gita super myrepo1 commit -am 'fix a bug'`
-executes `git commit -am 'fix a bug'` for `myrepo1`.
+Here `repo-name(s)` is optional. If absent, it applies to all repos.
+For example,
+
+- `gita super myrepo1 commit -am 'fix a bug'`
+  executes `git commit -am 'fix a bug'` for `myrepo1`
+- `gita super checkout master` puts all repos on the master branch
+- `gita super frontend_repo backend_repo checkout new-feature` puts the two
+  chosen repos on the `new-feature` branch
 
 ## Requirements
 
@@ -118,9 +125,9 @@ To contribute, you can
 
 - report/fix bugs
 - request/implement features
-- star/recommend this repo
+- star/recommend this project
 
-To run tests locally, simply `make`.
+To run tests locally, simply `pytest`, or `make`.
 
 ## TODO (not tracked by issues)
 

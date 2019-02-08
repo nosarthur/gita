@@ -52,6 +52,9 @@ def get_choices() -> List[str]:
     """
     Return all repo names and an additional empty list. This is a workaround of
     argparse's problem with coexisting nargs='*' and choices.
+    See https://utcc.utoronto.ca/~cks/space/blog/python/ArgparseNargsChoicesLimitation
+    and
+    https://bugs.python.org/issue27227
     """
     repos = list(get_repos())
     repos.append([])
@@ -213,3 +216,13 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     # custom commands shadow default ones
     cmds.update(custom_cmds)
     return cmds
+
+
+def assemble_shlex_input(args: List[str]) -> str:
+    """
+    """
+    for i, arg in enumerate(args):
+        # this is a simple detection of multi-word string
+        if arg.count(' ') > 0:
+            args[i] = f'"{arg}"'
+    return ' '.join(args)
