@@ -44,10 +44,18 @@ def f_git_cmd(args: argparse.Namespace):
 
 def f_super(args):
     """
-    Delegate git command/alias defined in `args.remainder`, which is a list of
-    unregistered arguments.
+    Delegate git command/alias defined in `args.man`, which may or may not
+    contain repo names.
     """
-    args.cmd = ' '.join(args.remainder)
+    names = []
+    repos = utils.get_repos()
+    for i, word in enumerate(args.man):
+        if word in repos:
+            names.append(word)
+        else:
+            break
+    args.cmd = utils.assemble_shlex_input(args.man[i:])
+    args.repo = names
     f_git_cmd(args)
 
 
@@ -106,15 +114,15 @@ def main(argv=None):
     # superman mode
     p_super = subparsers.add_parser(
         'super',
-        help='superman mode: delegate any git command/alias in a repo. '
+        help=
+        'superman mode: delegate any git command/alias in specified or all repo(s). '
         'Example: gita super myrepo1 commit -am "fix a bug"')
     p_super.add_argument(
-        'repo',
-        nargs=1,
-        choices=utils.get_repos(),
-        help="execute arbitrary git command/alias for <repo-name> "
-        "Example: gita super myrepo1 diff --name-only --staged")
-    p_super.add_argument('remainder', nargs=argparse.REMAINDER)
+        'man',
+        nargs=argparse.REMAINDER,
+        help="execute arbitrary git command/alias for specified or all repos "
+        "Example: gita super myrepo1 diff --name-only --staged "
+        "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
 
     args = p.parse_args(argv)

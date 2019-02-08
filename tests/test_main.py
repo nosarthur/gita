@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, mock_open
 import argparse
+import shlex
 
 from gita import __main__
 from gita import utils
@@ -86,6 +87,6 @@ def test_fetch(mock_sys, mock_chdir, *_):
 @patch('gita.utils.exec_git')
 def test_superman(mock_exec, _, input):
     mock_exec.reset_mock()
-    args = ['super', 'repo7'] + input.split()
+    args = ['super', 'repo7'] + shlex.split(input)
     __main__.main(args)
     mock_exec.assert_called_once_with('path7', input)
