@@ -134,7 +134,7 @@ alias gita="python3 -m gita"
 ## Auto-completion
 
 For auto completion, download
-[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/gita/.gita-completion.bash)
+[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
 and source it in `.bashrc`.
 
 ## Contributing
