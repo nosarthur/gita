@@ -131,6 +131,12 @@ then you can put the following line in the `.bashrc` file.
 alias gita="python3 -m gita"
 ```
 
+## Auto-completion
+
+For auto completion, download
+[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/gita/.gita-completion.bash)
+and source it in `.bashrc`.
+
 ## Contributing
 
 To contribute, you can
