@@ -72,3 +72,4 @@ def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
     mock_file.assert_called_with('/config/gita/repo_path', 'w')
     handle = mock_file()
     handle.write.assert_called_once_with(expected)
+
