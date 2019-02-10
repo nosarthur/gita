@@ -78,11 +78,11 @@ Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones in the case of name clashes.
 
-If you want the custom command to behave like `gita fetch`, i.e., to apply
+If you want a custom command to behave like `gita fetch`, i.e., to apply
 command to all repos if nothing is specified,
 set the `allow_all` option to be `true`.
-For example, adding the following block to `$XDG_CONFIG_HOME/gita/cmds.yml`
-creates a new command `gita comaster [repo-name(s)]` with optional repo name input.
+For example, the following snippet creates a new command
+`gita comaster [repo-name(s)]` with optional repo name input.
 
 ```yaml
 comaster:
@@ -100,7 +100,7 @@ Usage:
 gita super [repo-name(s)] <command/alias>
 ```
 
-Here `repo-name(s)` is optional. If absent, it applies to all repos.
+Here `repo-name(s)` is optional, and absence means all repos.
 For example,
 
 - `gita super myrepo1 commit -am 'fix a bug'`
