@@ -146,7 +146,7 @@ To contribute, you can
 - request/implement features
 - star/recommend this project
 
-To run tests locally, simply `pytest`, or `make`.
+To run tests locally, simply `pytest`.
 
 ## Other multi-repo tools
 

@@ -70,13 +70,13 @@ def test_not_add():
         'repo2': '/d/efg'
     })
 @patch('os.chdir')
-@patch('os.system')
-def test_fetch(mock_sys, mock_chdir, *_):
+@patch('subprocess.run')
+def test_fetch(mock_run, mock_chdir, *_):
     __main__.main(['fetch'])
     mock_chdir.assert_any_call('/a/bc')
     mock_chdir.assert_any_call('/d/efg')
-    mock_sys.assert_any_call('git fetch')
-    assert mock_sys.call_count == 2
+    mock_run.assert_any_call(['git', 'fetch'])
+    assert mock_run.call_count == 2
 
 
 @pytest.mark.parametrize('input', [
@@ -89,4 +89,4 @@ def test_superman(mock_exec, _, input):
     mock_exec.reset_mock()
     args = ['super', 'repo7'] + shlex.split(input)
     __main__.main(args)
-    mock_exec.assert_called_once_with('path7', input)
+    mock_exec.assert_called_once_with('path7', shlex.split(input))

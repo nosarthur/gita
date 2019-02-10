@@ -12,7 +12,6 @@ Examples:
 '''
 
 import os
-import shlex
 import argparse
 import pkg_resources
 
@@ -68,8 +67,7 @@ def f_super(args):
             names.append(word)
         else:
             break
-    # revert the Unix shell parsing
-    args.cmd = ' '.join(shlex.quote(x) for x in args.man[i:])
+    args.cmd = args.man[i:]
     args.repo = names
     f_git_cmd(args)
 
@@ -134,7 +132,7 @@ def main(argv=None):
         help += ' for the chosen repo(s)'
         sp = subparsers.add_parser(name, help=help)
         sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
-        sp.set_defaults(func=f_git_cmd, cmd=cmd)
+        sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
 
     args = p.parse_args(argv)
 

@@ -2,11 +2,10 @@
 _gita_completions()
 {
 
-  local cur commands repos XDG_CONFIG_HOME gita_path
+  local cur commands repos gita_path
 
   cur=${COMP_WORDS[COMP_CWORD]}
-  XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-  gita_path=${XDG_CONFIG_HOME}/gita/repo_path
+  gita_path=${XDG_CONFIG_HOME:-$HOME/.config}/gita/repo_path
 
   # this is somewhat slow
   commands=`gita -h | sed '2q;d' |sed 's/[{}.,]/ /g'`
