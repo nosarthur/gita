@@ -23,6 +23,8 @@ pull:
   help: pull remote updates
 push:
   help: push the local updates
+rebase:
+  help: rebase from master
 reflog:
   help: show ref logs
 remote:

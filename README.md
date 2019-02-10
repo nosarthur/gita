@@ -55,8 +55,9 @@ The delegated git sub-commands are
 - `gita patch <repo-name(s)>`: make a patch for the specified repo(s)
 - `gita pull [repo-name(s)]`: pull remote updates for the specified repo(s) or all repos if not specified
 - `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
-- `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
+- `gita rebase <repo-name(s)>`: rebase from master for the specified repo(s)
 - `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
+- `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
 - `gita stat <repo-name(s)>`: show repo(s) edit statistics
 - `gita status <repo-name(s)>`: show repo(s) status
 
