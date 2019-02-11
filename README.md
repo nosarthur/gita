@@ -43,23 +43,15 @@ The bookkeeping sub-commands are
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
-The delegated git sub-commands are
+The delegated git sub-commands are of two forms
 
-- `gita branch <repo-name(s)>`: show local branches for the specified repo(s)
-- `gita clean <repo-name(s)>`: remove untracked files/folders for the specified repo(s)
-- `gita diff <repo-name(s)>`: show differences for the specified repo(s)
-- `gita difftool <repo-name(s)>`: show differences with tool for the specified repo(s)
-- `gita fetch [repo-name(s)]`: fetch remote updates for the specified repo(s) or all repos if not specified
-- `gita log <repo-name(s)>`: show log of the specified repo(s)
-- `gita merge <repo-name(s)>`: merge remote updates for the specified repo(s)
-- `gita patch <repo-name(s)>`: make a patch for the specified repo(s)
-- `gita pull [repo-name(s)]`: pull remote updates for the specified repo(s) or all repos if not specified
-- `gita push <repo-name(s)>`: push local updates of the specified repo(s) to remote
-- `gita rebase <repo-name(s)>`: rebase from master for the specified repo(s)
-- `gita reflog <repo-name(s)>`: show ref logs of the specified repo(s)
-- `gita remote <repo-name(s)>`: show remote settings of the specified repo(s)
-- `gita stat <repo-name(s)>`: show repo(s) edit statistics
-- `gita status <repo-name(s)>`: show repo(s) status
+- `gita <subcommand> <repo-name(s)>` with required repo name(s) input
+- `gita <subcommand> [repo-name(s)]` with optional input. And no input means
+  apply the subcommand to all repos.
+
+By default, only `fetch` and `pull` take optional input.
+Subcommands with required input include `branch`, `clean`, `diff`, `difftool`,
+`log`, `merge`, `patch`, `push`, `rebase`, `reflog`, `remote`, `stat`, and `status`.
 
 Delegation details are specified in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
@@ -72,6 +64,14 @@ stat:
 ```
 
 which executes `git diff --stat`.
+
+If the delegated git command is a single word, the `cmd` tag can be omitted.
+For example, `gita push <repo-name(s)>` is registered as
+
+```yaml
+push:
+  help: push the local updates
+```
 
 ## Customization
 
