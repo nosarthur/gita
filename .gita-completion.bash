@@ -2,9 +2,11 @@
 _gita_completions()
 {
 
-  local cur commands repos gita_path
+  local cur prev commands repos gita_path
 
   cur=${COMP_WORDS[COMP_CWORD]}
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+
   gita_path=${XDG_CONFIG_HOME:-$HOME/.config}/gita/repo_path
 
   # this is somewhat slow
@@ -14,8 +16,15 @@ _gita_completions()
 
   if [ $COMP_CWORD -eq 1 ]; then
     COMPREPLY=($(compgen -W "${commands}" ${cur}))
-  elif [ $COMP_CWORD -eq 2 ]; then
-    COMPREPLY=($(compgen -W "${repos}" ${cur}))
+  elif [ $COMP_CWORD -gt 1 ]; then
+    case $prev in
+      add)
+        COMPREPLY=($(compgen -d ${cur}))
+        ;;
+      *)
+        COMPREPLY=($(compgen -W "${repos}" ${cur}))
+        ;;
+    esac
   fi
 
 }
