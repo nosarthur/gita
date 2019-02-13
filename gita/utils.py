@@ -162,20 +162,20 @@ def _get_repo_status(path: str) -> Tuple[str]:
     untracked = '_' if has_untracked() else ''
 
     diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
-    has_remote = diff_returncode != 128
-    if has_remote:
-        if diff_returncode == 1:
-            common_commit = get_common_commit()
-            outdated = run_quiet_diff(['@{u}', common_commit])
-            if outdated:
-                diverged = run_quiet_diff(['@{0}', common_commit])
-                color = Color.red if diverged else Color.yellow
-            else:  # local is ahead of remote
-                color = Color.purple
-        else:  # remote == local
-            color = Color.green
-    else:  # no remote
+    has_no_remote = diff_returncode == 128
+    has_no_diff = diff_returncode == 0
+    if has_no_remote:
         color = Color.white
+    elif has_no_diff:
+        color = Color.green
+    else:
+        common_commit = get_common_commit()
+        outdated = run_quiet_diff(['@{u}', common_commit])
+        if outdated:
+            diverged = run_quiet_diff(['@{0}', common_commit])
+            color = Color.red if diverged else Color.yellow
+        else:  # local is ahead of remote
+            color = Color.purple
     return dirty, staged, untracked, color
 
 
