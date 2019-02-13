@@ -51,7 +51,8 @@ The delegated git sub-commands are of two forms
 
 By default, only `fetch` and `pull` take optional input.
 Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
-`log`, `merge`, `patch`, `push`, `rebase`, `reflog`, `remote`, `stat`, and `status`.
+`log`, `merge`, `patch`, `push`, `rebase`, `reflog`, `remote`,
+`stash`, `stat`, and `status`.
 
 Delegation details are specified in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).

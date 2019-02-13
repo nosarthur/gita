@@ -30,6 +30,8 @@ reflog:
 remote:
   cmd: remote -v
   help: show remote settings
+stash:
+  help: store uncommited changes
 stat:
   cmd: diff --stat
   help: show edit statistics
