@@ -63,19 +63,16 @@ def test_not_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-@patch('gita.utils.has_remote', return_value=True)
 @patch(
     'gita.utils.get_repos', return_value={
         'repo1': '/a/bc',
         'repo2': '/d/efg'
     })
-@patch('os.chdir')
 @patch('subprocess.run')
-def test_fetch(mock_run, mock_chdir, *_):
+def test_fetch(mock_run, *_):
     __main__.main(['fetch'])
-    mock_chdir.assert_any_call('/a/bc')
-    mock_chdir.assert_any_call('/d/efg')
-    mock_run.assert_any_call(['git', 'fetch'])
+    mock_run.assert_any_call(['git', 'fetch'], cwd='/d/efg')
+    mock_run.assert_any_call(['git', 'fetch'], cwd='/a/bc')
     assert mock_run.call_count == 2
 
 

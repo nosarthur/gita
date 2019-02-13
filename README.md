@@ -45,12 +45,12 @@ Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.confi
 
 The delegated git sub-commands are of two forms
 
-- `gita <subcommand> <repo-name(s)>` with required repo name(s) input
-- `gita <subcommand> [repo-name(s)]` with optional input. And no input means
-  apply the subcommand to all repos.
+- `gita <sub-command> <repo-name(s)>` with required repo name(s) input
+- `gita <sub-command> [repo-name(s)]` with optional input. And no input means
+  all repos.
 
 By default, only `fetch` and `pull` take optional input.
-Subcommands with required input include `branch`, `clean`, `diff`, `difftool`,
+Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
 `log`, `merge`, `patch`, `push`, `rebase`, `reflog`, `remote`, `stat`, and `status`.
 
 Delegation details are specified in
@@ -152,6 +152,5 @@ To run tests locally, simply `pytest`.
 
 I haven't tried them but I heard good things about them.
 
-* [myrepos](https://myrepos.branchable.com/)
-* [repo](https://source.android.com/setup/develop/repo)
-
+- [myrepos](https://myrepos.branchable.com/)
+- [repo](https://source.android.com/setup/develop/repo)

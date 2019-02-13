@@ -94,13 +94,16 @@ def get_head(path: str) -> str:
         return os.path.basename(f.read()).rstrip()
 
 
-def has_remote() -> bool:
+def run_quiet_diff(args: List[str]) -> bool:
     """
-    Return True if remote branch exists. It should be run inside the repo.
+    Return the return code of git diff `args` in quiet mode
     """
+    cmd = ['git', 'diff', '--quiet'] + args
     result = subprocess.run(
-        'git diff --quiet @{u} @{0}'.split(), stderr=subprocess.PIPE)
-    return not bool(result.stderr)
+        cmd,
+        stderr=subprocess.PIPE,
+    )
+    return result.returncode
 
 
 def has_untracked() -> bool:
@@ -130,13 +133,12 @@ def exec_git(path: str, cmd: List[str]):
     """
     Execute git `cmd` in the `path` directory
     """
-    os.chdir(path)
     # FIXME: I forgot why I check remote here, but it disables git command
     #        execution if the branch has no remote. Maybe this check is still
     #        needed for the commands not in the yml file?
     # if has_remote():
     #    os.system('git ' + cmd)
-    subprocess.run( ['git'] + cmd)
+    subprocess.run(['git'] + cmd, cwd=path)
 
 
 def get_common_commit() -> str:
@@ -147,7 +149,7 @@ def get_common_commit() -> str:
         'git merge-base @{0} @{u}'.split(),
         stdout=subprocess.PIPE,
         universal_newlines=True)
-    return result.stdout
+    return result.stdout.strip()
 
 
 def _get_repo_status(path: str) -> Tuple[str]:
@@ -155,16 +157,18 @@ def _get_repo_status(path: str) -> Tuple[str]:
     Return the status of one repo
     """
     os.chdir(path)
-    dirty = '*' if os.system('git diff --quiet') else ''
-    staged = '+' if os.system('git diff --cached --quiet') else ''
+    dirty = '*' if run_quiet_diff([]) else ''
+    staged = '+' if run_quiet_diff(['--cached']) else ''
     untracked = '_' if has_untracked() else ''
 
-    if has_remote():
-        if os.system('git diff --quiet @{u} @{0}'):
+    diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
+    has_remote = diff_returncode != 128
+    if has_remote:
+        if diff_returncode == 1:
             common_commit = get_common_commit()
-            outdated = os.system('git diff --quiet @{u} ' + common_commit)
+            outdated = run_quiet_diff(['@{u}', common_commit])
             if outdated:
-                diverged = os.system('git diff --quiet @{0} ' + common_commit)
+                diverged = run_quiet_diff(['@{0}', common_commit])
                 color = Color.red if diverged else Color.yellow
             else:  # local is ahead of remote
                 color = Color.purple
