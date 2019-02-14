@@ -100,10 +100,9 @@ def run_quiet_diff(args: List[str]) -> bool:
     """
     Return the return code of git diff `args` in quiet mode
     """
-    cmd = ['git', 'diff', '--quiet'] + args
     result = subprocess.run(
-        cmd,
-        stderr=subprocess.PIPE,
+        ['git', 'diff', '--quiet'] + args,
+        stderr=subprocess.DEVNULL,
     )
     return result.returncode
 
@@ -131,10 +130,13 @@ def get_commit_msg() -> str:
     return result.stdout
 
 
-async def run_async_command(path: str, cmds: List[str]):
+async def run_async(path: str, cmds: List[str]):
+    """
+    """
     process = await asyncio.create_subprocess_exec(*cmds, cwd=path)
-    #stdout, _ = await process.communicate()
-    #return stdout and stdout.decode().strip()
+    # stdout, _ = await process.communicate()
+    # return stdout and stdout.decode().strip()
+    # print(stdout.decode())
     await process.wait()
 
 

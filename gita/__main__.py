@@ -58,7 +58,7 @@ def f_git_cmd(args: argparse.Namespace):
         subprocess.run(cmds, cwd=path)
     else:  # run concurrent subprocesses
         tasks = [
-            utils.run_async_command(path, cmds) for path in repos.values()
+            utils.run_async(path, cmds) for path in repos.values()
         ]
         utils.exec_async_tasks(tasks)
 

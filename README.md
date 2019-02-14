@@ -113,8 +113,9 @@ For example,
 
 ## Requirements
 
-Gita requires Python 3.6 or higher (due to the use of
-[f-string](https://www.python.org/dev/peps/pep-0498/)).
+Gita requires Python 3.6 or higher, due to the use of
+[f-string](https://www.python.org/dev/peps/pep-0498/)
+and [asyncio module](https://docs.python.org/3.6/library/asyncio.html).
 
 ## Installation
 

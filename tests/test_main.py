@@ -78,10 +78,10 @@ def test_fetch(mock_run, *_):
         'repo1': '/a/bc',
         'repo2': '/d/efg'
     })
-@patch('gita.utils.run_async_command', new=async_mock())
+@patch('gita.utils.run_async', new=async_mock())
 def test_async_fetch(*_):
     __main__.main(['fetch'])
-    mock_run = utils.run_async_command.mock
+    mock_run = utils.run_async.mock
     assert mock_run.call_count == 2
     cmds = ['git', 'fetch']
     # print(mock_run.call_args_list)
