@@ -1,8 +1,10 @@
 import os
 import yaml
+import asyncio
+import platform
 import subprocess
 from functools import lru_cache
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Coroutine
 
 
 class Color:
@@ -129,16 +131,28 @@ def get_commit_msg() -> str:
     return result.stdout
 
 
-def exec_git(path: str, cmd: List[str]):
+async def run_async_command(path: str, cmds: List[str]):
+    process = await asyncio.create_subprocess_exec(*cmds, cwd=path)
+    #stdout, _ = await process.communicate()
+    #return stdout and stdout.decode().strip()
+    await process.wait()
+
+
+def exec_async_tasks(tasks: List[Coroutine]):
     """
-    Execute git `cmd` in the `path` directory
+    Execute git `cmd` in the `path` directory asynchronously
     """
-    # FIXME: I forgot why I check remote here, but it disables git command
-    #        execution if the branch has no remote. Maybe this check is still
-    #        needed for the commands not in the yml file?
-    # if has_remote():
-    #    os.system('git ' + cmd)
-    subprocess.run(['git'] + cmd, cwd=path)
+    # TODO: asyncio API is nicer in python 3.7
+    if platform.system() == 'Windows':
+        loop = asyncio.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
+    else:
+        loop = asyncio.get_event_loop()
+
+    try:
+        loop.run_until_complete(asyncio.gather(*tasks))
+    finally:
+        loop.close()
 
 
 def get_common_commit() -> str:

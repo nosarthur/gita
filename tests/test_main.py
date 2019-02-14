@@ -5,7 +5,7 @@ import shlex
 
 from gita import __main__
 from gita import utils
-from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
+from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 
 
 class TestLs:
@@ -65,15 +65,28 @@ def test_not_add():
 
 @patch(
     'gita.utils.get_repos', return_value={
-        'repo1': '/a/bc',
         'repo2': '/d/efg'
     })
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
     __main__.main(['fetch'])
-    mock_run.assert_any_call(['git', 'fetch'], cwd='/d/efg')
-    mock_run.assert_any_call(['git', 'fetch'], cwd='/a/bc')
+    mock_run.assert_called_once_with(['git', 'fetch'], cwd='/d/efg')
+
+
+@patch(
+    'gita.utils.get_repos', return_value={
+        'repo1': '/a/bc',
+        'repo2': '/d/efg'
+    })
+@patch('gita.utils.run_async_command', new=async_mock())
+def test_async_fetch(*_):
+    __main__.main(['fetch'])
+    mock_run = utils.run_async_command.mock
     assert mock_run.call_count == 2
+    cmds = ['git', 'fetch']
+    # print(mock_run.call_args_list)
+    mock_run.assert_any_call('/a/bc', cmds)
+    mock_run.assert_any_call('/d/efg', cmds)
 
 
 @pytest.mark.parametrize('input', [
@@ -81,9 +94,10 @@ def test_fetch(mock_run, *_):
     "commit -am 'lala kaka'",
 ])
 @patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
-@patch('gita.utils.exec_git')
-def test_superman(mock_exec, _, input):
-    mock_exec.reset_mock()
+@patch('subprocess.run')
+def test_superman(mock_run, _, input):
+    mock_run.reset_mock()
     args = ['super', 'repo7'] + shlex.split(input)
     __main__.main(args)
-    mock_exec.assert_called_once_with('path7', shlex.split(input))
+    expected_cmds = ['git'] + shlex.split(input)
+    mock_run.assert_called_once_with(expected_cmds, cwd='path7')

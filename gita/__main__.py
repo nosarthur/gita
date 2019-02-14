@@ -13,6 +13,7 @@ Examples:
 
 import os
 import argparse
+import subprocess
 import pkg_resources
 
 from . import utils
@@ -51,8 +52,15 @@ def f_git_cmd(args: argparse.Namespace):
     repos = utils.get_repos()
     if args.repo:  # with user specified repo(s)
         repos = {k: repos[k] for k in args.repo}
-    for path in repos.values():
-        utils.exec_git(path, args.cmd)
+    cmds = ['git'] + args.cmd
+    if len(repos) == 1:
+        path = next(iter(repos.values()))
+        subprocess.run(cmds, cwd=path)
+    else:  # run concurrent subprocesses
+        tasks = [
+            utils.run_async_command(path, cmds) for path in repos.values()
+        ]
+        utils.exec_async_tasks(tasks)
 
 
 def f_super(args):
