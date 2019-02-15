@@ -132,17 +132,17 @@ def get_commit_msg() -> str:
 
 async def run_async(path: str, cmds: List[str]):
     """
+    Run `cmds` asynchronously in `path` directory
     """
-    process = await asyncio.create_subprocess_exec(*cmds, cwd=path)
-    # stdout, _ = await process.communicate()
-    # return stdout and stdout.decode().strip()
-    # print(stdout.decode())
-    await process.wait()
+    process = await asyncio.create_subprocess_exec(
+        *cmds, stdout=asyncio.subprocess.PIPE, cwd=path)
+    stdout, _ = await process.communicate()
+    stdout and print(stdout.decode())
 
 
 def exec_async_tasks(tasks: List[Coroutine]):
     """
-    Execute git `cmd` in the `path` directory asynchronously
+    Execute tasks asynchronously
     """
     # TODO: asyncio API is nicer in python 3.7
     if platform.system() == 'Windows':
