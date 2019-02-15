@@ -123,11 +123,9 @@ def get_commit_msg() -> str:
     result = subprocess.run(
         'git show -s --format=%s'.split(),
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
         universal_newlines=True)
-    if result.stderr:  # no commit yet
-        return '\n'
-    return result.stdout
+    return result.stdout.strip()
 
 
 async def run_async(path: str, cmds: List[str]):

@@ -16,7 +16,7 @@ class TestLs:
         __main__.main(['ls'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert out == "repo1repo2"
+        assert out == "repo1\nrepo2\n"
         __main__.main(['ls', 'repo1'])
         out, err = capfd.readouterr()
         assert err == ''
@@ -24,10 +24,10 @@ class TestLs:
 
     @pytest.mark.parametrize('path_fname, expected', [
         (PATH_FNAME,
-         "repo1 cmaster dsu\x1b[0m msgrepo2 cmaster dsu\x1b[0m msg"),
+         "repo1 cmaster dsu\x1b[0m msg\nrepo2 cmaster dsu\x1b[0m msg\n"),
         (PATH_FNAME_EMPTY, ""),
         (PATH_FNAME_CLASH,
-         "repo1   cmaster dsu\x1b[0m msgrepo2   cmaster dsu\x1b[0m msgx/repo1 cmaster dsu\x1b[0m msg"
+         "repo1   cmaster dsu\x1b[0m msg\nrepo2   cmaster dsu\x1b[0m msg\nx/repo1 cmaster dsu\x1b[0m msg\n"
          ),
     ])
     @patch('gita.utils.is_git', return_value=True)

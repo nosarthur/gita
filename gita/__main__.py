@@ -29,8 +29,7 @@ def f_ls(args: argparse.Namespace):
         print(repos[args.repo])
     else:
         for line in utils.describe(repos):
-            # commit message contains \n already
-            print(line, end='')
+            print(line)
 
 
 def f_rm(args: argparse.Namespace):
