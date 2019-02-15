@@ -43,11 +43,10 @@ The bookkeeping sub-commands are
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
-The delegated git sub-commands are of two forms
+The delegated git sub-commands are of two formats
 
+- `gita <sub-command> [repo-name(s)]` with optional input, and no input means all repos.
 - `gita <sub-command> <repo-name(s)>` with required repo name(s) input
-- `gita <sub-command> [repo-name(s)]` with optional input. And no input means
-  all repos.
 
 By default, only `fetch` and `pull` take optional input.
 Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
@@ -78,7 +77,7 @@ push:
 
 Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
-And they shadow the default ones in the case of name clashes.
+And they shadow the default ones if name collisions exist.
 
 If you want a custom command to behave like `gita fetch`, i.e., to apply
 command to all repos if nothing is specified,
@@ -95,7 +94,7 @@ comaster:
 
 ## Superman mode
 
-The superman mode delegates any git command/alias for specified or all repo(s).
+The superman mode delegates any git command/alias.
 Usage:
 
 ```
