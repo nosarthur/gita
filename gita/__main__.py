@@ -20,7 +20,7 @@ from . import utils
 
 
 def f_add(args: argparse.Namespace):
-    utils.add_repos(args.repo)
+    utils.add_repos(args.paths)
 
 
 def f_ls(args: argparse.Namespace):
@@ -46,20 +46,19 @@ def f_rm(args: argparse.Namespace):
 
 def f_git_cmd(args: argparse.Namespace):
     """
-    Delegate git command/alias defined in `args.cmd`
+    Delegate git command/alias defined in `args.cmd`. Asynchronous execution is
+    disabled for commands in the `args.async_blacklist`.
     """
     repos = utils.get_repos()
     if args.repo:  # with user specified repo(s)
         repos = {k: repos[k] for k in args.repo}
     cmds = ['git'] + args.cmd
-    if len(repos) == 1:
-        path = next(iter(repos.values()))
-        subprocess.run(cmds, cwd=path)
+    if len(repos) == 1 or cmds[1] in args.async_blacklist:
+        for path in repos.values():
+            subprocess.run(cmds, cwd=path)
     else:  # run concurrent subprocesses
-        tasks = [
-            utils.run_async(path, cmds) for path in repos.values()
-        ]
-        utils.exec_async_tasks(tasks)
+        utils.exec_async_tasks(
+            utils.run_async(path, cmds) for path in repos.values())
 
 
 def f_super(args):
@@ -93,7 +92,7 @@ def main(argv=None):
 
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
-    p_add.add_argument('repo', nargs='+', help="add repo(s)")
+    p_add.add_argument('paths', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', help='remove repo')
@@ -142,6 +141,11 @@ def main(argv=None):
         sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
 
     args = p.parse_args(argv)
+
+    args.async_blacklist = {
+        name
+        for name, data in cmds.items() if data.get('disable_async')
+    }
 
     if 'func' in args:
         args.func(args)
