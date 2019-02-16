@@ -6,6 +6,7 @@ clean:
 diff:
   help: show differences
 difftool:
+  disable_async: true
   help: show differences using a tool
 fetch:
   allow_all: true
@@ -15,6 +16,9 @@ log:
 merge:
   cmd: merge @{u}
   help: merge remote updates
+mergetool:
+  disable_async: true
+  help: merge updates with a tool
 patch:
   cmd: format-patch HEAD~
   help: make a patch

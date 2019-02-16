@@ -50,10 +50,20 @@ The delegated git sub-commands are of two formats
 
 By default, only `fetch` and `pull` take optional input.
 Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
-`log`, `merge`, `patch`, `push`, `rebase`, `reflog`, `remote`,
+`log`, `merge`, `mergetool`, `patch`, `push`, `rebase`, `reflog`, `remote`,
 `stash`, `stat`, and `status`.
 
-Delegation details are specified in
+If more than one repos are specified, the git command will run asynchronously,
+with the exception of `difftool` and `mergetool`, which require user input
+non-trivially.
+
+## Customization
+
+Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
+(most likely `~/.config/gita/cmds.yml`).
+And they shadow the default ones if name collisions exist.
+
+Delegation details for the default commands are in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 For example, `gita stat <repo-name(s)>` is registered as
 
@@ -66,18 +76,9 @@ stat:
 which executes `git diff --stat`.
 
 If the delegated git command is a single word, the `cmd` tag can be omitted.
-For example, `gita push <repo-name(s)>` is registered as
-
-```yaml
-push:
-  help: push the local updates
-```
-
-## Customization
-
-Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
-(most likely `~/.config/gita/cmds.yml`).
-And they shadow the default ones if name collisions exist.
+See `push` as an example.
+To disable asynchronous execution, set the `disable_async` tag to be `true`.
+See `difftool` as an example.
 
 If you want a custom command to behave like `gita fetch`, i.e., to apply
 command to all repos if nothing is specified,
