@@ -54,8 +54,7 @@ Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
 `stash`, `stat`, and `status`.
 
 If more than one repos are specified, the git command will run asynchronously,
-with the exception of `difftool` and `mergetool`, which require user input
-non-trivially.
+with the exception of `difftool` and `mergetool`, which require non-trivial user input.
 
 ## Customization
 
