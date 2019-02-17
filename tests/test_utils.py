@@ -1,5 +1,6 @@
 import pytest
-from unittest.mock import patch, mock_open
+import subprocess
+from unittest.mock import patch, mock_open, MagicMock
 
 from gita import utils
 from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
@@ -53,6 +54,26 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
     assert repos == expected
 
 
+@patch('subprocess.run')
+def test_run_quiet_diff(mock_run):
+    mock_return = MagicMock()
+    mock_run.return_value = mock_return
+    got = utils.run_quiet_diff(['my', 'args'])
+    mock_run.assert_called_once_with(
+        ['git', 'diff', '--quiet', 'my', 'args'],
+        stderr=subprocess.DEVNULL,
+    )
+    assert got == mock_return.returncode
+
+
+@patch('os.path.isfile', return_value=True)
+def test_custom_push_cmd(_):
+    with patch('builtins.open',
+               mock_open(read_data='push:\n  cmd: hand\n  help: me')):
+        cmds = utils.get_cmds_from_files()
+    assert cmds['push'] == {'cmd': 'hand', 'help': 'me'}
+
+
 @pytest.mark.parametrize(
     'path_input, expected',
     [
@@ -72,4 +93,3 @@ def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
     mock_file.assert_called_with('/config/gita/repo_path', 'w')
     handle = mock_file()
     handle.write.assert_called_once_with(expected)
-
