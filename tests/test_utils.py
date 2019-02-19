@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 import subprocess
 from unittest.mock import patch, mock_open, MagicMock
 
@@ -93,3 +94,21 @@ def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
     mock_file.assert_called_with('/config/gita/repo_path', 'w')
     handle = mock_file()
     handle.write.assert_called_once_with(expected)
+
+
+def test_async_output(capfd):
+    tasks = [
+        utils.run_async('.', [
+            'python', '-c',
+            f"print({i});import time; time.sleep({i});print({i})"
+        ]) for i in range(4)
+    ]
+    # I don't fully understand why a new loop is needed here. Without a new
+    # loop, "pytest" fails but "pytest tests/test_utils.py" works. Maybe pytest
+    # itself uses asyncio (or maybe pytest-xdist)?
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    utils.exec_async_tasks(tasks)
+
+    out, err = capfd.readouterr()
+    assert err == ''
+    assert out == "0\n0\n\n1\n1\n\n2\n2\n\n3\n3\n\n"
