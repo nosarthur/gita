@@ -36,8 +36,9 @@ The additional status symbols denote
 The bookkeeping sub-commands are
 
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
-- `gita rm <repo-name>`: remove repo from `gita` (won't remove repo from disk)
-- `gita ls`: display the status of all repos
+- `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
+- `gita ll`: display the status of all repos
+- `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita -v`: display gita version
 
