@@ -8,15 +8,15 @@ from gita import utils
 from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 
 
-class TestLs:
-    def test(self, monkeypatch, capfd):
+class TestLsLl:
+    def testLs(self, monkeypatch, capfd):
         monkeypatch.setattr(utils, 'get_repos',
                 lambda: {'repo1':'/a/', 'repo2':'/b/'})
         monkeypatch.setattr(utils, 'describe', lambda x: x)
         __main__.main(['ls'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert out == "repo1\nrepo2\n"
+        assert out == "repo1 repo2\n"
         __main__.main(['ls', 'repo1'])
         out, err = capfd.readouterr()
         assert err == ''
@@ -39,7 +39,7 @@ class TestLs:
                           expected, capfd):
         mock_path_fname.return_value = path_fname
         utils.get_repos.cache_clear()
-        __main__.main(['ls'])
+        __main__.main(['ll'])
         out, err = capfd.readouterr()
         assert err == ''
         assert out == expected
@@ -50,7 +50,7 @@ class TestLs:
 @patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 def test_rm(*_):
     args = argparse.Namespace()
-    args.repo = 'repo1'
+    args.repo = ['repo1']
     with patch('builtins.open', mock_open()) as mock_file:
         __main__.f_rm(args)
     mock_file.assert_called_with('some path', 'w')
@@ -63,10 +63,7 @@ def test_not_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-@patch(
-    'gita.utils.get_repos', return_value={
-        'repo2': '/d/efg'
-    })
+@patch('gita.utils.get_repos', return_value={'repo2': '/d/efg'})
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
     __main__.main(['fetch'])

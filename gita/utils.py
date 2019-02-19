@@ -80,7 +80,9 @@ def add_repos(new_paths: List[str]):
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
     new_paths = new_paths - existing_paths
     if new_paths:
-        print(f"Found {len(new_paths)} new repo(s): {new_paths}.")
+        print(f"Found {len(new_paths)} new repo(s):")
+        for path in new_paths:
+            print(path)
         existing_paths.update(new_paths)
         fname = get_path_fname()
         os.makedirs(os.path.dirname(fname), exist_ok=True)

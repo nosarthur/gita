@@ -23,23 +23,32 @@ def f_add(args: argparse.Namespace):
     utils.add_repos(args.paths)
 
 
+def f_ll(args: argparse.Namespace):
+    """
+    Display details of all repos
+    """
+    repos = utils.get_repos()
+    for line in utils.describe(repos):
+        print(line)
+
+
 def f_ls(args: argparse.Namespace):
     repos = utils.get_repos()
     if args.repo:  # one repo, show its path
         print(repos[args.repo])
-    else:
-        for line in utils.describe(repos):
-            print(line)
+    else:  # show names of all repos
+        print(' '.join(repos))
 
 
 def f_rm(args: argparse.Namespace):
     """
-    Unregister a repo from gita
+    Unregister repo(s) from gita
     """
     path_file = utils.get_path_fname()
     if os.path.isfile(path_file):
         repos = utils.get_repos()
-        del repos[args.repo]
+        for repo in args.repo:
+            del repos[repo]
         with open(path_file, 'w') as f:
             f.write(os.pathsep.join(repos.values()))
 
@@ -95,12 +104,19 @@ def main(argv=None):
     p_add.add_argument('paths', nargs='+', help="add repo(s)")
     p_add.set_defaults(func=f_add)
 
-    p_rm = subparsers.add_parser('rm', help='remove repo')
+    p_rm = subparsers.add_parser('rm', help='remove repo(s)')
     p_rm.add_argument(
-        'repo', choices=utils.get_repos(), help="remove the chosen repo")
+        'repo',
+        nargs='+',
+        choices=utils.get_repos(),
+        help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
-    p_ls = subparsers.add_parser('ls', help='display summaries of all repos')
+    p_ll = subparsers.add_parser('ll', help='display summary of all repos')
+    p_ll.set_defaults(func=f_ll)
+
+    p_ls = subparsers.add_parser(
+        'ls', help='display names of all repos, or path of a chosen repo')
     p_ls.add_argument(
         'repo',
         nargs='?',
