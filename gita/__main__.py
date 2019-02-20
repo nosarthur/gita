@@ -9,6 +9,9 @@ Examples:
     gita fetch
     gita stat myrepo2
     gita super myrepo1 commit -am 'add some cool feature'
+
+For bash auto completion, download and source
+https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 '''
 
 import os
