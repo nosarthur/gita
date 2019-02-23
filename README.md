@@ -26,13 +26,13 @@ status together. I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-Here the colors denote the 5 situations between local and remote branches:
+Here the color distinguishes 5 situations between local and remote branches:
 
-- white: local branch has no remote branch
-- green: local branch is the same as remote branch
-- red: local branch has diverged from remote branch
-- purple: local branch is ahead of remote branch (good for push)
-- yellow: local branch is behind remote branch (good for merge)
+- white: local has no remote
+- green: local is the same as remote
+- red: local has diverged from remote
+- purple: local is ahead of remote (good for push)
+- yellow: local is behind remote (good for merge)
 
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),

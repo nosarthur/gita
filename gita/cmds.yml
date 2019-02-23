@@ -12,6 +12,7 @@ fetch:
   allow_all: true
   help: fetch remote update
 log:
+  disable_async: true
   help: show logs
 merge:
   cmd: merge @{u}
