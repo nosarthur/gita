@@ -1,7 +1,18 @@
-[![PyPi version](https://img.shields.io/pypi/v/gita.svg)](https://pypi.org/project/gita/)
+[![PyPi version](https://img.shields.io/pypi/v/gita.svg?color=blue)](https://pypi.org/project/gita/)
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
-[![licence](https://img.shields.io/pypi/l/gita.svg?style=flat)](https://github.com/nosarthur/gita/blob/master/LICENSE)
+[![licence](https://img.shields.io/pypi/l/gita.svg)](https://github.com/nosarthur/gita/blob/master/LICENSE)
+
+```
+ _______________________________
+(  ____ \__   __|__   __(  ___  )
+| (    \/  ) (     ) (  | (   ) |
+| |        | |     | |  | (___) |
+| | ____   | |     | |  |  ___  |
+| | \_  )  | |     | |  | (   ) |
+| (___) |__) (___  | |  | )   ( |
+(_______)_______/  )_(  |/     \|   v0.8
+```
 
 # Gita: a command-line tool to manage multiple git repos
 
