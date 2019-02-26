@@ -21,12 +21,12 @@ This tool does two things
 - display the status of multiple git repos such as branch, modification, commit message side by side
 - delegate git commands/aliases from any working directory
 
-If several repos need to be compiled against each other, it helps to see their
+If several repos are compiled against each other, it helps to see their
 status together. I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-Here the color distinguishes 5 situations between local and remote branches:
+Here the branch color distinguishes 5 situations between local and remote branches:
 
 - white: local has no remote
 - green: local is the same as remote
@@ -57,8 +57,8 @@ Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.confi
 
 The delegated git sub-commands are of two formats
 
-- `gita <sub-command> [repo-name(s)]` with optional input, and no input means all repos.
-- `gita <sub-command> <repo-name(s)>` with required repo name(s) input
+- `gita <sub-command> [repo-name(s)]`: optional input, and no input means all repos.
+- `gita <sub-command> <repo-name(s)>`: required repo name(s) input
 
 By default, only `fetch` and `pull` take optional input.
 Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
@@ -66,7 +66,7 @@ Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
 `stash`, `stat`, and `status`.
 
 If more than one repos are specified, the git command will run asynchronously,
-with the exception of `difftool` and `mergetool`, which require non-trivial user input.
+with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.
 
 ## Customization
 
@@ -110,7 +110,7 @@ The superman mode delegates any git command/alias.
 Usage:
 
 ```
-gita super [repo-name(s)] <command/alias>
+gita super [repo-name(s)] <any-git-command-with-options>
 ```
 
 Here `repo-name(s)` is optional, and absence means all repos.
@@ -127,6 +127,10 @@ For example,
 Gita requires Python 3.6 or higher, due to the use of
 [f-string](https://www.python.org/dev/peps/pep-0498/)
 and [asyncio module](https://docs.python.org/3.6/library/asyncio.html).
+Under the hood, gita uses subprocess to run git commands/aliases.
+Thus the git version may matter.
+I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
+their results are consistent. Newer git is faster though.
 
 ## Installation
 
@@ -160,6 +164,8 @@ To contribute, you can
 - star/recommend this project
 
 To run tests locally, simply `pytest`.
+More details about the implementation can be found in
+[design.md](https://github.com/nosarthur/gita/blob/master/design.md).
 
 ## Other multi-repo tools
 

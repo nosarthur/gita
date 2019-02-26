@@ -4,7 +4,7 @@ import asyncio
 import platform
 import subprocess
 from functools import lru_cache
-from typing import List, Dict, Tuple, Coroutine
+from typing import List, Dict, Tuple, Coroutine, Union
 
 
 class Color:
@@ -50,7 +50,7 @@ def get_repos() -> Dict[str, str]:
     return repos
 
 
-def get_choices() -> List[str]:
+def get_choices() -> List[Union[str, None]]:
     """
     Return all repo names and an additional empty list. This is a workaround of
     argparse's problem with coexisting nargs='*' and choices.
@@ -93,6 +93,7 @@ def add_repos(new_paths: List[str]):
 
 
 def get_head(path: str) -> str:
+    # this is faster than `git rev-parse --abbrev-ref HEAD`
     head = os.path.join(path, '.git', 'HEAD')
     with open(head) as f:
         return os.path.basename(f.read()).rstrip()
@@ -122,7 +123,7 @@ def get_commit_msg() -> str:
     """
     Return the last commit message.
     """
-    # git show-branch --no-name HEAD is faster than git show -s --format=%s
+    # `git show-branch --no-name HEAD` is faster than `git show -s --format=%s`
     result = subprocess.run(
         'git show-branch --no-name HEAD'.split(),
         stdout=subprocess.PIPE,
