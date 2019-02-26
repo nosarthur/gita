@@ -3,7 +3,7 @@ import yaml
 import asyncio
 import platform
 import subprocess
-from multiprocessing import Pool
+import multiprocessing as mp
 from functools import lru_cache
 from typing import List, Dict, Tuple, Coroutine
 
@@ -190,16 +190,16 @@ def get_common_commit() -> str:
     return result.stdout.strip()
 
 
-def _get_dirty_symbol() -> str:
-    return '*' if run_quiet_diff([]) else ''
+def _get_dirty_symbol(q) -> str:
+    q.put('*' if run_quiet_diff([]) else '')
 
 
-def _get_staged_symbol() -> str:
-    return '+' if run_quiet_diff(['--cached']) else ''
+def _get_staged_symbol(q) -> str:
+    q.put('+' if run_quiet_diff(['--cached']) else '')
 
 
-def _get_untracked_symbol() -> str:
-    return '_' if has_untracked() else ''
+def _get_untracked_symbol(q) -> str:
+    q.put('_' if has_untracked() else '')
 
 
 def _get_repo_status(path: str) -> Tuple[str]:
@@ -207,10 +207,17 @@ def _get_repo_status(path: str) -> Tuple[str]:
     Return the status of one repo
     """
     os.chdir(path)
-    funcs = [_get_dirty_symbol, _get_staged_symbol, _get_untracked_symbol, _get_branch_color]
+    funcs = [_get_dirty_symbol, _get_staged_symbol, _get_untracked_symbol, ]
 
-    with Pool(4) as p:
-        results = [p.apply(f) for f in funcs]
+    output = mp.Queue()
+    procs = [mp.Process(target=f, args=(output,)) for f in funcs]
+    for p in procs:
+        p.start()
+    color = _get_branch_color()
+    for p in procs:
+        p.join()
+    results = [output.get() for p in procs]
+    results.append(color)
     return results
 
 
