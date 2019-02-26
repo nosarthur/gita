@@ -3,6 +3,7 @@ import yaml
 import asyncio
 import platform
 import subprocess
+from multiprocessing import Pool
 from functools import lru_cache
 from typing import List, Dict, Tuple, Coroutine, Union
 
@@ -17,6 +18,27 @@ class Color:
     purple = '\x1b[35m'  # local is ahead
     white = '\x1b[37m'  # no remote branch
     end = '\x1b[0m'
+
+
+def _get_branch_color() -> str:
+    """
+    Return terminal color string for a repo
+    """
+    diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
+    has_no_remote = diff_returncode == 128
+    has_no_diff = diff_returncode == 0
+    if has_no_remote:
+        return Color.white
+    elif has_no_diff:
+        return Color.green
+    else:
+        common_commit = get_common_commit()
+        outdated = run_quiet_diff(['@{u}', common_commit])
+        if outdated:
+            diverged = run_quiet_diff(['@{0}', common_commit])
+            return Color.red if diverged else Color.yellow
+        else:  # local is ahead of remote
+            return Color.purple
 
 
 def get_path_fname() -> str:
@@ -170,31 +192,28 @@ def get_common_commit() -> str:
     return result.stdout.strip()
 
 
+def _get_dirty_symbol() -> str:
+    return '*' if run_quiet_diff([]) else ''
+
+
+def _get_staged_symbol() -> str:
+    return '+' if run_quiet_diff(['--cached']) else ''
+
+
+def _get_untracked_symbol() -> str:
+    return '_' if has_untracked() else ''
+
+
 def _get_repo_status(path: str) -> Tuple[str]:
     """
     Return the status of one repo
     """
     os.chdir(path)
-    dirty = '*' if run_quiet_diff([]) else ''
-    staged = '+' if run_quiet_diff(['--cached']) else ''
-    untracked = '_' if has_untracked() else ''
+    funcs = [_get_dirty_symbol, _get_staged_symbol, _get_untracked_symbol, _get_branch_color]
 
-    diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
-    has_no_remote = diff_returncode == 128
-    has_no_diff = diff_returncode == 0
-    if has_no_remote:
-        color = Color.white
-    elif has_no_diff:
-        color = Color.green
-    else:
-        common_commit = get_common_commit()
-        outdated = run_quiet_diff(['@{u}', common_commit])
-        if outdated:
-            diverged = run_quiet_diff(['@{0}', common_commit])
-            color = Color.red if diverged else Color.yellow
-        else:  # local is ahead of remote
-            color = Color.purple
-    return dirty, staged, untracked, color
+    with Pool(4) as p:
+        results = [p.apply(f) for f in funcs]
+    return results
 
 
 def describe(repos: Dict[str, str]) -> str:
