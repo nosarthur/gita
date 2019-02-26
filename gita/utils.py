@@ -122,8 +122,9 @@ def get_commit_msg() -> str:
     """
     Return the last commit message.
     """
+    # git show-branch --no-name HEAD is faster than git show -s --format=%s
     result = subprocess.run(
-        'git show -s --format=%s'.split(),
+        'git show-branch --no-name HEAD'.split(),
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         universal_newlines=True)
