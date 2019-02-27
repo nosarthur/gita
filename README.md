@@ -21,8 +21,8 @@ This tool does two things
 - display the status of multiple git repos such as branch, modification, commit message side by side
 - delegate git commands/aliases from any working directory
 
-If several repos are compiled against each other, it helps to see their
-status together. I also hate to change directories to execute git commands.
+If several repos compile together, it helps to see their status together too.
+I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
@@ -55,13 +55,13 @@ The bookkeeping sub-commands are
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
-The delegated git sub-commands are of two formats
+The delegating sub-commands are of two formats
 
-- `gita <sub-command> [repo-name(s)]`: optional input, and no input means all repos.
+- `gita <sub-command> [repo-name(s)]`: optional repo input, and no input means all repos.
 - `gita <sub-command> <repo-name(s)>`: required repo name(s) input
 
 By default, only `fetch` and `pull` take optional input.
-Sub-commands with required input include `branch`, `clean`, `diff`, `difftool`,
+Sub-commands with required input are `branch`, `clean`, `diff`, `difftool`,
 `log`, `merge`, `mergetool`, `patch`, `push`, `rebase`, `reflog`, `remote`,
 `stash`, `stat`, and `status`.
 
@@ -70,11 +70,11 @@ with the exception of `log`, `difftool` and `mergetool`, which require non-trivi
 
 ## Customization
 
-Custom git commands/aliases can be placed in `$XDG_CONFIG_HOME/gita/cmds.yml`
+Custom git commands/aliases can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones if name collisions exist.
 
-Delegation details for the default commands are in
+Delegation details of the default commands are in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 For example, `gita stat <repo-name(s)>` is registered as
 
@@ -87,9 +87,9 @@ stat:
 which executes `git diff --stat`.
 
 If the delegated git command is a single word, the `cmd` tag can be omitted.
-See `push` as an example.
+See `push` for an example.
 To disable asynchronous execution, set the `disable_async` tag to be `true`.
-See `difftool` as an example.
+See `difftool` for an example.
 
 If you want a custom command to behave like `gita fetch`, i.e., to apply
 command to all repos if nothing is specified,
@@ -116,21 +116,20 @@ gita super [repo-name(s)] <any-git-command-with-options>
 Here `repo-name(s)` is optional, and absence means all repos.
 For example,
 
-- `gita super myrepo1 commit -am 'fix a bug'`
-  executes `git commit -am 'fix a bug'` for `myrepo1`
-- `gita super checkout master` puts all repos on the master branch (also see the customization example)
-- `gita super frontend_repo backend_repo checkout new-feature` puts the two
-  chosen repos on the `new-feature` branch
+- `gita super checkout master` puts all repos on the master branch
+- `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
+  executes `git commit -am 'implement a new feature'` for `frontend-repo` and `backend-repo`
 
 ## Requirements
 
 Gita requires Python 3.6 or higher, due to the use of
 [f-string](https://www.python.org/dev/peps/pep-0498/)
 and [asyncio module](https://docs.python.org/3.6/library/asyncio.html).
+
 Under the hood, gita uses subprocess to run git commands/aliases.
-Thus the git version may matter.
+Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
-their results are consistent. Newer git is faster though.
+their results agree. Newer git is faster though.
 
 ## Installation
 
@@ -164,7 +163,7 @@ To contribute, you can
 - star/recommend this project
 
 To run tests locally, simply `pytest`.
-More details about the implementation can be found in
+More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/design.md).
 
 ## Other multi-repo tools
