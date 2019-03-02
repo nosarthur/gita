@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/nosarthur/gita.svg?branch=master)](https://travis-ci.org/nosarthur/gita)
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
 [![licence](https://img.shields.io/pypi/l/gita.svg)](https://github.com/nosarthur/gita/blob/master/LICENSE)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/gita.svg)](https://pypistats.org/packages/gita)
 
 ```
  _______________________________
@@ -70,11 +71,11 @@ with the exception of `log`, `difftool` and `mergetool`, which require non-trivi
 
 ## Customization
 
-Custom git commands/aliases can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
+Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones if name collisions exist.
 
-Delegation details of the default commands are in
+Default delegating sub-commands are defined in
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 For example, `gita stat <repo-name(s)>` is registered as
 
@@ -110,7 +111,7 @@ The superman mode delegates any git command/alias.
 Usage:
 
 ```
-gita super [repo-name(s)] <any-git-command-with-options>
+gita super [repo-name(s)] <any-git-command-with-or-without-options>
 ```
 
 Here `repo-name(s)` is optional, and absence means all repos.
