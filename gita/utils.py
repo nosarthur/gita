@@ -3,7 +3,7 @@ import yaml
 import asyncio
 import platform
 import subprocess
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
 from functools import lru_cache
 from typing import List, Dict, Tuple, Coroutine, Union
 
@@ -204,16 +204,13 @@ def _get_untracked_symbol() -> str:
     return '_' if has_untracked() else ''
 
 
-def _get_repo_status(path: str) -> Tuple[str]:
+def _get_repo_status(path: str, p: ThreadPool) -> Tuple[str]:
     """
     Return the status of one repo
     """
     os.chdir(path)
-    funcs = [_get_dirty_symbol, _get_staged_symbol, _get_untracked_symbol, _get_branch_color]
-
-    with Pool(4) as p:
-        results = [p.apply(f) for f in funcs]
-    return results
+    return (p.apply(f) for f in (_get_dirty_symbol, _get_staged_symbol,
+                                 _get_untracked_symbol, _get_branch_color))
 
 
 def describe(repos: Dict[str, str]) -> str:
@@ -222,11 +219,13 @@ def describe(repos: Dict[str, str]) -> str:
     """
     if repos:
         name_width = max(len(n) for n in repos) + 1
-    for name in sorted(repos):
-        path = repos[name]
-        head = get_head(path)
-        dirty, staged, untracked, color = _get_repo_status(path)
-        yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
+
+    with ThreadPool(4) as p:
+        for name in sorted(repos):
+            path = repos[name]
+            head = get_head(path)
+            dirty, staged, untracked, color = _get_repo_status(path, p)
+            yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
