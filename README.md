@@ -130,7 +130,7 @@ and [asyncio module](https://docs.python.org/3.6/library/asyncio.html).
 Under the hood, gita uses subprocess to run git commands/aliases.
 Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
-their results agree. Newer git is faster though.
+their results agree.
 
 ## Installation
 
