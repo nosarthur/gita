@@ -16,16 +16,16 @@
 (_______)_______/  )_(  |/     \|   v0.8
 ```
 
-# git 啊：管理多个 git 库的命令行工具
+# Git 啊：管理多个 git 库的命令行工具
 
 老夫有两把刷子：
 
-- 同时显示多个库的状态信息，比如树杈名，编辑状态，贡献信息
+- 同时显示多个库的状态信息，比如库杈名，编辑状态，贡献信息等
 - 在任何目录下代理执行 git 指令
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
 
-树杈的五色代表了本土和远程树杈相生相杀的关系：
+库杈的五色代表了本土和远程库杈相生相杀的关系：
 
 - 青：远近一致
 - 赤：本土已与远程分道扬镳
@@ -67,7 +67,7 @@
 它们会覆盖掉默认的指令。
 
 默认指令的定义可见
-[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml)。
 举个栗子，`gita stat <repo-name(s)>`的定义是
 
 ```yaml
@@ -76,7 +76,7 @@ stat:
   help: show edit statistics
 ```
 
-它会执行`git diff --stat`.
+它会执行`git diff --stat`。
 
 如果被代理的指令是一个单词，`cmd`也可以省略。比如`push`。
 如果要取消异步执行，把`disable_async`设成`true`。比如`difftool`。
@@ -102,7 +102,7 @@ gita super [repo-name(s)] <any-git-command-with-or-without-options>
 
 其中库名是可有可无的。举几个例子
 
-- `gita super checkout master`会把所有库都弄到主树杈上
+- `gita super checkout master`会把所有库都弄到主库杈上
 - `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
   会对`frontend-repo`和`backend-repo`运行`git commit -am 'implement a new feature'`
 
@@ -128,7 +128,7 @@ pip3 install -U gita
 pip3 install -e <gita-source-folder>
 ```
 
-装完之后在命令行下执行`gita`可能还不行。可以把下面这个昵称放到`.bashrc`里。
+装完之后在命令行下执行`gita`可能还不行。那就把下面这个昵称放到`.bashrc`里。
 ```
 alias gita="python3 -m gita"
 ```
