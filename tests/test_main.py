@@ -9,19 +9,33 @@ from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 
 
 class TestLsLl:
-    def testLl(self, capfd):
-        # functional test
+    @patch('gita.utils.get_path_fname')
+    def testLl(self, mock_path_fname, capfd, tmp_path):
+        """ functional test """
+        # avoid modifying the local configuration
+        mock_path_fname.return_value = tmp_path / 'path_config.txt'
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
-        print('add', out)
-        assert 'Found 1 new repo(s):' in out or 'No new repos found!' in out
+        assert 'Found 1 new repo(s):' in out
+
+        # in production this is not needed
+        utils.get_repos.cache_clear()
+
+        __main__.main(['ls'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'gita\n' == out
 
         __main__.main(['ll'])
         out, err = capfd.readouterr()
         assert err == ''
-        print('ll', out)
         assert 'gita' in out
+
+        __main__.main(['ls', 'gita'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert out.strip() == utils.get_repos()['gita']
 
     def testLs(self, monkeypatch, capfd):
         monkeypatch.setattr(utils, 'get_repos',
