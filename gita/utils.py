@@ -225,7 +225,7 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     # default config file
     fname = os.path.join(os.path.dirname(__file__), "cmds.yml")
     with open(fname, 'r') as stream:
-        cmds = yaml.load(stream)
+        cmds = yaml.load(stream, Loader=yaml.FullLoader)
 
     # custom config file
     root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
@@ -234,7 +234,7 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     custom_cmds = {}
     if os.path.isfile(fname):
         with open(fname, 'r') as stream:
-            custom_cmds = yaml.load(stream)
+            custom_cmds = yaml.load(stream, Loader=yaml.FullLoader)
 
     # custom commands shadow default ones
     cmds.update(custom_cmds)
