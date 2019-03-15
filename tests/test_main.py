@@ -9,9 +9,20 @@ from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 
 
 class TestLsLl:
+    def testLl(self, capfd):
+        # functional test
+        __main__.main(['add', '.'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'Found 1 new repo(s):' in out or 'No new repos found!' in out
+        __main__.main(['ll'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'gita' in out
+
     def testLs(self, monkeypatch, capfd):
         monkeypatch.setattr(utils, 'get_repos',
-                lambda: {'repo1':'/a/', 'repo2':'/b/'})
+                lambda: {'repo1': '/a/', 'repo2': '/b/'})
         monkeypatch.setattr(utils, 'describe', lambda x: x)
         __main__.main(['ls'])
         out, err = capfd.readouterr()
