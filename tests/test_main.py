@@ -11,20 +11,16 @@ from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 class TestLsLl:
     def testLl(self, capfd):
         # functional test
-        __main__.main(['add', '.'])  # local test folder structure
+        __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
-        local = 'Found 1 new repo(s):' in out or 'No new repos found!' in out
+        print('add', out)
+        assert 'Found 1 new repo(s):' in out or 'No new repos found!' in out
 
-        __main__.main(['add', 'gita'])  # remote test folder structure (travis ci)
-        out, err = capfd.readouterr()
-        assert err == ''
-        remote = 'Found 1 new repo(s):' in out
-
-        assert local or remote
         __main__.main(['ll'])
         out, err = capfd.readouterr()
         assert err == ''
+        print('ll', out)
         assert 'gita' in out
 
     def testLs(self, monkeypatch, capfd):
