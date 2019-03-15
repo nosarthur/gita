@@ -142,7 +142,12 @@ pip3 install -U gita
 ```
 
 If development mode is preferred,
-download the source code and run `pip3 install -e <gita-source-folder>`.
+download the source code and run
+
+````
+pip3 install -e <gita-source-folder>
+```
+
 In either case, calling `gita` in terminal may not work,
 then you can put the following line in the `.bashrc` file.
 
