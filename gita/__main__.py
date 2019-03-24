@@ -115,7 +115,22 @@ def main(argv=None):
         help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
-    p_ll = subparsers.add_parser('ll', help='display summary of all repos')
+    ll_doc = f'''  status symbols:
+    +: staged changes
+    *: unstaged changes
+    _: untracked files/folders
+
+  branch colors:
+    {utils.Color.white}white{utils.Color.end}: local has no remote
+    {utils.Color.green}green{utils.Color.end}: local is the same as remote
+    {utils.Color.red}red{utils.Color.end}: local has diverged from remote
+    {utils.Color.purple}purple{utils.Color.end}: local is ahead of remote (good for push)
+    {utils.Color.yellow}yellow{utils.Color.end}: local is behind remote (good for merge)'''
+    p_ll = subparsers.add_parser(
+        'll',
+        help='display summary of all repos',
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=ll_doc)
     p_ll.set_defaults(func=f_ll)
 
     p_ls = subparsers.add_parser(
