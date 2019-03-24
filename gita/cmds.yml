@@ -35,6 +35,8 @@ reflog:
 remote:
   cmd: remote -v
   help: show remote settings
+reset:
+  help: reset repo(s)
 stash:
   help: store uncommited changes
 stat:
@@ -42,3 +44,6 @@ stat:
   help: show edit statistics
 status:
   help: show status
+tag:
+  cmd: tag -n
+  help: show tags
