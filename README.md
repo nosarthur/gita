@@ -64,8 +64,8 @@ The delegating sub-commands are of two formats
 
 By default, only `fetch` and `pull` take optional input.
 Sub-commands with required input are `branch`, `clean`, `diff`, `difftool`,
-`log`, `merge`, `mergetool`, `patch`, `push`, `rebase`, `reflog`, `remote`,
-`stash`, `stat`, and `status`.
+`log`, `merge`, `mergetool`, `patch`, `push`, `rebase`, `reflog`, `remote`, `reset`,
+`stash`, `stat`, `status`, and `tag`.
 
 If more than one repos are specified, the git command will run asynchronously,
 with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.
@@ -179,3 +179,4 @@ I haven't tried them but I heard good things about them.
 
 - [myrepos](https://myrepos.branchable.com/)
 - [repo](https://source.android.com/setup/develop/repo)
+````
