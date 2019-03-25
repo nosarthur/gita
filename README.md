@@ -144,7 +144,7 @@ pip3 install -U gita
 If development mode is preferred,
 download the source code and run
 
-````
+```
 pip3 install -e <gita-source-folder>
 ```
 
@@ -179,4 +179,4 @@ I haven't tried them but I heard good things about them.
 
 - [myrepos](https://myrepos.branchable.com/)
 - [repo](https://source.android.com/setup/develop/repo)
-````
+
