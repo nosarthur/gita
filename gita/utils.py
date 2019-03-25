@@ -106,6 +106,7 @@ def run_quiet_diff(args: List[str]) -> bool:
     result = subprocess.run(
         ['git', 'diff', '--quiet'] + args,
         stderr=subprocess.DEVNULL,
+        preexec_fn=os.setpgrp,
     )
     return result.returncode
 
@@ -115,7 +116,9 @@ def has_untracked() -> bool:
     Return True if untracked file/folder exists
     """
     result = subprocess.run(
-        'git ls-files -zo --exclude-standard'.split(), stdout=subprocess.PIPE)
+        'git ls-files -zo --exclude-standard'.split(),
+        preexec_fn=os.setpgrp,
+        stdout=subprocess.PIPE)
     return bool(result.stdout)
 
 
@@ -128,6 +131,7 @@ def get_commit_msg() -> str:
         'git show-branch --no-name HEAD'.split(),
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
+        preexec_fn=os.setpgrp,
         universal_newlines=True)
     return result.stdout.strip()
 
@@ -137,7 +141,9 @@ async def run_async(path: str, cmds: List[str]):
     Run `cmds` asynchronously in `path` directory
     """
     process = await asyncio.create_subprocess_exec(
-        *cmds, stdout=asyncio.subprocess.PIPE, cwd=path)
+        *cmds, stdout=asyncio.subprocess.PIPE,
+        preexec_fn=os.setpgrp,
+        cwd=path)
     stdout, _ = await process.communicate()
     stdout and print(stdout.decode())
 
@@ -166,6 +172,7 @@ def get_common_commit() -> str:
     result = subprocess.run(
         'git merge-base @{0} @{u}'.split(),
         stdout=subprocess.PIPE,
+        preexec_fn=os.setpgrp,
         universal_newlines=True)
     return result.stdout.strip()
 

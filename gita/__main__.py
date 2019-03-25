@@ -15,6 +15,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 '''
 
 import os
+import sys
 import argparse
 import subprocess
 import pkg_resources
@@ -187,5 +188,8 @@ def main(argv=None):
         p.print_help()  # pragma: no cover
 
 
-if __name__ == '__main__':
-    main()  # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)
