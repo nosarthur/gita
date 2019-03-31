@@ -157,11 +157,11 @@ alias gita="python3 -m gita"
 
 Windows users may need to enable the ANSI escape sequence in terminal, otherwise
 the branch color won't work.
-Follow this [stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
+See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
 
 ## Auto-completion
 
-For auto completion, download
+Download
 [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
 and source it in `.bashrc`.
 

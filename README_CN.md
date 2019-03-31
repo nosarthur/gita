@@ -133,6 +133,8 @@ pip3 install -e <gita-source-folder>
 alias gita="python3 -m gita"
 ```
 
+Windows用户可能需要额外的设置来支持彩色的命令行， 见这个帖子。
+
 ## 自动补全
 
 下载
