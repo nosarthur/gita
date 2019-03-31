@@ -155,6 +155,10 @@ then you can put the following line in the `.bashrc` file.
 alias gita="python3 -m gita"
 ```
 
+Windows users may need to enable the ANSI escape sequence in terminal, otherwise
+the branch color won't work.
+Follow this [stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
+
 ## Auto-completion
 
 For auto completion, download
