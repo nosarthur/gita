@@ -63,9 +63,6 @@ The delegating sub-commands are of two formats
 - `gita <sub-command> <repo-name(s)>`: required repo name(s) input
 
 By default, only `fetch` and `pull` take optional input.
-Sub-commands with required input are `branch`, `clean`, `diff`, `difftool`,
-`log`, `merge`, `mergetool`, `patch`, `push`, `rebase`, `reflog`, `remote`, `reset`,
-`stash`, `stat`, `status`, and `tag`.
 
 If more than one repos are specified, the git command will run asynchronously,
 with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.

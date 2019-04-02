@@ -1,4 +1,5 @@
-branch:
+br:
+  cmd: branch -vv
   help: show local branches
 clean:
   cmd: clean -dfx
@@ -11,6 +12,9 @@ difftool:
 fetch:
   allow_all: true
   help: fetch remote update
+last:
+  cmd: log -1 HEAD
+  help: show log information of HEAD
 log:
   disable_async: true
   help: show logs
@@ -42,7 +46,7 @@ stash:
 stat:
   cmd: diff --stat
   help: show edit statistics
-status:
+st:
   help: show status
 tag:
   cmd: tag -n
