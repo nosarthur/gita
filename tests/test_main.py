@@ -104,6 +104,7 @@ def test_fetch(mock_run, *_):
         'repo2': '/d/efg'
     })
 @patch('gita.utils.run_async', new=async_mock())
+@patch('subprocess.run')
 def test_async_fetch(*_):
     __main__.main(['fetch'])
     mock_run = utils.run_async.mock
