@@ -132,17 +132,22 @@ def get_commit_msg() -> str:
     return result.stdout.strip()
 
 
-async def run_async(path: str, cmds: List[str]):
+async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
     """
-    Run `cmds` asynchronously in `path` directory
+    Run `cmds` asynchronously in `path` directory. Return the `path` if
+    execution fails.
     """
     process = await asyncio.create_subprocess_exec(
-        *cmds, stdout=asyncio.subprocess.PIPE, cwd=path)
-    stdout, _ = await process.communicate()
+        *cmds, stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        cwd=path)
+    stdout, stderr = await process.communicate()
     stdout and print(stdout.decode())
+    if stderr:
+        return path
 
 
-def exec_async_tasks(tasks: List[Coroutine]):
+def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     """
     Execute tasks asynchronously
     """
@@ -154,9 +159,10 @@ def exec_async_tasks(tasks: List[Coroutine]):
         loop = asyncio.get_event_loop()
 
     try:
-        loop.run_until_complete(asyncio.gather(*tasks))
+        errors = loop.run_until_complete(asyncio.gather(*tasks))
     finally:
         loop.close()
+    return errors
 
 
 def get_common_commit() -> str:
