@@ -73,15 +73,8 @@ def f_git_cmd(args: argparse.Namespace):
         # Async execution cannot deal with multiple repos' user name/password.
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
-        cache = os.environ.get('GIT_ASKPASS')
-        os.environ['GIT_ASKPASS'] = 'echo'
         errors = utils.exec_async_tasks(
             utils.run_async(path, cmds) for path in repos.values())
-        # Reset context and re-run
-        if cache:
-            os.environ['GIT_ASKPASS'] = cache
-        else:
-            del os.environ['GIT_ASKPASS']
         for path in errors:
             if path:
                 print(path)

@@ -139,6 +139,7 @@ async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
     """
     process = await asyncio.create_subprocess_exec(
         *cmds,
+        stdin=subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         start_new_session=True,
