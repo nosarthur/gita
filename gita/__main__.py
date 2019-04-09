@@ -67,6 +67,7 @@ def f_git_cmd(args: argparse.Namespace):
     cmds = ['git'] + args.cmd
     if len(repos) == 1 or cmds[1] in args.async_blacklist:
         for path in repos.values():
+            print(path)
             subprocess.run(cmds, cwd=path)
     else:  # run concurrent subprocesses
         # Async execution cannot deal with multiple repos' user name/password.
@@ -83,6 +84,7 @@ def f_git_cmd(args: argparse.Namespace):
             del os.environ['GIT_ASKPASS']
         for path in errors:
             if path:
+                print(path)
                 subprocess.run(cmds, cwd=path)
 
 

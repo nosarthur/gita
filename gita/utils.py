@@ -138,8 +138,10 @@ async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
     execution fails.
     """
     process = await asyncio.create_subprocess_exec(
-        *cmds, stdout=asyncio.subprocess.PIPE,
+        *cmds,
+        stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+        start_new_session=True,
         cwd=path)
     stdout, stderr = await process.communicate()
     stdout and print(stdout.decode())
