@@ -174,6 +174,9 @@ To run tests locally, simply `pytest`.
 More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
 
+You can also make donation to me on [patreon](https://www.patreon.com/nosarthur).
+Any amount is greatly appreciated!
+
 ## Other multi-repo tools
 
 I haven't tried them but I heard good things about them.

@@ -152,6 +152,8 @@ Windows用户可能需要额外的设置来支持彩色的命令行， 见这个
 在本地跑单元测试可以直接用`pytest`。更多的细节可见
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md)。
 
+如果你愿意资助我，请访问[patreon](https://www.patreon.com/nosarthur).
+
 ## 他山之石
 
 没用过，听说不错
