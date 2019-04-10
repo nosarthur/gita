@@ -139,14 +139,16 @@ async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
     """
     process = await asyncio.create_subprocess_exec(
         *cmds,
-        stdin=subprocess.DEVNULL,
+        stdin=asyncio.subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         start_new_session=True,
         cwd=path)
     stdout, stderr = await process.communicate()
     stdout and print(stdout.decode())
-    if stderr:
+    # The existence of stderr is not good indicator since git sometimes write
+    # to stderr even if the execution is successful, e.g. git fetch
+    if process.returncode != 0:
         return path
 
 
