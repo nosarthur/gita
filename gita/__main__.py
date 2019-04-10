@@ -153,8 +153,7 @@ def main(argv=None):
     # superman mode
     p_super = subparsers.add_parser(
         'super',
-        help=
-        'superman mode: delegate any git command/alias in specified or all repo(s).\n'
+        help=        'superman mode: delegate any git command/alias in specified or all repo(s).\n'
         'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
         '\t gita super repo1 repo2 repo3 checkout new-feature')
     p_super.add_argument(
