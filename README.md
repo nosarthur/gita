@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
 [![licence](https://img.shields.io/pypi/l/gita.svg)](https://github.com/nosarthur/gita/blob/master/LICENSE)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gita.svg)](https://pypistats.org/packages/gita)
-[![Chinese](https://img.shields.io/badge/-中文-lightgrey.svg)](https://github.com/nosarthur/gita/blob/master/README_CN.md)
+[![Chinese](https://img.shields.io/badge/-中文-lightgrey.svg)](https://github.com/nosarthur/gita/blob/master/doc/README_CN.md)
 
 ```
  _______________________________
@@ -26,7 +26,7 @@ This tool does two things
 If several repos compile together, it helps to see their status together too.
 I also hate to change directories to execute git commands.
 
-![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
+![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
 Here the branch color distinguishes 5 situations between local and remote branches:
 
@@ -172,7 +172,7 @@ To contribute, you can
 
 To run tests locally, simply `pytest`.
 More implementation details are in
-[design.md](https://github.com/nosarthur/gita/blob/master/design.md).
+[design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
 
 ## Other multi-repo tools
 

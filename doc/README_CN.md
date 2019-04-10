@@ -23,7 +23,7 @@
 - 同时显示多个库的状态信息，比如库杈名，编辑状态，贡献信息等
 - 在任何目录下代理执行 git 指令
 
-![gita screenshot](https://github.com/nosarthur/gita/raw/master/screenshot.png)
+![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
 库杈的五色代表了本土和远程库杈相生相杀的关系：
 
@@ -150,7 +150,7 @@ Windows用户可能需要额外的设置来支持彩色的命令行， 见这个
 - 加星/推荐老夫
 
 在本地跑单元测试可以直接用`pytest`。更多的细节可见
-[design.md](https://github.com/nosarthur/gita/blob/master/design.md)。
+[design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md)。
 
 ## 他山之石
 
