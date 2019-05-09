@@ -146,6 +146,7 @@ async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
         cwd=path)
     stdout, stderr = await process.communicate()
     stdout and print(stdout.decode())
+    stderr and print(stderr.decode())
     # The existence of stderr is not good indicator since git sometimes write
     # to stderr even if the execution is successful, e.g. git fetch
     if process.returncode != 0:
