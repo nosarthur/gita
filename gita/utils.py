@@ -104,7 +104,8 @@ def get_head(path: str) -> str:
         'git rev-parse --abbrev-ref HEAD'.split(),
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        universal_newlines=True)
+        universal_newlines=True,
+        cwd=path)
     return result.stdout.strip()
 
 
