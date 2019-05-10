@@ -26,14 +26,6 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     assert expected == next(utils.describe(test_input))
 
 
-def test_get_head():
-    with patch('builtins.open',
-               mock_open(read_data='ref: refs/heads/snake')) as mock_file:
-        head = utils.get_head('/fake')
-    assert head == 'snake'
-    mock_file.assert_called_once_with('/fake/.git/HEAD')
-
-
 @pytest.mark.parametrize('path_fname, expected', [
     (PATH_FNAME, {
         'repo1': '/a/bcd/repo1',
@@ -99,7 +91,7 @@ def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
 def test_async_output(capfd):
     tasks = [
         utils.run_async('.', [
-            'python', '-c',
+            'python3', '-c',
             f"print({i});import time; time.sleep({i});print({i})"
         ]) for i in range(4)
     ]

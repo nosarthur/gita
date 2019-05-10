@@ -69,7 +69,14 @@ def is_git(path: str) -> bool:
     """
     # An alternative is to call `git rev-parse --is-inside-work-tree`
     # I don't see why that one is better yet.
-    return os.path.isdir(os.path.join(path, '.git'))
+    # For a regular git repo, .git is a folder, for a worktree repo, .git is a file.
+    # However, git submodule repo also has .git as a file.
+    # A more reliable way to differentiable regular and worktree repos is to
+    # compare the result of `git rev-parse --git-dir` and
+    # `git rev-parse --git-common-dir`
+    loc = os.path.join(path, '.git')
+    # TODO: we can display the worktree repos in a different font.
+    return os.path.exists(loc)
 
 
 def add_repos(new_paths: List[str]):
@@ -93,10 +100,12 @@ def add_repos(new_paths: List[str]):
 
 
 def get_head(path: str) -> str:
-    # this is faster than `git rev-parse --abbrev-ref HEAD`
-    head = os.path.join(path, '.git', 'HEAD')
-    with open(head) as f:
-        return os.path.basename(f.read()).rstrip()
+    result = subprocess.run(
+        'git rev-parse --abbrev-ref HEAD'.split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        universal_newlines=True)
+    return result.stdout.strip()
 
 
 def run_quiet_diff(args: List[str]) -> bool:
