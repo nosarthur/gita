@@ -42,7 +42,14 @@ remote:
 reset:
   help: reset repo(s)
 shortlog:
+  disable_async: true
   help: show short log
+show:
+  disable_async: true
+  help: show detailed commit information
+show-branch:
+  disable_async: true
+  help: show detailed branch information
 stash:
   help: store uncommited changes
 stat:
