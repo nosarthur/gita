@@ -41,6 +41,8 @@ remote:
   help: show remote settings
 reset:
   help: reset repo(s)
+shortlog:
+  help: show short log
 stash:
   help: store uncommited changes
 stat:
@@ -51,3 +53,6 @@ st:
 tag:
   cmd: tag -n
   help: show tags
+whatchanged:
+  disable_async: true
+  help: show detailed log
