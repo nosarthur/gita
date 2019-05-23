@@ -31,7 +31,7 @@ def f_ll(args: argparse.Namespace):
     Display details of all repos
     """
     repos = utils.get_repos()
-    for line in utils.describe(repos):
+    for line in utils.describe(repos, show_path=args.show_paths):
         print(line)
 
 
@@ -139,6 +139,7 @@ def main(argv=None):
         help='display summary of all repos',
         formatter_class=argparse.RawTextHelpFormatter,
         description=ll_doc)
+    p_ll.add_argument('-p', '--show-paths', action='store_true', help='show git working directory paths')
     p_ll.set_defaults(func=f_ll)
 
     p_ls = subparsers.add_parser(

@@ -16,6 +16,7 @@ class Color:
     yellow = '\x1b[33m'  # local is behind
     purple = '\x1b[35m'  # local is ahead
     white = '\x1b[37m'  # no remote branch
+    cyan = '\x1b[36m'
     end = '\x1b[0m'
 
 
@@ -219,7 +220,7 @@ def _get_repo_status(path: str) -> Tuple[str]:
     return dirty, staged, untracked, color
 
 
-def describe(repos: Dict[str, str]) -> str:
+def describe(repos: Dict[str, str], show_path: bool=False) -> str:
     """
     Return the status of all repos
     """
@@ -229,7 +230,8 @@ def describe(repos: Dict[str, str]) -> str:
         path = repos[name]
         head = get_head(path)
         dirty, staged, untracked, color = _get_repo_status(path)
-        yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
+        file_path_info = f' {Color.cyan}[{path}]{Color.end}' if show_path else ''
+        yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end}{file_path_info} {get_commit_msg()}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
