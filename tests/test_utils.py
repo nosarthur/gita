@@ -1,9 +1,8 @@
 import pytest
 import asyncio
-import subprocess
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open
 
-from gita import utils
+from gita import utils, info
 from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
 
 
@@ -16,10 +15,10 @@ from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
     }, False, 'repo \x1b[32mrepo _    \x1b[0m msg'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
-    monkeypatch.setattr(utils, 'get_head', lambda x: 'repo')
-    monkeypatch.setattr(utils, 'run_quiet_diff', lambda _: diff_return)
-    monkeypatch.setattr(utils, 'get_commit_msg', lambda: "msg")
-    monkeypatch.setattr(utils, 'has_untracked', lambda: True)
+    monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
+    monkeypatch.setattr(info, 'run_quiet_diff', lambda _: diff_return)
+    monkeypatch.setattr(info, 'get_commit_msg', lambda _: "msg")
+    monkeypatch.setattr(info, 'has_untracked', lambda: True)
     monkeypatch.setattr('os.chdir', lambda x: None)
     print('expected: ', repr(expected))
     print('got:      ', repr(next(utils.describe(test_input))))
@@ -46,18 +45,6 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
     utils.get_repos.cache_clear()
     repos = utils.get_repos()
     assert repos == expected
-
-
-@patch('subprocess.run')
-def test_run_quiet_diff(mock_run):
-    mock_return = MagicMock()
-    mock_run.return_value = mock_return
-    got = utils.run_quiet_diff(['my', 'args'])
-    mock_run.assert_called_once_with(
-        ['git', 'diff', '--quiet', 'my', 'args'],
-        stderr=subprocess.DEVNULL,
-    )
-    assert got == mock_return.returncode
 
 
 @patch('os.path.isfile', return_value=True)

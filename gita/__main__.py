@@ -19,7 +19,7 @@ import argparse
 import subprocess
 import pkg_resources
 
-from . import utils
+from . import utils, info
 
 
 def f_add(args: argparse.Namespace):
@@ -104,16 +104,17 @@ def f_super(args):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(
-        prog='gita',
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=__doc__)
-    subparsers = p.add_subparsers(
-        title='sub-commands', help='additional help with sub-command -h')
+    p = argparse.ArgumentParser(prog='gita',
+                                formatter_class=argparse.RawTextHelpFormatter,
+                                description=__doc__)
+    subparsers = p.add_subparsers(title='sub-commands',
+                                  help='additional help with sub-command -h')
 
     version = pkg_resources.require('gita')[0].version
-    p.add_argument(
-        '-v', '--version', action='version', version=f'%(prog)s {version}')
+    p.add_argument('-v',
+                   '--version',
+                   action='version',
+                   version=f'%(prog)s {version}')
 
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
@@ -121,11 +122,10 @@ def main(argv=None):
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', help='remove repo(s)')
-    p_rm.add_argument(
-        'repo',
-        nargs='+',
-        choices=utils.get_repos(),
-        help="remove the chosen repo(s)")
+    p_rm.add_argument('repo',
+                      nargs='+',
+                      choices=utils.get_repos(),
+                      help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
     p_rename = subparsers.add_parser('rename', help='rename a repo')
@@ -145,25 +145,23 @@ def main(argv=None):
     _: untracked files/folders
 
   branch colors:
-    {utils.Color.white}white{utils.Color.end}: local has no remote
-    {utils.Color.green}green{utils.Color.end}: local is the same as remote
-    {utils.Color.red}red{utils.Color.end}: local has diverged from remote
-    {utils.Color.purple}purple{utils.Color.end}: local is ahead of remote (good for push)
-    {utils.Color.yellow}yellow{utils.Color.end}: local is behind remote (good for merge)'''
-    p_ll = subparsers.add_parser(
-        'll',
-        help='display summary of all repos',
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=ll_doc)
+    {info.Color.white}white{info.Color.end}: local has no remote
+    {info.Color.green}green{info.Color.end}: local is the same as remote
+    {info.Color.red}red{info.Color.end}: local has diverged from remote
+    {info.Color.purple}purple{info.Color.end}: local is ahead of remote (good for push)
+    {info.Color.yellow}yellow{info.Color.end}: local is behind remote (good for merge)'''
+    p_ll = subparsers.add_parser('ll',
+                                 help='display summary of all repos',
+                                 formatter_class=argparse.RawTextHelpFormatter,
+                                 description=ll_doc)
     p_ll.set_defaults(func=f_ll)
 
     p_ls = subparsers.add_parser(
         'ls', help='display names of all repos, or path of a chosen repo')
-    p_ls.add_argument(
-        'repo',
-        nargs='?',
-        choices=utils.get_repos(),
-        help="show path of the chosen repo")
+    p_ls.add_argument('repo',
+                      nargs='?',
+                      choices=utils.get_repos(),
+                      help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
     # superman mode

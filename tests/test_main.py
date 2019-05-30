@@ -59,9 +59,9 @@ class TestLsLl:
          ),
     ])
     @patch('gita.utils.is_git', return_value=True)
-    @patch('gita.utils.get_head', return_value="master")
-    @patch('gita.utils._get_repo_status', return_value=("d", "s", "u", "c"))
-    @patch('gita.utils.get_commit_msg', return_value="msg")
+    @patch('gita.info.get_head', return_value="master")
+    @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
+    @patch('gita.info.get_commit_msg', return_value="msg")
     @patch('gita.utils.get_path_fname')
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, path_fname,
                           expected, capfd):
