@@ -1,1 +1,3 @@
-/a/bcd/repo1:/e/fgh/repo2:/root/x/repo1
+/a/bcd/repo1,repo1
+/e/fgh/repo2,repo2
+/root/x/repo1,repo1

@@ -29,7 +29,8 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
 @pytest.mark.parametrize('path_fname, expected', [
     (PATH_FNAME, {
         'repo1': '/a/bcd/repo1',
-        'repo2': '/e/fgh/repo2'
+        'repo2': '/e/fgh/repo2',
+        'xxx': '/a/b/c/repo3',
     }),
     (PATH_FNAME_EMPTY, {}),
     (PATH_FNAME_CLASH, {
@@ -70,22 +71,34 @@ def test_custom_push_cmd(_):
 @pytest.mark.parametrize(
     'path_input, expected',
     [
-        (['/home/some/repo/'], '/home/some/repo:/nos/repo'),  # add one new
+        (['/home/some/repo/'], '/home/some/repo,repo\n'),  # add one new
         (['/home/some/repo1', '/repo2'],
-         '/home/some/repo1:/nos/repo:/repo2'),  # add two new
+            {'/repo2,repo2\n/home/some/repo1,repo1\n',  # add two new
+            '/home/some/repo1,repo1\n/repo2,repo2\n'}),  # add two new
         (['/home/some/repo1', '/nos/repo'],
-         '/home/some/repo1:/nos/repo'),  # add one old one new
+         '/home/some/repo1,repo1\n'),  # add one old one new
     ])
 @patch('os.makedirs')
-@patch('gita.utils.get_repos', return_value={'repo': '/nos/repo'})
 @patch('gita.utils.is_git', return_value=True)
-def test_add_repos(_0, _1, _2, path_input, expected, monkeypatch):
+def test_add_repos(_0, _1, path_input, expected, monkeypatch):
     monkeypatch.setenv('XDG_CONFIG_HOME', '/config')
     with patch('builtins.open', mock_open()) as mock_file:
-        utils.add_repos(path_input)
-    mock_file.assert_called_with('/config/gita/repo_path', 'w')
+        utils.add_repos({'repo': '/nos/repo'}, path_input)
+    mock_file.assert_called_with('/config/gita/repo_path', 'a+')
     handle = mock_file()
-    handle.write.assert_called_once_with(expected)
+    if type(expected) == str:
+        handle.write.assert_called_once_with(expected)
+    else:
+        handle.write.assert_called_once()
+        args, kwargs = handle.write.call_args
+        assert args[0] in expected
+        assert not kwargs
+
+
+@patch('gita.utils._write_to_repo_file')
+def test_rename_repo(mock_write):
+    utils.rename_repo({'r1': '/a/b', 'r2': '/c/c'}, 'r2', 'xxx')
+    mock_write.assert_called_once_with({'r1': '/a/b', 'xxx': '/c/c'}, 'w')
 
 
 def test_async_output(capfd):

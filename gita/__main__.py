@@ -23,7 +23,13 @@ from . import utils
 
 
 def f_add(args: argparse.Namespace):
-    utils.add_repos(args.paths)
+    repos = utils.get_repos()
+    utils.add_repos(repos, args.paths)
+
+
+def f_rename(args: argparse.Namespace):
+    repos = utils.get_repos()
+    utils.rename_repo(repos, args.repo[0], args.new_name)
 
 
 def f_ll(args: argparse.Namespace):
@@ -123,6 +129,17 @@ def main(argv=None):
         help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
+    p_rename = subparsers.add_parser('rename', help='rename a repo')
+    p_rename.add_argument(
+        'repo',
+        nargs=1,
+        choices=utils.get_repos(),
+        help="rename the chosen repo")
+    p_rename.add_argument(
+        'new_name',
+        help="new name")
+    p_rename.set_defaults(func=f_rename)
+
     ll_doc = f'''  status symbols:
     +: staged changes
     *: unstaged changes
@@ -153,8 +170,8 @@ def main(argv=None):
     # superman mode
     p_super = subparsers.add_parser(
         'super',
-        help=
-        'superman mode: delegate any git command/alias in specified or all repo(s).\n'
+        help='superman mode: delegate any git command/alias in specified or '
+        'all repo(s).\n'
         'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
         '\t gita super repo1 repo2 repo3 checkout new-feature')
     p_super.add_argument(
