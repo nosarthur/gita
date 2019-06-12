@@ -3,7 +3,7 @@ import yaml
 import asyncio
 import platform
 from functools import lru_cache
-from typing import Tuple, List, Dict, Coroutine, Union, Callable
+from typing import List, Dict, Coroutine, Union
 
 from . import info
 
@@ -160,24 +160,11 @@ def describe(repos: Dict[str, str]) -> str:
     """
     if repos:
         name_width = max(len(n) for n in repos) + 1
-    items = _get_info_funcs()
+    funcs = info.get_info_funcs()
     for name in sorted(repos):
         path = repos[name]
-        display_items = ' '.join(f(path) for f in items)
+        display_items = ' '.join(f(path) for f in funcs)
         yield f'{name:<{name_width}}{display_items}'
-
-
-def _get_info_funcs() -> Tuple[Callable[[str], str]]:
-    """
-    Return the functions to generate `gita ll` information. All these functions
-    take the repo path as input and return the corresponding information as str.
-    """
-    return (info.get_repo_status, info.get_commit_msg)
-
-
-def get_info_items() -> Dict[str, Callable[[str], str]]:
-
-    return {}
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:

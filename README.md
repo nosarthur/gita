@@ -54,6 +54,7 @@ The bookkeeping sub-commands are
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
+- `gita info`: display the information items available and in use
 - `gita -v`: display gita version
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
@@ -103,6 +104,31 @@ comaster:
   allow_all: true
   help: checkout the master branch
 ```
+
+Another customization is the information items displayed by `gita ll`.
+The used and unused information items are shown with `gita info` and one can
+create `$XDG_CONFIG_HOME/gita/info.yml` to customize it. For example, the
+default information items setting corresponds to
+
+```yaml
+- branch
+- commit_msg
+```
+
+To create your own information items, define a dictionary called `extra_info_items`
+in `$XDG_CONFIG_HOME/gita/extra_repo_info.yml`. It should map strings to functions,
+where the strings are the information item names and the functions take repo path
+as input. A trivial example is shown below.
+
+```python
+def get_delim(path: str) -> str:
+    return '|'
+
+extra_info_items = {'delim': get_delim}
+```
+
+If it works, you will see these extra items in the 'Unused' section of the
+`gita info` output. To use them, edit `$XDG_CONFIG_HOME/gita/extra_repo_info.yml`.
 
 ## Superman mode
 

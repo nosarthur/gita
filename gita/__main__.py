@@ -32,6 +32,14 @@ def f_rename(args: argparse.Namespace):
     utils.rename_repo(repos, args.repo[0], args.new_name)
 
 
+def f_info(_):
+    all_items, to_display = info.get_info_items()
+    print('In use:', ','.join(to_display))
+    unused = set(all_items) - set(to_display)
+    if unused:
+        print('Unused:', ' '.join(unused))
+
+
 def f_ll(args: argparse.Namespace):
     """
     Display details of all repos
@@ -138,6 +146,9 @@ def main(argv=None):
         'new_name',
         help="new name")
     p_rename.set_defaults(func=f_rename)
+
+    p_info = subparsers.add_parser('info', help='show information items of the ll sub-command')
+    p_info.set_defaults(func=f_info)
 
     ll_doc = f'''  status symbols:
     +: staged changes
