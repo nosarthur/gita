@@ -34,17 +34,27 @@ def get_repos() -> Dict[str, str]:
     Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
-    paths = []
+    data = []
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            paths = f.read().splitlines()[0].split(os.pathsep)
-    data = ((os.path.basename(os.path.normpath(p)), p) for p in paths
-            if is_git(p))
+            # TODO: read lines one by one
+            #   for line in f:
+            data = f.read().splitlines()
+    # The file content is repos separated by :
+    # For each repo, there are path and repo name separated by ,
+    # If repo name is not provided, the basename of the path is used as name.
+    # For example, "/a/b/c,xx:/a/b/d:/c/e/f" corresponds to
+    # {xx: /a/b/c, d: /a/b/d, f: /c/e/f}
     repos = {}
-    for name, path in data:
+    for d in data:
+        if not d:  # blank line
+            continue
+        path, name = d.split(',')
+        if not is_git(path):
+            continue
         if name not in repos:
             repos[name] = path
-        else:
+        else:  # repo name collision for different paths: include parent path name
             par_name = os.path.basename(os.path.dirname(path))
             repos[os.path.join(par_name, name)] = path
     return repos
@@ -79,22 +89,39 @@ def is_git(path: str) -> bool:
     return os.path.exists(loc)
 
 
-def add_repos(new_paths: List[str]):
+def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
+    """
+    Write new repo name to file
+    """
+    path = repos[repo]
+    del repos[repo]
+    repos[new_name] = path
+    _write_to_repo_file(repos, 'w')
+
+
+def _write_to_repo_file(repos: Dict[str, str], mode: str):
+    """
+    """
+    data = ''.join(f'{path},{name}\n' for name, path in repos.items())
+    fname = get_path_fname()
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    with open(fname, mode) as f:
+        f.write(data)
+
+
+def add_repos(repos: Dict[str, str], new_paths: List[str]):
     """
     Write new repo paths to file
     """
-    existing_paths = set(get_repos().values())
+    existing_paths = set(repos.values())
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
     new_paths = new_paths - existing_paths
     if new_paths:
-        print(f"Found {len(new_paths)} new repo(s):")
-        for path in new_paths:
-            print(path)
-        existing_paths.update(new_paths)
-        fname = get_path_fname()
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        with open(fname, 'w') as f:
-            f.write(os.pathsep.join(sorted(existing_paths)))
+        print(f"Found {len(new_paths)} new repo(s).")
+        new_repos = {
+                os.path.basename(os.path.normpath(path)): path
+                for path in new_paths}
+        _write_to_repo_file(new_repos, 'a+')
     else:
         print('No new repos found!')
 

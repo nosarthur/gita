@@ -17,7 +17,7 @@ class TestLsLl:
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert 'Found 1 new repo(s):' in out
+        assert 'Found 1 new repo(s).' in out
 
         # in production this is not needed
         utils.get_repos.cache_clear()
@@ -52,7 +52,7 @@ class TestLsLl:
 
     @pytest.mark.parametrize('path_fname, expected', [
         (PATH_FNAME,
-         "repo1 cmaster dsu\x1b[0m msg\nrepo2 cmaster dsu\x1b[0m msg\n"),
+         "repo1 cmaster dsu\x1b[0m msg\nrepo2 cmaster dsu\x1b[0m msg\nxxx   cmaster dsu\x1b[0m msg\n"),
         (PATH_FNAME_EMPTY, ""),
         (PATH_FNAME_CLASH,
          "repo1   cmaster dsu\x1b[0m msg\nrepo2   cmaster dsu\x1b[0m msg\nx/repo1 cmaster dsu\x1b[0m msg\n"
@@ -69,6 +69,7 @@ class TestLsLl:
         utils.get_repos.cache_clear()
         __main__.main(['ll'])
         out, err = capfd.readouterr()
+        print(out)
         assert err == ''
         assert out == expected
 

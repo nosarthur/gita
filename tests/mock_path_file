@@ -1,1 +1,4 @@
-/a/bcd/repo1:/e/fgh/repo2
+/a/bcd/repo1,repo1
+/a/b/c/repo3,xxx
+/e/fgh/repo2,repo2
+
