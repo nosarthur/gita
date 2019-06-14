@@ -95,7 +95,7 @@ def test_add_repos(_0, _1, path_input, expected, monkeypatch):
         assert not kwargs
 
 
-@patch('gita.utils._write_to_repo_file')
+@patch('gita.utils.write_to_repo_file')
 def test_rename_repo(mock_write):
     utils.rename_repo({'r1': '/a/b', 'r2': '/c/c'}, 'r2', 'xxx')
     mock_write.assert_called_once_with({'r1': '/a/b', 'xxx': '/c/c'}, 'w')

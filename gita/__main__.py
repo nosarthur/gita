@@ -58,8 +58,7 @@ def f_rm(args: argparse.Namespace):
         repos = utils.get_repos()
         for repo in args.repo:
             del repos[repo]
-        with open(path_file, 'w') as f:
-            f.write(os.pathsep.join(repos.values()))
+        utils.write_to_repo_file(repos, 'w')
 
 
 def f_git_cmd(args: argparse.Namespace):

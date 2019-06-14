@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 import argparse
 import shlex
 
@@ -77,14 +77,12 @@ class TestLsLl:
 @patch('os.path.isfile', return_value=True)
 @patch('gita.utils.get_path_fname', return_value='some path')
 @patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
-def test_rm(*_):
+@patch('gita.utils.write_to_repo_file')
+def test_rm(mock_write, *_):
     args = argparse.Namespace()
     args.repo = ['repo1']
-    with patch('builtins.open', mock_open()) as mock_file:
-        __main__.f_rm(args)
-    mock_file.assert_called_with('some path', 'w')
-    handle = mock_file()
-    handle.write.assert_called_once_with('/b/')
+    __main__.f_rm(args)
+    mock_write.assert_called_once_with({'repo2': '/b/'}, 'w')
 
 
 def test_not_add():

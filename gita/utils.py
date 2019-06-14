@@ -96,10 +96,10 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     path = repos[repo]
     del repos[repo]
     repos[new_name] = path
-    _write_to_repo_file(repos, 'w')
+    write_to_repo_file(repos, 'w')
 
 
-def _write_to_repo_file(repos: Dict[str, str], mode: str):
+def write_to_repo_file(repos: Dict[str, str], mode: str):
     """
     """
     data = ''.join(f'{path},{name}\n' for name, path in repos.items())
@@ -121,7 +121,7 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         new_repos = {
                 os.path.basename(os.path.normpath(path)): path
                 for path in new_paths}
-        _write_to_repo_file(new_repos, 'a+')
+        write_to_repo_file(new_repos, 'a+')
     else:
         print('No new repos found!')
 
