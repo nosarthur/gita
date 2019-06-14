@@ -48,6 +48,7 @@
 - `gita ll`: 显示所有库的信息
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
+- `gita rename <repo-name> <new-name>`: 重命名一个库
 - `gita -v`: 显示老夫的版本号
 
 库的路径存在`$XDG_CONFIG_HOME/gita/repo_path` (多半是`~/.config/gita/repo_path`)。

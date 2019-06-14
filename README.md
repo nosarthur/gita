@@ -53,6 +53,7 @@ The bookkeeping sub-commands are
 - `gita ll`: display the status of all repos
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
+- `gita rename <repo-name> <new-name>`: rename a repo
 - `gita -v`: display gita version
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
