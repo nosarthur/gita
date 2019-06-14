@@ -2,21 +2,10 @@ import os
 import yaml
 import asyncio
 import platform
-import subprocess
 from functools import lru_cache
-from typing import List, Dict, Tuple, Coroutine, Union
+from typing import List, Dict, Coroutine, Union
 
-
-class Color:
-    """
-    Terminal color
-    """
-    red = '\x1b[31m'  # local diverges from remote
-    green = '\x1b[32m'  # local == remote
-    yellow = '\x1b[33m'  # local is behind
-    purple = '\x1b[35m'  # local is ahead
-    white = '\x1b[37m'  # no remote branch
-    end = '\x1b[0m'
+from . import info
 
 
 def get_path_fname() -> str:
@@ -126,49 +115,6 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         print('No new repos found!')
 
 
-def get_head(path: str) -> str:
-    result = subprocess.run(
-        'git rev-parse --abbrev-ref HEAD'.split(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        universal_newlines=True,
-        cwd=path)
-    return result.stdout.strip()
-
-
-def run_quiet_diff(args: List[str]) -> bool:
-    """
-    Return the return code of git diff `args` in quiet mode
-    """
-    result = subprocess.run(
-        ['git', 'diff', '--quiet'] + args,
-        stderr=subprocess.DEVNULL,
-    )
-    return result.returncode
-
-
-def has_untracked() -> bool:
-    """
-    Return True if untracked file/folder exists
-    """
-    result = subprocess.run(
-        'git ls-files -zo --exclude-standard'.split(), stdout=subprocess.PIPE)
-    return bool(result.stdout)
-
-
-def get_commit_msg() -> str:
-    """
-    Return the last commit message.
-    """
-    # `git show-branch --no-name HEAD` is faster than `git show -s --format=%s`
-    result = subprocess.run(
-        'git show-branch --no-name HEAD'.split(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        universal_newlines=True)
-    return result.stdout.strip()
-
-
 async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
     """
     Run `cmds` asynchronously in `path` directory. Return the `path` if
@@ -208,55 +154,17 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     return errors
 
 
-def get_common_commit() -> str:
-    """
-    Return the hash of the common commit of the local and upstream branches.
-    """
-    result = subprocess.run(
-        'git merge-base @{0} @{u}'.split(),
-        stdout=subprocess.PIPE,
-        universal_newlines=True)
-    return result.stdout.strip()
-
-
-def _get_repo_status(path: str) -> Tuple[str]:
-    """
-    Return the status of one repo
-    """
-    os.chdir(path)
-    dirty = '*' if run_quiet_diff([]) else ''
-    staged = '+' if run_quiet_diff(['--cached']) else ''
-    untracked = '_' if has_untracked() else ''
-
-    diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
-    has_no_remote = diff_returncode == 128
-    has_no_diff = diff_returncode == 0
-    if has_no_remote:
-        color = Color.white
-    elif has_no_diff:
-        color = Color.green
-    else:
-        common_commit = get_common_commit()
-        outdated = run_quiet_diff(['@{u}', common_commit])
-        if outdated:
-            diverged = run_quiet_diff(['@{0}', common_commit])
-            color = Color.red if diverged else Color.yellow
-        else:  # local is ahead of remote
-            color = Color.purple
-    return dirty, staged, untracked, color
-
-
 def describe(repos: Dict[str, str]) -> str:
     """
     Return the status of all repos
     """
     if repos:
         name_width = max(len(n) for n in repos) + 1
+    funcs = info.get_info_funcs()
     for name in sorted(repos):
         path = repos[name]
-        head = get_head(path)
-        dirty, staged, untracked, color = _get_repo_status(path)
-        yield f'{name:<{name_width}}{color}{head+" "+dirty+staged+untracked:<10}{Color.end} {get_commit_msg()}'
+        display_items = ' '.join(f(path) for f in funcs)
+        yield f'{name:<{name_width}}{display_items}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:

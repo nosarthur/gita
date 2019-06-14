@@ -17,7 +17,7 @@ class TestLsLl:
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert 'Found 1 new repo(s).' in out
+        assert 'Found 1 new repo(s).\n' == out
 
         # in production this is not needed
         utils.get_repos.cache_clear()
@@ -59,9 +59,9 @@ class TestLsLl:
          ),
     ])
     @patch('gita.utils.is_git', return_value=True)
-    @patch('gita.utils.get_head', return_value="master")
-    @patch('gita.utils._get_repo_status', return_value=("d", "s", "u", "c"))
-    @patch('gita.utils.get_commit_msg', return_value="msg")
+    @patch('gita.info.get_head', return_value="master")
+    @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
+    @patch('gita.info.get_commit_msg', return_value="msg")
     @patch('gita.utils.get_path_fname')
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, path_fname,
                           expected, capfd):
@@ -126,3 +126,11 @@ def test_superman(mock_run, _, input):
     __main__.main(args)
     expected_cmds = ['git'] + shlex.split(input)
     mock_run.assert_called_once_with(expected_cmds, cwd='path7')
+
+
+@patch('os.path.isfile', return_value=False)
+def test_info(mock_isfile, capfd):
+    __main__.f_info(None)
+    out, err = capfd.readouterr()
+    assert 'In use: branch,commit_msg\nUnused: path\n' == out
+    assert err == ''
