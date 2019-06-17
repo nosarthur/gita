@@ -23,29 +23,22 @@ def get_repos() -> Dict[str, str]:
     Return a `dict` of repo name to repo absolute path
     """
     path_file = get_path_fname()
-    data = []
+    repos = {}
+    # Each line is a repo path and repo name separated by ,
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            # TODO: read lines one by one
-            #   for line in f:
-            data = f.read().splitlines()
-    # The file content is repos separated by :
-    # For each repo, there are path and repo name separated by ,
-    # If repo name is not provided, the basename of the path is used as name.
-    # For example, "/a/b/c,xx:/a/b/d:/c/e/f" corresponds to
-    # {xx: /a/b/c, d: /a/b/d, f: /c/e/f}
-    repos = {}
-    for d in data:
-        if not d:  # blank line
-            continue
-        path, name = d.split(',')
-        if not is_git(path):
-            continue
-        if name not in repos:
-            repos[name] = path
-        else:  # repo name collision for different paths: include parent path name
-            par_name = os.path.basename(os.path.dirname(path))
-            repos[os.path.join(par_name, name)] = path
+            for line in f:
+                line = line.rstrip()
+                if not line:  # blank line
+                    continue
+                path, name = line.split(',')
+                if not is_git(path):
+                    continue
+                if name not in repos:
+                    repos[name] = path
+                else:  # repo name collision for different paths: include parent path name
+                    par_name = os.path.basename(os.path.dirname(path))
+                    repos[os.path.join(par_name, name)] = path
     return repos
 
 
