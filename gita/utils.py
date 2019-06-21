@@ -130,13 +130,11 @@ async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, s
         return path
 
 
-def format_output(output: str, prefix: str):
+def format_output(s: str, prefix: str):
     """
-    Prepends every line in output with the given prefix.
-
-    NOTE: Not tested on Windows where the output of git may not print '\n' and so this might fail
+    Prepends every line in given string with the given prefix.
     """
-    return ''.join([f'{prefix}{line}' for line in output.splitlines(keepends=True)])
+    return ''.join([f'{prefix}{line}' for line in s.splitlines(keepends=True)])
 
 
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
