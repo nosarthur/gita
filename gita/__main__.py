@@ -87,7 +87,7 @@ def f_git_cmd(args: argparse.Namespace):
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(path, cmds) for path in repos.values())
+            utils.run_async(repo_name, path, cmds) for repo_name, path in repos.items())
         for path in errors:
             if path:
                 print(path)
