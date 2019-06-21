@@ -110,8 +110,8 @@ def test_async_fetch(*_):
     assert mock_run.call_count == 2
     cmds = ['git', 'fetch']
     # print(mock_run.call_args_list)
-    mock_run.assert_any_call('/a/bc', cmds)
-    mock_run.assert_any_call('/d/efg', cmds)
+    mock_run.assert_any_call('repo1', '/a/bc', cmds)
+    mock_run.assert_any_call('repo2', '/d/efg', cmds)
 
 
 @pytest.mark.parametrize('input', [

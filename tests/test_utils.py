@@ -90,7 +90,7 @@ def test_rename_repo(mock_write):
 
 def test_async_output(capfd):
     tasks = [
-        utils.run_async('.', [
+        utils.run_async('myrepo', '.', [
             'python3', '-c',
             f"print({i});import time; time.sleep({i});print({i})"
         ]) for i in range(4)
@@ -103,4 +103,4 @@ def test_async_output(capfd):
 
     out, err = capfd.readouterr()
     assert err == ''
-    assert out == "0\n0\n\n1\n1\n\n2\n2\n\n3\n3\n\n"
+    assert out == 'myrepo: 0\nmyrepo: 0\n\nmyrepo: 1\nmyrepo: 1\n\nmyrepo: 2\nmyrepo: 2\n\nmyrepo: 3\nmyrepo: 3\n\n'

@@ -108,7 +108,7 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         print('No new repos found!')
 
 
-async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
+async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:
     """
     Run `cmds` asynchronously in `path` directory. Return the `path` if
     execution fails.
@@ -121,12 +121,20 @@ async def run_async(path: str, cmds: List[str]) -> Union[None, str]:
         start_new_session=True,
         cwd=path)
     stdout, stderr = await process.communicate()
-    stdout and print(stdout.decode())
-    stderr and print(stderr.decode())
+    for pipe in (stdout, stderr):
+        if pipe:
+            print(format_output(pipe.decode(), f'{repo_name}: '))
     # The existence of stderr is not good indicator since git sometimes write
     # to stderr even if the execution is successful, e.g. git fetch
     if process.returncode != 0:
         return path
+
+
+def format_output(s: str, prefix: str):
+    """
+    Prepends every line in given string with the given prefix.
+    """
+    return ''.join([f'{prefix}{line}' for line in s.splitlines(keepends=True)])
 
 
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
