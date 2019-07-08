@@ -16,59 +16,62 @@
 (_______)_______/  )_(  |/     \|   v0.10
 ```
 
-# Git 啊：管理多个 git 库的命令行工具
+# Gita：一个管理多个 git 库的命令行工具
 
-老夫有两把刷子：
+这个工具有两个作用：
 
-- 同时显示多个库的状态信息，比如库杈名，编辑状态，贡献信息等
+- 并排显示多个库的状态信息，比如分支名，编辑状态，提交信息等
 - 在任何目录下代理执行 git 指令
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
-库杈的五色代表了本土和远程库杈相生相杀的关系：
+本地和远程分支之间的关系有5种情况，在这里分别用5种颜色对应着：
 
-- 青：远近一致
-- 赤：本土已与远程分道扬镳
-- 黄：本土落后于远程（宜和合merge）
-- 白：没有远程
-- 紫：本土超前于远程（宜推送push）
+- 绿色：本地和远程保持一致
+- 红色：本地和远程产生了分叉
+- 黄色：本地落后于远程（适合合并merge）
+- 白色：本地没有指定远程
+- 紫色：本地超前于远程（适合推送push）
 
-如果你知道蓝移和红移的道理，就会明白为什么黄色表示落后，紫色表示超前。
+为什么选择了紫色作为超前以及黄色作为落后，绿色作为基准 的理由在这两篇文章中解释：  
+[blueshift](https://en.wikipedia.org/wiki/Blueshift)、[redshift](https://en.wikipedia.org/wiki/Redshift)
 
-编辑状态符号：
+额外的状态符号意义：
 
-- `+`: 已上台(staged)
-- `*`：未上台(unstaged)
-- `_`：未追踪(untracked)
+- `+`: 暂存(staged)
+- `*`： 未暂存（unstaged）
+- `_`： 未追踪（untracked）
 
 基础指令：
 
-- `gita add <repo-path(s)>`: 为老夫添加库
-- `gita rm <repo-name(s)>`: 取消库（不会删除文件）
-- `gita ll`: 显示所有库的信息
+- `gita add <repo-path(s)>`: 添加库
+- `gita rm <repo-name(s)>`: 移除库（不会删除文件）
+- `gita ll`: 显示所有库的状态信息
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
 - `gita rename <repo-name> <new-name>`: 重命名一个库
 - `gita info`: 显示已用的和未用的信息项
-- `gita -v`: 显示老夫的版本号
+- `gita -v`: 显示版本号
 
 库的路径存在`$XDG_CONFIG_HOME/gita/repo_path` (多半是`~/.config/gita/repo_path`)。
 
-代理执行的命令有两种格式：
+代理执行的子命令有两种格式：
 
-- `gita <sub-command> [repo-name(s)]`: 可有可无的库名，没有库名即是所有库名
+- `gita <sub-command> [repo-name(s)]`: 库名是可选的，没有库名表示所有库
 - `gita <sub-command> <repo-name(s)>`: 必须有库名
 
-默认只有`fetch`和`pull`是第一种格式。如果输入了多个库名，
+默认只有`fetch`和`pull`是第一种格式。  
+
+如果输入了多个库名，
 而且被代理的git指令不需要用户输入，
 那么各个库的代理指令会被异步执行。
 
 ## 私人定制
 
-定制的代理指令要放在`$XDG_CONFIG_HOME/gita/cmds.yml` (多半是`~/.config/gita/cmds.yml`)。
-它们会覆盖掉默认的指令。
+定制的代理子命令要放在`$XDG_CONFIG_HOME/gita/cmds.yml` (多半是`~/.config/gita/cmds.yml`)。
+如果存在命名冲突，它们会覆盖掉默认的指令。
 
-默认指令的定义可见
+默认代理子指令的定义可见
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml)。
 举个栗子，`gita stat <repo-name(s)>`的定义是
 
@@ -83,9 +86,9 @@ stat:
 如果被代理的指令是一个单词，`cmd`也可以省略。比如`push`。
 如果要取消异步执行，把`disable_async`设成`true`。比如`difftool`。
 
-如果你想让定制的命令跟`gita fetch`似的支持莫须有的库名，
-把`allow_all`设成`true`。
-举个栗子，下面这个定义会生成一个`gita comaster [repo-names(s)]`的定制命令
+如果你想让定制的命令跟`gita fetch`等命令一样，可以作用于所有的库，
+就把`allow_all`设成`true`。
+举个栗子，`gita comaster [repo-names(s)]`会生成一个新的定制命令，对于这个命令，库名是可选输入。comaster的解释如下：
 
 ```yaml
 comaster:
@@ -93,10 +96,27 @@ comaster:
   allow_all: true
   help: checkout the master branch
 ```
+另一个自定义功能是针对`gita ll`展示的信息项。  
+`gita info`可以展示所有用到的和没用到的信息项，并且可以通过修改`$XDG_CONFIG_HOME/gita/info.yml`支持自定义。举个栗子，默认的信息项显示配置相当于是：
+
+```yaml
+- branch
+- commit_msg
+```
+为了创建自己的信息项，命名一个目录为`extra_info_items`。  
+在`$XDG_CONFIG_HOME/gita/extra_repo_info.yml`中，要把信息项的名字作为字符串映射到方法中，该方法将库的路径作为输入参数。举个栗子：
+
+```python
+def get_delim(path: str) -> str:
+    return '|'
+
+extra_info_items = {'delim': get_delim}
+```
+如果没有遇到问题，你会在`gita info`的输出内容中的`unused`小节中看到这些额外信息项。
 
 ## 超人模式
 
-超人模式可以代理执行任何git命令。它的格式是
+超人模式可以代理执行任何git命令/别名。它的格式是
 
 ```
 gita super [repo-name(s)] <any-git-command-with-or-without-options>
