@@ -204,6 +204,10 @@ More implementation details are in
 You can also make donation to me on [patreon](https://www.patreon.com/nosarthur).
 Any amount is greatly appreciated!
 
+## Contributors
+
+nosarthur, mc0239, dgrant, samibh, bestwbr, TpOut, PabloCastellano
+
 ## Other multi-repo tools
 
 I haven't tried them but I heard good things about them.

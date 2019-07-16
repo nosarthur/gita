@@ -190,7 +190,7 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
         os.path.expanduser('~'), '.config')
     fname = os.path.join(root, 'gita', 'cmds.yml')
     custom_cmds = {}
-    if os.path.isfile(fname):
+    if os.path.isfile(fname) and os.path.getsize(fname):
         with open(fname, 'r') as stream:
             custom_cmds = yaml.load(stream, Loader=yaml.FullLoader)
 
