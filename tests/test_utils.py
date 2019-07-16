@@ -48,7 +48,8 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
 
 
 @patch('os.path.isfile', return_value=True)
-def test_custom_push_cmd(_):
+@patch('os.path.getsize', return_value=True)
+def test_custom_push_cmd(*_):
     with patch('builtins.open',
                mock_open(read_data='push:\n  cmd: hand\n  help: me')):
         cmds = utils.get_cmds_from_files()
