@@ -206,7 +206,13 @@ Any amount is greatly appreciated!
 
 ## Contributors
 
-nosarthur, mc0239, dgrant, samibh, bestwbr, TpOut, PabloCastellano
+[![nosarthur](https://github.com/nosarthur.png?size=40 "nosarthur")](https://github.com/nosarthur)
+[![mc0239](https://github.com/mc0239.png?size=40 "mc0239")](https://github.com/mc0239)
+[![dgrant](https://github.com/dgrant.png?size=40 "dgrant")](https://github.com/dgrant)
+[![samibh](https://github.com/github.png?size=40 "samibh")](https://github.com/samibh)
+[![bestwbr](https://github.com/bestwbr.png?size=40 "bestwbr")](https://github.com/bestwbr)
+[![TpOut](https://github.com/TpOut.png?size=40 "TpOut")](https://github.com/TpOut)
+[![PabloCastellano](https://github.com/PabloCastellano.png?size=40 "PabloCastellano")](https://github.com/PabloCastellano)
 
 ## Other multi-repo tools
 
