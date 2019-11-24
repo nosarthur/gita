@@ -1,13 +1,13 @@
 from setuptools import setup
 
 long_description = None
-with open('README.md') as f:
+with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='gita',
     packages=['gita'],
-    version='0.10.3',
+    version='0.10.4',
     license='MIT',
     description='Manage multiple git repos',
     long_description=long_description,
