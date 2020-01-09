@@ -3,6 +3,7 @@ import sys
 import yaml
 import subprocess
 from typing import Tuple, List, Callable, Dict
+from . import common
 
 
 class Color:
@@ -42,8 +43,7 @@ def get_info_items() -> Tuple[Dict[str, Callable[[str], str]], List[str]]:
     display_items = ['branch', 'commit_msg']
 
     # custom settings
-    root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
-        os.path.expanduser('~'), '.config', 'gita')
+    root = common.get_config_dir()
     src_fname = os.path.join(root, 'extra_repo_info.py')
     yml_fname = os.path.join(root, 'info.yml')
     if os.path.isfile(src_fname):
