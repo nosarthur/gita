@@ -6,15 +6,15 @@ from functools import lru_cache
 from typing import List, Dict, Coroutine, Union
 
 from . import info
+from . import common
 
 
 def get_path_fname() -> str:
     """
     Return the file name that stores the repo locations.
     """
-    root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
-        os.path.expanduser('~'), '.config')
-    return os.path.join(root, 'gita', 'repo_path')
+    root = common.get_config_dir()
+    return os.path.join(root, 'repo_path')
 
 
 @lru_cache()
@@ -186,9 +186,8 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
         cmds = yaml.load(stream, Loader=yaml.FullLoader)
 
     # custom config file
-    root = os.environ.get('XDG_CONFIG_HOME') or os.path.join(
-        os.path.expanduser('~'), '.config')
-    fname = os.path.join(root, 'gita', 'cmds.yml')
+    root = common.get_config_dir()
+    fname = os.path.join(root, 'cmds.yml')
     custom_cmds = {}
     if os.path.isfile(fname) and os.path.getsize(fname):
         with open(fname, 'r') as stream:
