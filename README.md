@@ -202,7 +202,7 @@ More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
 
 You can also make donation to me on [patreon](https://www.patreon.com/nosarthur).
-Any amount is greatly appreciated!
+Any amount is appreciated!
 
 ## Contributors
 
