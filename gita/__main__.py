@@ -81,7 +81,7 @@ def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
     """
-    path_file = utils.get_path_fname()
+    path_file = utils.get_config_fname('repo_path')
     if os.path.isfile(path_file):
         repos = utils.get_repos()
         for repo in args.repo:

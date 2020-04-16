@@ -9,7 +9,7 @@ from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, async_mock
 
 
 class TestLsLl:
-    @patch('gita.utils.get_path_fname')
+    @patch('gita.utils.get_config_fname')
     def testLl(self, mock_path_fname, capfd, tmp_path):
         """ functional test """
         # avoid modifying the local configuration
@@ -62,7 +62,7 @@ class TestLsLl:
     @patch('gita.info.get_head', return_value="master")
     @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
     @patch('gita.info.get_commit_msg', return_value="msg")
-    @patch('gita.utils.get_path_fname')
+    @patch('gita.utils.get_config_fname')
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, path_fname,
                           expected, capfd):
         mock_path_fname.return_value = path_fname
@@ -75,7 +75,7 @@ class TestLsLl:
 
 
 @patch('os.path.isfile', return_value=True)
-@patch('gita.utils.get_path_fname', return_value='some path')
+@patch('gita.utils.get_config_fname', return_value='some path')
 @patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 @patch('gita.utils.write_to_repo_file')
 def test_rm(mock_write, *_):

@@ -39,7 +39,7 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     }),
 ])
 @patch('gita.utils.is_git', return_value=True)
-@patch('gita.utils.get_path_fname')
+@patch('gita.utils.get_config_fname')
 def test_get_repos(mock_path_fname, _, path_fname, expected):
     mock_path_fname.return_value = path_fname
     utils.get_repos.cache_clear()

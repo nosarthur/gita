@@ -50,7 +50,10 @@ The bookkeeping sub-commands are
 
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
 - `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
+- `gita group`: show grouping of the repos
+- `gita group <repo-name(s)>`: group repos
 - `gita ll`: display the status of all repos
+- `gita ll <group-name>`: display the status of repos in a group
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
