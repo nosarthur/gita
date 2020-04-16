@@ -45,6 +45,9 @@ def f_ll(args: argparse.Namespace):
     Display details of all repos
     """
     repos = utils.get_repos()
+    if args.group:  # only display repos in this group
+        group_repos = utils.get_groups()[args.group].split()
+        repos = {k: repos[k] for k in group_repos if k in repos}
     for line in utils.describe(repos):
         print(line)
 
@@ -55,6 +58,23 @@ def f_ls(args: argparse.Namespace):
         print(repos[args.repo])
     else:  # show names of all repos
         print(' '.join(repos))
+
+
+def f_group(args: argparse.Namespace):
+    repos = utils.get_repos()
+    groups = utils.get_groups()
+    if args.to_group:
+        gname = input('group name? ')
+        if gname in groups:
+            gname_repos = set(groups[gname].split())
+            gname_repos.update(args.to_group)
+            groups[gname] = ' '.join(sorted(gname_repos))
+            utils.write_to_groups_file(groups, 'w')
+        else:
+            utils.write_to_groups_file({gname: ' '.join(sorted(args.to_group))}, 'a+')
+    else:
+        for group, repos in groups.items():
+            print(f"{group}: {repos}")
 
 
 def f_rm(args: argparse.Namespace):
@@ -165,6 +185,10 @@ def main(argv=None):
                                  help='display summary of all repos',
                                  formatter_class=argparse.RawTextHelpFormatter,
                                  description=ll_doc)
+    p_ll.add_argument('group',
+                      nargs='?',
+                      choices=utils.get_groups(),
+                      help="show repos in the chosen group")
     p_ll.set_defaults(func=f_ll)
 
     p_ls = subparsers.add_parser(
@@ -174,6 +198,14 @@ def main(argv=None):
                       choices=utils.get_repos(),
                       help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
+
+    p_group = subparsers.add_parser(
+        'group', help='display names of all groups, or path of a chosen repo')
+    p_group.add_argument('to_group',
+                      nargs='*',
+                      choices=utils.get_choices(),
+                      help="group repo(s)")
+    p_group.set_defaults(func=f_group)
 
     # superman mode
     p_super = subparsers.add_parser(

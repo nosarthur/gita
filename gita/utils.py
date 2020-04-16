@@ -9,12 +9,21 @@ from . import info
 from . import common
 
 
+# TODO: combine these two functions to `get_config_fname`
 def get_path_fname() -> str:
     """
     Return the file name that stores the repo locations.
     """
     root = common.get_config_dir()
     return os.path.join(root, 'repo_path')
+
+
+def get_group_fname() -> str:
+    """
+    Return the file name that stores the groups.
+    """
+    root = common.get_config_dir()
+    return os.path.join(root, 'groups.yml')
 
 
 @lru_cache()
@@ -40,6 +49,21 @@ def get_repos() -> Dict[str, str]:
                     par_name = os.path.basename(os.path.dirname(path))
                     repos[os.path.join(par_name, name)] = path
     return repos
+
+
+@lru_cache()
+def get_groups() -> Dict[str, str]:
+    """
+    Return a `dict` of group name to repo names.
+    """
+    fname = get_group_fname()
+    groups = {}
+    # Each line is a repo path and repo name separated by ,
+    if os.path.isfile(fname) and os.stat(fname).st_size > 0:
+        with open(fname, 'r') as f:
+            groups = yaml.load(f, Loader=yaml.FullLoader)
+    return groups
+
 
 
 def get_choices() -> List[Union[str, None]]:
@@ -81,11 +105,23 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     write_to_repo_file(repos, 'w')
 
 
+# TODO: combine these 2 write apis
 def write_to_repo_file(repos: Dict[str, str], mode: str):
     """
     """
     data = ''.join(f'{path},{name}\n' for name, path in repos.items())
     fname = get_path_fname()
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    with open(fname, mode) as f:
+        f.write(data)
+
+
+def write_to_groups_file(groups: Dict[str, str], mode: str):
+    """
+
+    """
+    data = ''.join(f'{group}: {repos}\n' for group, repos in groups.items())
+    fname = get_group_fname()
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
         f.write(data)
