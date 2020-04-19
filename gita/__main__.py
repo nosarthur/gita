@@ -77,6 +77,21 @@ def f_group(args: argparse.Namespace):
             print(f"{group}: {repos}")
 
 
+def f_ungroup(args: argparse.Namespace):
+    groups = utils.get_groups()
+    to_ungroup = set(args.to_ungroup)
+    to_del = []
+    for name, repos in groups.items():
+        remaining = set(repos.split()) - to_ungroup
+        if remaining:
+            groups[name] = ''.join(remaining)
+        else:
+            to_del.append(name)
+    for name in to_del:
+        del groups[name]
+    utils.write_to_groups_file(groups, 'w')
+
+
 def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
@@ -200,12 +215,20 @@ def main(argv=None):
     p_ls.set_defaults(func=f_ls)
 
     p_group = subparsers.add_parser(
-        'group', help='display names of all groups, or path of a chosen repo')
+        'group', help='group repos or display names of all groups if no repo is provided')
     p_group.add_argument('to_group',
                       nargs='*',
                       choices=utils.get_choices(),
-                      help="group repo(s)")
+                      help="repo(s) to be grouped")
     p_group.set_defaults(func=f_group)
+
+    p_ungroup = subparsers.add_parser(
+        'ungroup', help='remove group information for repos')
+    p_ungroup.add_argument('to_ungroup',
+                      nargs='+',
+                      choices=utils.get_repos(),
+                      help="repo(s) to be ungrouped")
+    p_ungroup.set_defaults(func=f_ungroup)
 
     # superman mode
     p_super = subparsers.add_parser(
