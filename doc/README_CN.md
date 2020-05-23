@@ -133,8 +133,8 @@ gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-opti
 
 ## 先决条件
 
-老夫用了[f-string](https://www.python.org/dev/peps/pep-0498/)
-和[asyncio module](https://docs.python.org/3.6/library/asyncio.html)，所以必须要用Python 3.6或以上。
+因为用了[f-string](https://www.python.org/dev/peps/pep-0498/)
+和[asyncio module](https://docs.python.org/3.6/library/asyncio.html)，系统必须要用Python 3.6或以上。
 
 暗地里老夫用`subprocess`来代理执行git指令。所以git的版本有可能会影响结果。
 经测试，`1.8.3.1`, `2.17.2`, 和`2.20.1`的结果是一致的。
@@ -158,7 +158,7 @@ pip3 install -e <gita-source-folder>
 alias gita="python3 -m gita"
 ```
 
-Windows用户可能需要额外的设置来支持彩色的命令行， 见这个帖子。
+Windows用户可能需要额外的设置来支持彩色的命令行， 见[这个帖子](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes)。
 
 ## 自动补全
 
@@ -172,7 +172,7 @@ Windows用户可能需要额外的设置来支持彩色的命令行， 见这个
 
 - 报告/治理虫子
 - 建议/实现功能
-- 加星/推荐老夫
+- 加星/推荐本作
 
 在本地跑单元测试可以直接用`pytest`。更多的细节可见
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md)。
