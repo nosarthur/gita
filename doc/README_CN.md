@@ -33,7 +33,7 @@
 - 白色：本地没有指定远程
 - 紫色：本地超前于远程（适合推送push）
 
-为什么选择了紫色作为超前以及黄色作为落后，绿色作为基准 的理由在这两篇文章中解释：  
+为什么选择了紫色作为超前以及黄色作为落后，绿色作为基准 的理由在这两篇文章中解释：
 [blueshift](https://en.wikipedia.org/wiki/Blueshift)、[redshift](https://en.wikipedia.org/wiki/Redshift)
 
 额外的状态符号意义：
@@ -46,7 +46,10 @@
 
 - `gita add <repo-path(s)>`: 添加库
 - `gita rm <repo-name(s)>`: 移除库（不会删除文件）
+- `gita group`
+- `gita group` <repo-name(s)>: group repos
 - `gita ll`: 显示所有库的状态信息
+- `gita ll <group-name>`: display the status of repos in a group
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
 - `gita rename <repo-name> <new-name>`: 重命名一个库
@@ -60,7 +63,7 @@
 - `gita <sub-command> [repo-name(s)]`: 库名是可选的，没有库名表示所有库
 - `gita <sub-command> <repo-name(s)>`: 必须有库名
 
-默认只有`fetch`和`pull`是第一种格式。  
+默认只有`fetch`和`pull`是第一种格式。
 
 如果输入了多个库名，
 而且被代理的git指令不需要用户输入，
@@ -96,15 +99,15 @@ comaster:
   allow_all: true
   help: checkout the master branch
 ```
-另一个自定义功能是针对`gita ll`展示的信息项。  
+另一个自定义功能是针对`gita ll`展示的信息项。
 `gita info`可以展示所有用到的和没用到的信息项，并且可以通过修改`$XDG_CONFIG_HOME/gita/info.yml`支持自定义。举个栗子，默认的信息项显示配置相当于是：
 
 ```yaml
 - branch
 - commit_msg
 ```
-为了创建自己的信息项，命名一个目录为`extra_info_items`。  
-在`$XDG_CONFIG_HOME/gita/extra_repo_info.yml`中，要把信息项的名字作为字符串映射到方法中，该方法将库的路径作为输入参数。举个栗子：
+为了创建自己的信息项，命名一个目录为`extra_info_items`。
+在`$XDG_CONFIG_HOME/gita/extra_repo_info.py`中，要把信息项的名字作为字符串映射到方法中，该方法将库的路径作为输入参数。举个栗子：
 
 ```python
 def get_delim(path: str) -> str:

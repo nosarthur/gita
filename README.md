@@ -122,7 +122,7 @@ default information items setting corresponds to
 ```
 
 To create your own information items, define a dictionary called `extra_info_items`
-in `$XDG_CONFIG_HOME/gita/extra_repo_info.yml`. It should map strings to functions,
+in `$XDG_CONFIG_HOME/gita/extra_repo_info.py`. It should map strings to functions,
 where the strings are the information item names and the functions take repo path
 as input. A trivial example is shown below.
 
@@ -134,7 +134,7 @@ extra_info_items = {'delim': get_delim}
 ```
 
 If it works, you will see these extra items in the 'Unused' section of the
-`gita info` output. To use them, edit `$XDG_CONFIG_HOME/gita/extra_repo_info.yml`.
+`gita info` output. To use them, edit `$XDG_CONFIG_HOME/gita/extra_repo_info.py`.
 
 ## Superman mode
 
