@@ -59,15 +59,17 @@ def get_groups() -> Dict[str, str]:
 
 def get_choices() -> List[Union[str, None]]:
     """
-    Return all repo names and an additional empty list. This is a workaround of
+    Return all repo names, group names, and an additional empty list. The empty
+    list is added as a workaround of
     argparse's problem with coexisting nargs='*' and choices.
     See https://utcc.utoronto.ca/~cks/space/blog/python/ArgparseNargsChoicesLimitation
     and
     https://bugs.python.org/issue27227
     """
-    repos = list(get_repos())
-    repos.append([])
-    return repos
+    choices = list(get_repos())
+    choices.extend(get_groups())
+    choices.append([])
+    return choices
 
 
 def is_git(path: str) -> bool:
