@@ -52,6 +52,7 @@ The bookkeeping sub-commands are
 - `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
 - `gita group`: show grouping of the repos
 - `gita group <repo-name(s)>`: group repos
+- `gita ungroup <repo-name(s)>`: remove grouping for repos
 - `gita ll`: display the status of all repos
 - `gita ll <group-name>`: display the status of repos in a group
 - `gita ls`: display the names of all repos
@@ -64,8 +65,10 @@ Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.confi
 
 The delegating sub-commands are of two formats
 
-- `gita <sub-command> [repo-name(s)]`: optional repo input, and no input means all repos.
-- `gita <sub-command> <repo-name(s)>`: required repo name(s) input
+- `gita <sub-command> [repo-name(s) or group-name(s)]`:
+  optional repo or group input, and no input means all repos.
+- `gita <sub-command> <repo-name(s) or groups-name(s)>`:
+  required repo name(s) or group name(s) input
 
 By default, only `fetch` and `pull` take optional input.
 
@@ -139,10 +142,10 @@ The superman mode delegates any git command/alias.
 Usage:
 
 ```
-gita super [repo-name(s)] <any-git-command-with-or-without-options>
+gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
 ```
 
-Here `repo-name(s)` is optional, and absence means all repos.
+Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all repos.
 For example,
 
 - `gita super checkout master` puts all repos on the master branch

@@ -110,8 +110,16 @@ def f_git_cmd(args: argparse.Namespace):
     disabled for commands in the `args.async_blacklist`.
     """
     repos = utils.get_repos()
-    if args.repo:  # with user specified repo(s)
-        repos = {k: repos[k] for k in args.repo}
+    groups = utils.get_groups()
+    if args.repo:  # with user specified repo(s) or group(s)
+        chosen = {}
+        for k in args.repo:
+            if k in repos:
+                chosen[k] = repos[k]
+            if k in groups:
+                for r in groups[k].split():
+                    chosen[r] = repos[r]
+        repos = chosen
     cmds = ['git'] + args.cmd
     if len(repos) == 1 or cmds[1] in args.async_blacklist:
         for path in repos.values():
@@ -136,8 +144,9 @@ def f_super(args):
     """
     names = []
     repos = utils.get_repos()
+    groups = utils.get_groups()
     for i, word in enumerate(args.man):
-        if word in repos:
+        if word in repos or word in groups:
             names.append(word)
         else:
             break
@@ -255,9 +264,9 @@ def main(argv=None):
             nargs = '*'
             help += ' for all repos or'
         else:
-            choices = utils.get_repos()
+            choices = utils.get_repos().keys() | utils.get_groups().keys()
             nargs = '+'
-        help += ' for the chosen repo(s)'
+        help += ' for the chosen repo(s) or group(s)'
         sp = subparsers.add_parser(name, help=help)
         sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
         sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
