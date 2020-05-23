@@ -46,10 +46,10 @@
 
 - `gita add <repo-path(s)>`: 添加库
 - `gita rm <repo-name(s)>`: 移除库（不会删除文件）
-- `gita group`
-- `gita group` <repo-name(s)>: group repos
+- `gita group`: 显示库的组群
+- `gita group` <repo-name(s)>: 将库分组
 - `gita ll`: 显示所有库的状态信息
-- `gita ll <group-name>`: display the status of repos in a group
+- `gita ll <group-name>`: 显示一个组群中库的状态信息
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
 - `gita rename <repo-name> <new-name>`: 重命名一个库
@@ -60,8 +60,8 @@
 
 代理执行的子命令有两种格式：
 
-- `gita <sub-command> [repo-name(s)]`: 库名是可选的，没有库名表示所有库
-- `gita <sub-command> <repo-name(s)>`: 必须有库名
+- `gita <sub-command> [repo-name(s) or group-name(s)]`: 库名或组群名是可选的，缺失表示所有库
+- `gita <sub-command> <repo-name(s) or group-name(s)>`: 必须有库名或组群名
 
 默认只有`fetch`和`pull`是第一种格式。
 
@@ -122,10 +122,10 @@ extra_info_items = {'delim': get_delim}
 超人模式可以代理执行任何git命令/别名。它的格式是
 
 ```
-gita super [repo-name(s)] <any-git-command-with-or-without-options>
+gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
 ```
 
-其中库名是可有可无的。举几个例子
+其中库名或组群名是可有可无的。举几个例子
 
 - `gita super checkout master`会把所有库都弄到主库杈上
 - `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
