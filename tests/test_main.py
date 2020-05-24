@@ -146,6 +146,19 @@ def test_ungroup(mock_write, _, __, input, expected):
     mock_write.assert_called_once_with(expected, 'w')
 
 
+@patch('gita.utils.is_git', return_value=True)
+@patch('gita.utils.get_config_fname', return_value=PATH_FNAME)
+@patch('gita.utils.rename_repo')
+def test_rename(mock_rename, _, __):
+    utils.get_repos.cache_clear()
+    args = ['rename', 'repo1', 'abc']
+    __main__.main(args)
+    mock_rename.assert_called_once_with(
+        {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2',
+            'xxx': '/a/b/c/repo3'},
+        'repo1', 'abc')
+
+
 @patch('os.path.isfile', return_value=False)
 def test_info(mock_isfile, capfd):
     __main__.f_info(None)
