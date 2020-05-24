@@ -3,7 +3,9 @@ import asyncio
 from unittest.mock import patch, mock_open
 
 from gita import utils, info
-from conftest import PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH
+from conftest import (
+    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
+)
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
@@ -45,6 +47,17 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
     utils.get_repos.cache_clear()
     repos = utils.get_repos()
     assert repos == expected
+
+
+@pytest.mark.parametrize('group_fname, expected', [
+    (GROUP_FNAME, {'xx': ['a', 'b'], 'yy': ['a', 'c', 'd']}),
+])
+@patch('gita.utils.get_config_fname')
+def test_get_groups(mock_group_fname, group_fname, expected):
+    mock_group_fname.return_value = group_fname
+    utils.get_groups.cache_clear()
+    got = utils.get_groups()
+    assert got == expected
 
 
 @patch('os.path.isfile', return_value=True)
