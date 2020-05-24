@@ -46,7 +46,7 @@ def f_ll(args: argparse.Namespace):
     """
     repos = utils.get_repos()
     if args.group:  # only display repos in this group
-        group_repos = utils.get_groups()[args.group].split()
+        group_repos = utils.get_groups()[args.group]
         repos = {k: repos[k] for k in group_repos if k in repos}
     for line in utils.describe(repos):
         print(line)
@@ -66,15 +66,15 @@ def f_group(args: argparse.Namespace):
     if args.to_group:
         gname = input('group name? ')
         if gname in groups:
-            gname_repos = set(groups[gname].split())
+            gname_repos = set(groups[gname])
             gname_repos.update(args.to_group)
-            groups[gname] = ' '.join(sorted(gname_repos))
+            groups[gname] = sorted(gname_repos)
             utils.write_to_groups_file(groups, 'w')
         else:
-            utils.write_to_groups_file({gname: ' '.join(sorted(args.to_group))}, 'a+')
+            utils.write_to_groups_file({gname: sorted(args.to_group)}, 'a+')
     else:
         for group, repos in groups.items():
-            print(f"{group}: {repos}")
+            print(f"{group}: {', '.join(repos)}")
 
 
 def f_ungroup(args: argparse.Namespace):
@@ -82,9 +82,9 @@ def f_ungroup(args: argparse.Namespace):
     to_ungroup = set(args.to_ungroup)
     to_del = []
     for name, repos in groups.items():
-        remaining = set(repos.split()) - to_ungroup
+        remaining = set(repos) - to_ungroup
         if remaining:
-            groups[name] = ''.join(remaining)
+            groups[name] = list(sorted(remaining))
         else:
             to_del.append(name)
     for name in to_del:
@@ -117,7 +117,7 @@ def f_git_cmd(args: argparse.Namespace):
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
-                for r in groups[k].split():
+                for r in groups[k]:
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ['git'] + args.cmd
@@ -232,7 +232,8 @@ def main(argv=None):
     p_group.set_defaults(func=f_group)
 
     p_ungroup = subparsers.add_parser(
-        'ungroup', help='remove group information for repos')
+        'ungroup', help='remove group information for repos',
+        description="Remove group information on repos")
     p_ungroup.add_argument('to_ungroup',
                       nargs='+',
                       choices=utils.get_repos(),

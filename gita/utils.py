@@ -43,7 +43,7 @@ def get_repos() -> Dict[str, str]:
 
 
 @lru_cache()
-def get_groups() -> Dict[str, str]:
+def get_groups() -> Dict[str, List[str]]:
     """
     Return a `dict` of group name to repo names.
     """
@@ -98,7 +98,6 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     write_to_repo_file(repos, 'w')
 
 
-# TODO: combine these 2 write apis
 def write_to_repo_file(repos: Dict[str, str], mode: str):
     """
     """
@@ -109,15 +108,14 @@ def write_to_repo_file(repos: Dict[str, str], mode: str):
         f.write(data)
 
 
-def write_to_groups_file(groups: Dict[str, str], mode: str):
+def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     """
 
     """
-    data = ''.join(f'{group}: {repos}\n' for group, repos in groups.items())
     fname = get_config_fname('groups.yml')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
-        f.write(data)
+        yaml.dump(groups, f, default_flow_style=None)
 
 
 def add_repos(repos: Dict[str, str], new_paths: List[str]):
