@@ -61,7 +61,6 @@ def f_ls(args: argparse.Namespace):
 
 
 def f_group(args: argparse.Namespace):
-    repos = utils.get_repos()
     groups = utils.get_groups()
     if args.to_group:
         gname = input('group name? ')

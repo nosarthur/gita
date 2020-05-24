@@ -146,6 +146,17 @@ def test_ungroup(mock_write, _, __, input, expected):
     mock_write.assert_called_once_with(expected, 'w')
 
 
+@patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+def test_group_display(_, capfd):
+    args = argparse.Namespace()
+    args.to_group = None
+    utils.get_groups.cache_clear()
+    __main__.f_group(args)
+    out, err = capfd.readouterr()
+    assert err == ''
+    assert 'xx: a, b\nyy: a, c, d\n' == out
+
+
 @patch('gita.utils.is_git', return_value=True)
 @patch('gita.utils.get_config_fname', return_value=PATH_FNAME)
 @patch('gita.utils.rename_repo')
