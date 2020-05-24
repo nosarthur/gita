@@ -80,11 +80,12 @@ def f_group(args: argparse.Namespace):
 def f_ungroup(args: argparse.Namespace):
     groups = utils.get_groups()
     to_ungroup = set(args.to_ungroup)
+    print('debug', groups, to_ungroup)
     to_del = []
     for name, repos in groups.items():
         remaining = set(repos) - to_ungroup
         if remaining:
-            groups[name] = list(remaining)
+            groups[name] = list(sorted(remaining))
         else:
             to_del.append(name)
     for name in to_del:

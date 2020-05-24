@@ -45,8 +45,7 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
 def test_get_repos(mock_path_fname, _, path_fname, expected):
     mock_path_fname.return_value = path_fname
     utils.get_repos.cache_clear()
-    repos = utils.get_repos()
-    assert repos == expected
+    assert utils.get_repos() == expected
 
 
 @pytest.mark.parametrize('group_fname, expected', [
@@ -56,8 +55,7 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
 def test_get_groups(mock_group_fname, group_fname, expected):
     mock_group_fname.return_value = group_fname
     utils.get_groups.cache_clear()
-    got = utils.get_groups()
-    assert got == expected
+    assert utils.get_groups() == expected
 
 
 @patch('os.path.isfile', return_value=True)
