@@ -19,7 +19,7 @@ import argparse
 import subprocess
 import pkg_resources
 
-from . import utils, info
+from . import utils, info, workspace
 
 
 def f_add(args: argparse.Namespace):
@@ -110,6 +110,9 @@ def f_git_cmd(args: argparse.Namespace):
     """
     repos = utils.get_repos()
     groups = utils.get_groups()
+    # Need to check if the default repo is used.
+    if type(args.repo) == str:
+        args.repo = [args.repo]
     if args.repo:  # with user specified repo(s) or group(s)
         chosen = {}
         for k in args.repo:
@@ -150,11 +153,40 @@ def f_super(args):
         else:
             break
     args.cmd = args.man[i:]
-    args.repo = names
+    args.repo = names or workspace.get_workspace_group(os.getcwd())
     f_git_cmd(args)
 
+def f_workspace(args):
+    path = os.path.abspath(args.path)
+    workspaces = workspace.get_workspaces()
+    if args.subcommand == 'info':
+        workspace_path = workspaces.longest_prefix(path)
+        if workspace_path:
+            print('Current workspace root set to ' + workspace_path[0])
+        else:
+            print('No workspace root found!')
+    if args.subcommand == 'list':
+        print('Configured workspaces (Path -> Group):')
+        for path, group in workspaces.items():
+            print(f'\t{path} -> {group}')
+    if args.subcommand == 'init':
+        if args.group:
+            if workspace.add_workspace(path, args.group):
+                print(f'Added workspace to path {path}')
+            else:
+                print('Path already has a workspace in it!')
+        else:
+            print('Please provide a group for the workspace!')
+    if args.subcommand == 'remove':
+        if workspace.remove_workspace(path):
+            print(f'Workspace removed from {path}')
+        else:
+            print(f'Couldn\'t remove workspace from {path}')
+    if args.subcommand == 'rm':
+        workspace.remove_workspace(path)
 
 def main(argv=None):
+    default_group = workspace.get_workspace_group(os.getcwd())
     p = argparse.ArgumentParser(prog='gita',
                                 formatter_class=argparse.RawTextHelpFormatter,
                                 description=__doc__)
@@ -211,7 +243,8 @@ def main(argv=None):
     p_ll.add_argument('group',
                       nargs='?',
                       choices=utils.get_groups(),
-                      help="show repos in the chosen group")
+                      help="show repos in the chosen group",
+                      default=default_group)
     p_ll.set_defaults(func=f_ll)
 
     p_ls = subparsers.add_parser(
@@ -254,6 +287,26 @@ def main(argv=None):
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
 
+    path_args = argparse.ArgumentParser(add_help=False)
+    path_args.add_argument('path', 
+        nargs='?', 
+        help='path of the workspace', 
+        default=os.getcwd())
+
+    p_workspace = subparsers.add_parser(
+        'workspace', 
+        description='List, add or remove workspaces.')
+    p_workspace.set_defaults(func=f_workspace)
+    p_workspace_commands = p_workspace.add_subparsers(description='workspace sub-commands', required=True, dest='subcommand')
+    p_workspace_commands.add_parser('info', description='Displays info for the workspace in the current path', parents=[path_args])
+    p_workspace_commands.add_parser('list', description='Lists all the configured workspaces')
+    p_workspace_commands.add_parser('remove', description='Removes workspace on the given path', parents=[path_args])
+    p_workspace_commands.add_parser('init', description='Initializes a workspace', parents=[path_args]).add_argument(
+        'group',  
+        choices=utils.get_groups(), 
+        help='Group to init the workspace to\n'
+        'Example: gita workspace init my_group')
+
     # sub-commands that fit boilerplate
     cmds = utils.get_cmds_from_files()
     for name, data in cmds.items():
@@ -265,10 +318,13 @@ def main(argv=None):
             help += ' for all repos or'
         else:
             choices = utils.get_repos().keys() | utils.get_groups().keys()
-            nargs = '+'
+            if default_group:
+                nargs = '*'
+            else:
+                nargs = '+'
         help += ' for the chosen repo(s) or group(s)'
         sp = subparsers.add_parser(name, help=help)
-        sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
+        sp.add_argument('repo', nargs=nargs, choices=choices, help=help, default=default_group)
         sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
 
     args = p.parse_args(argv)
