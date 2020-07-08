@@ -207,8 +207,7 @@ To run tests locally, simply `pytest`.
 More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
 
-You can also make donation to me on [patreon](https://www.patreon.com/nosarthur).
-Any amount is appreciated!
+You can also sponsor me on GitHub. Any amount is appreciated!
 
 ## Contributors
 
