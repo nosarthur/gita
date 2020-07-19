@@ -3,6 +3,7 @@
 [![codecov](https://codecov.io/gh/nosarthur/gita/branch/master/graph/badge.svg)](https://codecov.io/gh/nosarthur/gita)
 [![licence](https://img.shields.io/pypi/l/gita.svg)](https://github.com/nosarthur/gita/blob/master/LICENSE)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gita.svg)](https://pypistats.org/packages/gita)
+[![Gitter](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![English](https://img.shields.io/badge/-English-lightgrey.svg)](https://github.com/nosarthur/gita)
 
 ```
@@ -69,6 +70,47 @@
 而且被代理的git指令不需要用户输入，
 那么各个库的代理指令会被异步执行。
 
+## 安装指南
+
+正常人类按装：
+
+```
+pip3 install -U gita
+```
+
+神奇码农安装：先下载源码，然后
+
+```
+pip3 install -e <gita-source-folder>
+```
+
+装完之后在命令行下执行`gita`可能还不行。那就把下面这个昵称放到`.bashrc`里。
+```
+alias gita="python3 -m gita"
+```
+
+Windows用户可能需要额外的设置来支持彩色的命令行， 见[这个帖子](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes)。
+
+## 自动补全
+
+下载
+[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
+并在`.bashrc`里点它。
+
+## 超人模式
+
+超人模式可以代理执行任何git命令/别名。它的格式是
+
+```
+gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
+```
+
+其中库名或组群名是可有可无的。举几个例子
+
+- `gita super checkout master`会把所有库都弄到主库杈上
+- `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
+  会对`frontend-repo`和`backend-repo`运行`git commit -am 'implement a new feature'`
+
 ## 私人定制
 
 定制的代理子命令要放在`$XDG_CONFIG_HOME/gita/cmds.yml` (多半是`~/.config/gita/cmds.yml`)。
@@ -117,20 +159,6 @@ extra_info_items = {'delim': get_delim}
 ```
 如果没有遇到问题，你会在`gita info`的输出内容中的`unused`小节中看到这些额外信息项。
 
-## 超人模式
-
-超人模式可以代理执行任何git命令/别名。它的格式是
-
-```
-gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
-```
-
-其中库名或组群名是可有可无的。举几个例子
-
-- `gita super checkout master`会把所有库都弄到主库杈上
-- `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
-  会对`frontend-repo`和`backend-repo`运行`git commit -am 'implement a new feature'`
-
 ## 先决条件
 
 因为用了[f-string](https://www.python.org/dev/peps/pep-0498/)
@@ -138,33 +166,6 @@ gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-opti
 
 暗地里老夫用`subprocess`来代理执行git指令。所以git的版本有可能会影响结果。
 经测试，`1.8.3.1`, `2.17.2`, 和`2.20.1`的结果是一致的。
-
-## 安装指南
-
-正常人类按装：
-
-```
-pip3 install -U gita
-```
-
-神奇码农安装：先下载源码，然后
-
-```
-pip3 install -e <gita-source-folder>
-```
-
-装完之后在命令行下执行`gita`可能还不行。那就把下面这个昵称放到`.bashrc`里。
-```
-alias gita="python3 -m gita"
-```
-
-Windows用户可能需要额外的设置来支持彩色的命令行， 见[这个帖子](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes)。
-
-## 自动补全
-
-下载
-[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
-并在`.bashrc`里点它。
 
 ## 有所作为
 
@@ -174,10 +175,12 @@ Windows用户可能需要额外的设置来支持彩色的命令行， 见[这�
 - 建议/实现功能
 - 加星/推荐本作
 
+聊天请入[![Join the chat at https://gitter.im/nosarthur/gita](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 在本地跑单元测试可以直接用`pytest`。更多的细节可见
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md)。
 
-如果你愿意资助我，请访问[patreon](https://www.patreon.com/nosarthur).
+如果你愿意资助我，请访问[GitHub Sponsors](https://github.com/sponsors/nosarthur)。
 
 ## 他山之石
 
