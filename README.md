@@ -75,6 +75,54 @@ By default, only `fetch` and `pull` take optional input.
 If more than one repos are specified, the git command will run asynchronously,
 with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.
 
+## Installation
+
+To install the latest version, run
+
+```
+pip3 install -U gita
+```
+
+If development mode is preferred,
+download the source code and run
+
+```
+pip3 install -e <gita-source-folder>
+```
+
+In either case, calling `gita` in terminal may not work,
+then you can put the following line in the `.bashrc` file.
+
+```
+alias gita="python3 -m gita"
+```
+
+Windows users may need to enable the ANSI escape sequence in terminal, otherwise
+the branch color won't work.
+See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
+
+## Auto-completion
+
+Download
+[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
+and source it in `.bashrc`.
+
+## Superman mode
+
+The superman mode delegates any git command/alias.
+Usage:
+
+```
+gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
+```
+
+Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all repos.
+For example,
+
+- `gita super checkout master` puts all repos on the master branch
+- `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
+  executes `git commit -am 'implement a new feature'` for `frontend-repo` and `backend-repo`
+
 ## Customization
 
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
@@ -136,22 +184,6 @@ extra_info_items = {'delim': get_delim}
 If it works, you will see these extra items in the 'Unused' section of the
 `gita info` output. To use them, edit `$XDG_CONFIG_HOME/gita/extra_repo_info.py`.
 
-## Superman mode
-
-The superman mode delegates any git command/alias.
-Usage:
-
-```
-gita super [repo-name(s) or group-name(s)] <any-git-command-with-or-without-options>
-```
-
-Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all repos.
-For example,
-
-- `gita super checkout master` puts all repos on the master branch
-- `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
-  executes `git commit -am 'implement a new feature'` for `frontend-repo` and `backend-repo`
-
 ## Requirements
 
 Gita requires Python 3.6 or higher, due to the use of
@@ -162,38 +194,6 @@ Under the hood, gita uses subprocess to run git commands/aliases.
 Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
 their results agree.
-
-## Installation
-
-To install the latest version, run
-
-```
-pip3 install -U gita
-```
-
-If development mode is preferred,
-download the source code and run
-
-```
-pip3 install -e <gita-source-folder>
-```
-
-In either case, calling `gita` in terminal may not work,
-then you can put the following line in the `.bashrc` file.
-
-```
-alias gita="python3 -m gita"
-```
-
-Windows users may need to enable the ANSI escape sequence in terminal, otherwise
-the branch color won't work.
-See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
-
-## Auto-completion
-
-Download
-[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
-and source it in `.bashrc`.
 
 ## Contributing
 
@@ -206,8 +206,9 @@ To contribute, you can
 To run tests locally, simply `pytest`.
 More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
+A step-by-step guide to reproduce this project is [here](https://nosarthur.github.io/side%20project/2019/05/27/gita-breakdown.html).
 
-You can also sponsor me on GitHub. Any amount is appreciated!
+You can also sponsor me on [GitHub](https://github.com/sponsors/nosarthur). Any amount is appreciated!
 
 ## Contributors
 
