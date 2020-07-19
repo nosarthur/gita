@@ -204,6 +204,8 @@ To contribute, you can
 - request/implement features
 - star/recommend this project
 
+Chat room is available on [![Join the chat at https://gitter.im/nosarthur/gita](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 To run tests locally, simply `pytest`.
 More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
@@ -220,7 +222,7 @@ You can also sponsor me on [GitHub](https://github.com/sponsors/nosarthur). Any 
 [![wbrn](https://github.com/wbrn.png?size=40 "wbrn")](https://github.com/wbrn)
 [![TpOut](https://github.com/TpOut.png?size=40 "TpOut")](https://github.com/TpOut)
 [![PabloCastellano](https://github.com/PabloCastellano.png?size=40 "PabloCastellano")](https://github.com/PabloCastellano)
-[![cd3](https://github.com/cd3.png?size=40 "cd3")](https://github.com/cd3) [![Join the chat at https://gitter.im/nosarthur/gita](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![cd3](https://github.com/cd3.png?size=40 "cd3")](https://github.com/cd3)
 
 ## Other multi-repo tools
 
