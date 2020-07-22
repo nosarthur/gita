@@ -22,7 +22,7 @@
 This tool does two things
 
 - display the status of multiple git repos such as branch, modification, commit message side by side
-- delegate git commands/aliases from any working directory
+- (batch) delegate git commands/aliases from any working directory
 
 If several repos compile together, it helps to see their status together too.
 I also hate to change directories to execute git commands.

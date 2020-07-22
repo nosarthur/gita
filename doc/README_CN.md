@@ -22,7 +22,7 @@
 这个工具有两个作用：
 
 - 并排显示多个库的状态信息，比如分支名，编辑状态，提交信息等
-- 在任何目录下代理执行 git 指令
+- 在任何目录下（批处理）代理执行 git 指令
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
