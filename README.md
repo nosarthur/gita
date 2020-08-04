@@ -106,7 +106,9 @@ See [this stackoverflow post](https://stackoverflow.com/questions/51680709/color
 
 Download
 [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
-and source it in `.bashrc`.
+or
+[.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/.gita-completion.zsh)
+and source it in the .rc file.
 
 ## Superman mode
 
@@ -223,6 +225,7 @@ You can also sponsor me on [GitHub](https://github.com/sponsors/nosarthur). Any 
 [![TpOut](https://github.com/TpOut.png?size=40 "TpOut")](https://github.com/TpOut)
 [![PabloCastellano](https://github.com/PabloCastellano.png?size=40 "PabloCastellano")](https://github.com/PabloCastellano)
 [![cd3](https://github.com/cd3.png?size=40 "cd3")](https://github.com/cd3)
+[![Steve-Xyh](https://github.com/Steve-Xyh.png?size=40 "Steve-Xyh")](https://github.com/Steve-Xyh)
 
 ## Other multi-repo tools
 
