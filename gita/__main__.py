@@ -73,7 +73,7 @@ def f_group(args: argparse.Namespace):
             utils.write_to_groups_file({gname: sorted(args.to_group)}, 'a+')
     else:
         for group, repos in groups.items():
-            print(f"{group}: {', '.join(repos)}")
+            print(f"{group}: {' '.join(repos)}")
 
 
 def f_ungroup(args: argparse.Namespace):

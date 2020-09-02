@@ -154,7 +154,7 @@ def test_group_display(_, capfd):
     __main__.f_group(args)
     out, err = capfd.readouterr()
     assert err == ''
-    assert 'xx: a, b\nyy: a, c, d\n' == out
+    assert 'xx: a b\nyy: a c d\n' == out
 
 
 @patch('gita.utils.is_git', return_value=True)
