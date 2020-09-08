@@ -18,13 +18,18 @@ import os
 import argparse
 import subprocess
 import pkg_resources
+from itertools import chain
+from pathlib import Path
 
 from . import utils, info
 
 
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
-    utils.add_repos(repos, args.paths)
+    paths = args.paths
+    if args.recursive:
+        paths = chain.from_iterable(Path(p).glob('**') for p in args.paths)
+    utils.add_repos(repos, paths)
 
 
 def f_rename(args: argparse.Namespace):
@@ -170,6 +175,8 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', help='add repo(s)')
     p_add.add_argument('paths', nargs='+', help="add repo(s)")
+    p_add.add_argument('-r', dest='recursive', action='store_true',
+            help="recursively add repo(s) in the given path.")
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', help='remove repo(s)')
