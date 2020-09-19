@@ -114,8 +114,11 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     """
     fname = get_config_fname('groups.yml')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, mode) as f:
-        yaml.dump(groups, f, default_flow_style=None)
+    if not groups:  # all groups are deleted
+        open(fname, 'w').close()
+    else:
+        with open(fname, mode) as f:
+            yaml.dump(groups, f, default_flow_style=None)
 
 
 def add_repos(repos: Dict[str, str], new_paths: List[str]):
