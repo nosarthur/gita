@@ -131,30 +131,44 @@ def test_superman(mock_run, _, input):
     mock_run.assert_called_once_with(expected_cmds, cwd='path7')
 
 
-@pytest.mark.parametrize('input, expected', [
-    ('a', {'xx': ['b'], 'yy': ['c', 'd']}),
-    ("c", {'xx': ['a', 'b'], 'yy': ['a', 'd']}),
-    ("a b", {'yy': ['c', 'd']}),
-])
-@patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
-@patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
-@patch('gita.utils.write_to_groups_file')
-def test_ungroup(mock_write, _, __, input, expected):
-    utils.get_groups.cache_clear()
-    args = ['ungroup'] + shlex.split(input)
-    __main__.main(args)
-    mock_write.assert_called_once_with(expected, 'w')
+class TestGroupCmd:
 
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    def testLl(self, _, capfd):
+        args = argparse.Namespace()
+        args.to_group = None
+        args.group_cmd = None
+        utils.get_groups.cache_clear()
+        __main__.f_group(args)
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'xx: a b\nyy: a c d\n' == out
 
-@patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
-def test_group_display(_, capfd):
-    args = argparse.Namespace()
-    args.to_group = None
-    utils.get_groups.cache_clear()
-    __main__.f_group(args)
-    out, err = capfd.readouterr()
-    assert err == ''
-    assert 'xx: a b\nyy: a c d\n' == out
+    @pytest.mark.parametrize('input, expected', [
+        ('xx', {'yy': ['a', 'c', 'd']}),
+        ("xx yy", {}),
+    ])
+    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.utils.write_to_groups_file')
+    def testRm(self, mock_write, _, __, input, expected):
+        utils.get_groups.cache_clear()
+        args = ['group', 'rm'] + shlex.split(input)
+        __main__.main(args)
+        mock_write.assert_called_once_with(expected, 'w')
+
+    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.utils.write_to_groups_file')
+    def testAdd(self, mock_write, _, __, monkeypatch):
+        args = argparse.Namespace()
+        args.to_group =  ['a', 'c']
+        args.group_cmd = 'add'
+        utils.get_groups.cache_clear()
+        monkeypatch.setattr('builtins.input', lambda _: 'zz')
+        __main__.f_group(args)
+        mock_write.assert_called_once_with({'zz': ['a', 'c']}, 'a+')
+
 
 
 @patch('gita.utils.is_git', return_value=True)
