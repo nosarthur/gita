@@ -76,8 +76,10 @@ def f_group(args: argparse.Namespace):
             del groups[name]
         utils.write_to_groups_file(groups, 'w')
     elif cmd == 'add':
-        while not (gname := input('group name? ')):
-            pass
+        while True:
+            gname = input('group name?')
+            if gname:
+                break
         if gname in groups:
             gname_repos = set(groups[gname])
             gname_repos.update(args.to_group)
