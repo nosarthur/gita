@@ -70,6 +70,11 @@ def f_info(args: argparse.Namespace):
         yml_config = common.get_config_fname('info.yml')
         with open(yml_config, 'w') as f:
               yaml.dump(to_display, f, default_flow_style=None)
+def f_freeze(_):
+    repos = utils.get_repos()
+    for name, path in repos.items():
+        print(f'{path},{name}')
+        subprocess.run(['git', 'remote', '-v'], cwd=path)
 
 
 def f_ll(args: argparse.Namespace):
@@ -237,6 +242,9 @@ def main(argv=None):
                       choices=utils.get_repos(),
                       help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
+
+    p_freeze = subparsers.add_parser('freeze', help='print all repo information')
+    p_freeze.set_defaults(func=f_freeze)
 
     p_rename = subparsers.add_parser('rename', help='rename a repo')
     p_rename.add_argument(
