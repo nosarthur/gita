@@ -70,6 +70,14 @@ def f_info(args: argparse.Namespace):
         yml_config = common.get_config_fname('info.yml')
         with open(yml_config, 'w') as f:
               yaml.dump(to_display, f, default_flow_style=None)
+
+
+def f_clone(args: argparse.Namespace):
+    repos = utils.get_repos()
+    new_repos = utils.parse_config(args.fname)
+    utils.clone_repos(new_repos)
+
+
 def f_freeze(_):
     repos = utils.get_repos()
     for name, path in repos.items():
@@ -245,6 +253,11 @@ def main(argv=None):
 
     p_freeze = subparsers.add_parser('freeze', help='print all repo information')
     p_freeze.set_defaults(func=f_freeze)
+
+    p_clone = subparsers.add_parser('clone', help='clone repos from config file')
+    p_clone.add_argument('fname', nargs=1,
+            help='config file. Its content should be the output of `gita freeze`.')
+    p_clone.set_defaults(func=f_clone)
 
     p_rename = subparsers.add_parser('rename', help='rename a repo')
     p_rename.add_argument(

@@ -128,6 +128,8 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
 def add_repos(repos: Dict[str, str], new_paths: List[str]):
     """
     Write new repo paths to file
+
+    @param repos: name -> path
     """
     existing_paths = set(repos.values())
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
@@ -140,6 +142,25 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         write_to_repo_file(new_repos, 'a+')
     else:
         print('No new repos found!')
+
+
+def clone_repos(repos: Dict[str, List[str]]):
+    """
+
+    @param repos: name -> [remote URL, path]
+    """
+    # TODO: add repo afterwards
+        #write_to_repo_file(new_repos, 'a+')
+
+
+def parse_config(fname: str) -> Dict[str, List[str]]:
+    """
+
+    """
+    ## TODO
+    with open(fname) as f:
+        f.readlines()
+    return
 
 
 async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:
