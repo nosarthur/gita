@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+from pathlib import Path
 import argparse
 import shlex
 
@@ -7,7 +8,7 @@ from gita import __main__
 from gita import utils
 from conftest import (
     PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
-    async_mock
+    async_mock, TEST_DIR,
 )
 
 
@@ -129,6 +130,46 @@ def test_superman(mock_run, _, input):
     __main__.main(args)
     expected_cmds = ['git'] + shlex.split(input)
     mock_run.assert_called_once_with(expected_cmds, cwd='path7')
+
+
+class TestContext:
+
+    @patch('gita.utils.get_context', return_value=None)
+    def testDisplayNoContext(self, _, capfd):
+        __main__.main(['context'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'Context is not set\n' == out
+
+    @patch('gita.utils.get_context', return_value=Path('gname.context'))
+    @patch('gita.utils.get_groups', return_value={'gname': ['a', 'b']})
+    def testDisplayContext(self, _, __, capfd):
+        __main__.main(['context'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'gname: a b\n' == out
+
+    @patch('gita.utils.get_context')
+    def testReset(self, mock_ctx):
+        __main__.main(['context', 'none'])
+        mock_ctx.return_value.unlink.assert_called()
+
+    @patch('gita.utils.get_context', return_value=None)
+    @patch('gita.common.get_config_dir', return_value=TEST_DIR)
+    @patch('gita.utils.get_groups', return_value={'lala': ['b'], 'kaka': []})
+    def testSetFirstTime(self, *_):
+        ctx = TEST_DIR / 'lala.context'
+        assert not ctx.is_file()
+        __main__.main(['context', 'lala'])
+        assert ctx.is_file()
+        ctx.unlink()
+
+    @patch('gita.common.get_config_dir', return_value=TEST_DIR)
+    @patch('gita.utils.get_groups', return_value={'lala': ['b'], 'kaka': []})
+    @patch('gita.utils.get_context')
+    def testSetSecondTime(self, mock_ctx, *_):
+        __main__.main(['context', 'kaka'])
+        mock_ctx.return_value.rename.assert_called()
 
 
 class TestGroupCmd:

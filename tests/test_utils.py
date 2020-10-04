@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open
 
 from gita import utils, info
 from conftest import (
-    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
+    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME, TEST_DIR,
 )
 
 
@@ -46,6 +46,17 @@ def test_get_repos(mock_path_fname, _, path_fname, expected):
     mock_path_fname.return_value = path_fname
     utils.get_repos.cache_clear()
     assert utils.get_repos() == expected
+
+
+@patch('gita.common.get_config_dir')
+def test_get_context(mock_config_dir):
+    mock_config_dir.return_value = TEST_DIR
+    utils.get_context.cache_clear()
+    assert utils.get_context() == TEST_DIR / 'xx.context'
+
+    mock_config_dir.return_value = '/'
+    utils.get_context.cache_clear()
+    assert utils.get_context() == None
 
 
 @pytest.mark.parametrize('group_fname, expected', [
