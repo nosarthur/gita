@@ -21,7 +21,7 @@ import pkg_resources
 from itertools import chain
 from pathlib import Path
 
-from . import utils, info
+from . import utils, info, common
 
 
 def f_add(args: argparse.Namespace):
@@ -50,6 +50,9 @@ def f_ll(args: argparse.Namespace):
     Display details of all repos
     """
     repos = utils.get_repos()
+    ctx = utils.get_context()
+    if args.group is None and ctx:
+        args.group = ctx.stem
     if args.group:  # only display repos in this group
         group_repos = utils.get_groups()[args.group]
         repos = {k: repos[k] for k in group_repos if k in repos}
@@ -89,6 +92,25 @@ def f_group(args: argparse.Namespace):
             utils.write_to_groups_file({gname: sorted(args.to_group)}, 'a+')
 
 
+def f_context(args: argparse.Namespace):
+    choice = args.choice
+    ctx = utils.get_context()
+    if choice is None:
+        if ctx:
+            group = ctx.stem
+            print(f"{group}: {' '.join(utils.get_groups()[group])}")
+        else:
+            print('Context is not set')
+    elif choice == 'none':  # remove context
+        ctx and ctx.unlink()
+    else:  # set context
+        fname = Path(common.get_config_dir()) / (choice + '.context')
+        if ctx:
+            ctx.rename(fname)
+        else:
+            open(fname, 'w').close()
+
+
 def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
@@ -108,6 +130,9 @@ def f_git_cmd(args: argparse.Namespace):
     """
     repos = utils.get_repos()
     groups = utils.get_groups()
+    ctx = utils.get_context()
+    if not args.repo and ctx:
+        args.repo = [ctx.stem]
     if args.repo:  # with user specified repo(s) or group(s)
         chosen = {}
         for k in args.repo:
@@ -213,6 +238,14 @@ def main(argv=None):
                       choices=utils.get_groups(),
                       help="show repos in the chosen group")
     p_ll.set_defaults(func=f_ll)
+
+    p_context = subparsers.add_parser('context',
+            help='')
+    p_context.add_argument('choice',
+                      nargs='?',
+                      choices=set().union(utils.get_groups(), {'none'}),
+                      help="Without argument, show current context. Otherwise choose a group as context. To remove context, use 'none'. ")
+    p_context.set_defaults(func=f_context)
 
     p_ls = subparsers.add_parser(
         'ls', help='display names of all repos, or path of a chosen repo')

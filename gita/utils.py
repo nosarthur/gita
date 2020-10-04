@@ -3,6 +3,7 @@ import yaml
 import asyncio
 import platform
 from functools import lru_cache
+from pathlib import Path
 from typing import List, Dict, Coroutine, Union
 
 from . import info
@@ -15,6 +16,17 @@ def get_config_fname(fname: str) -> str:
     """
     root = common.get_config_dir()
     return os.path.join(root, fname)
+
+
+@lru_cache()
+def get_context() -> Union[Path, None]:
+    """
+    Return the context: either a group name or 'none'
+    """
+    config_dir = Path(common.get_config_dir())
+    matches = list(config_dir.glob('*.context'))
+    assert len(matches) < 2, "Cannot have multiple .context file"
+    return matches[0] if matches else None
 
 
 @lru_cache()
