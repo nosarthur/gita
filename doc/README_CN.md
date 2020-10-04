@@ -47,13 +47,18 @@
 
 - `gita add <repo-path(s)>`: 添加库
 - `gita rm <repo-name(s)>`: 移除库（不会删除文件）
-- `gita group`: 显示库的组群
-- `gita group` <repo-name(s)>: 将库分组
+- `gita group`: 组群命令
+    - `gita group [ll]`: 显示已有的组
+    - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
+    - `gita group rm group(s): 删除组
 - `gita ll`: 显示所有库的状态信息
 - `gita ll <group-name>`: 显示一个组群中库的状态信息
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
 - `gita rename <repo-name> <new-name>`: 重命名一个库
+- `gita context`: 显示当前的情境
+- `gita context none`: 去除情境
+- `gita context <group-name>`: 把情境设置成`group-name`, 所有的操作只作用到这个组里的库
 - `gita info`: 显示已用的和未用的信息项
 - `gita -v`: 显示版本号
 

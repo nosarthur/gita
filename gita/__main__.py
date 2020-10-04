@@ -240,7 +240,8 @@ def main(argv=None):
     p_ll.set_defaults(func=f_ll)
 
     p_context = subparsers.add_parser('context',
-            help='')
+            help='Set and remove context. A context is a group.'
+                ' When set, all operations apply only to repos in that group.')
     p_context.add_argument('choice',
                       nargs='?',
                       choices=set().union(utils.get_groups(), {'none'}),
