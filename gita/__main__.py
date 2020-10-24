@@ -261,7 +261,7 @@ def main(argv=None):
     group_cmds = p_group.add_subparsers(dest='group_cmd',
             help='additional help with sub-command -h')
     group_cmds.add_parser('ll', description='List all groups with repos.')
-    group_cmds.add_parser('ls', description='List all groups.')
+    group_cmds.add_parser('ls', description='List all group names.')
     pg_add = group_cmds.add_parser('add', description='Add repo(s) to a group.')
     pg_add.add_argument('to_group',
                     nargs='+',

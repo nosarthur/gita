@@ -49,7 +49,7 @@
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
     - `gita context none`: 去除情境
-    - `gita context <group-name>`: 把情境设置成`group-name`, 所有的操作只作用到这个组里的库
+    - `gita context <group-name>`: 把情境设置成`group-name`, 之后所有的操作只作用到这个组里的库
 - `gita group`: 组群命令
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
     - `gita group [ll]`: 显示已有的组和它们的库
