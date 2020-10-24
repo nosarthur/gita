@@ -175,6 +175,17 @@ class TestContext:
 class TestGroupCmd:
 
     @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    def testLs(self, _, capfd):
+        args = argparse.Namespace()
+        args.to_group = None
+        args.group_cmd = 'ls'
+        utils.get_groups.cache_clear()
+        __main__.f_group(args)
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'xx yy\n' == out
+
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
     def testLl(self, _, capfd):
         args = argparse.Namespace()
         args.to_group = None

@@ -50,20 +50,23 @@ The additional status symbols denote
 The bookkeeping sub-commands are
 
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
-- `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
+- `gita context`: context sub-command
+    - `gita context`: show current context
+    - `gita context none`: remove context
+    - `gita context <group-name>`: set context to `group-name`, all operations then only apply to repos in this group
 - `gita group`: group sub-command
-    - `gita group [ll]`: display existing groups
-    - `gita group add <repo-name(s)>`: add repo(s) to a new group or existing group
+    - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
+    - `gita group [ll]`: display existing groups with repos
+    - `gita group ls`: display existing group names
+    - `gita group rename <group-name> <new-name>: change group name
     - `gita group rm <group-name(s)>`: delete group(s)
+- `gita info`: display the used and unused information items
 - `gita ll`: display the status of all repos
 - `gita ll <group-name>`: display the status of repos in a group
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
-- `gita context`: show current context
-- `gita context none`: remove context
-- `gita context <group-name>`: set context to be `group-name`, all operations then only apply to repos in this group
-- `gita info`: display the used and unused information items
+- `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
 - `gita -v`: display gita version
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
