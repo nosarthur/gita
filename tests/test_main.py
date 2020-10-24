@@ -201,24 +201,24 @@ class TestGroupCmd:
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testAdd(self, mock_write, _, __, monkeypatch):
+    def testAdd(self, mock_write, *_):
         args = argparse.Namespace()
         args.to_group =  ['a', 'c']
         args.group_cmd = 'add'
+        args.gname = 'zz'
         utils.get_groups.cache_clear()
-        monkeypatch.setattr('builtins.input', lambda _: 'zz')
         __main__.f_group(args)
         mock_write.assert_called_once_with({'zz': ['a', 'c']}, 'a+')
 
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testAddToExisting(self, mock_write, _, __, monkeypatch):
+    def testAddToExisting(self, mock_write, *_):
         args = argparse.Namespace()
         args.to_group =  ['a', 'c']
         args.group_cmd = 'add'
+        args.gname = 'xx'
         utils.get_groups.cache_clear()
-        monkeypatch.setattr('builtins.input', lambda _: 'xx')
         __main__.f_group(args)
         mock_write.assert_called_once_with(
                 {'xx': ['a', 'b', 'c'], 'yy': ['a', 'c', 'd']}, 'w')

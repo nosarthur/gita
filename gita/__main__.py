@@ -79,10 +79,7 @@ def f_group(args: argparse.Namespace):
             del groups[name]
         utils.write_to_groups_file(groups, 'w')
     elif cmd == 'add':
-        while True:
-            gname = input('group name?')
-            if gname:
-                break
+        gname = args.gname
         if gname in groups:
             gname_repos = set(groups[gname])
             gname_repos.update(args.to_group)
@@ -262,11 +259,17 @@ def main(argv=None):
     group_cmds = p_group.add_subparsers(dest='group_cmd',
             help='additional help with sub-command -h')
     group_cmds.add_parser('ll', description='List all groups.')
-    group_cmds.add_parser('add',
-            description='Add repo(s) to a group.').add_argument('to_group',
+    pg_add = group_cmds.add_parser('add', description='Add repo(s) to a group.')
+    pg_add.add_argument('to_group',
                     nargs='+',
+                    metavar='repo',
                     choices=utils.get_repos(),
                     help="repo(s) to be grouped")
+    pg_add.add_argument('-n', '--name',
+                    dest='gname',
+                    metavar='group-name',
+                    required=True,
+                    help="group name")
     group_cmds.add_parser('rm',
             description='Remove group(s).').add_argument('to_ungroup',
                     nargs='+',
