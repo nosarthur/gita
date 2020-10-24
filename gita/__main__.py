@@ -74,6 +74,8 @@ def f_group(args: argparse.Namespace):
     if cmd == 'll':
         for group, repos in groups.items():
             print(f"{group}: {' '.join(repos)}")
+    elif cmd == 'ls':
+        print(' '.join(groups))
     elif cmd == 'rm':
         for name in args.to_ungroup:
             del groups[name]
@@ -258,7 +260,8 @@ def main(argv=None):
     p_group.set_defaults(func=f_group)
     group_cmds = p_group.add_subparsers(dest='group_cmd',
             help='additional help with sub-command -h')
-    group_cmds.add_parser('ll', description='List all groups.')
+    group_cmds.add_parser('ll', description='List all groups with repos.')
+    group_cmds.add_parser('ls', description='List all groups.')
     pg_add = group_cmds.add_parser('add', description='Add repo(s) to a group.')
     pg_add.add_argument('to_group',
                     nargs='+',

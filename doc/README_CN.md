@@ -46,20 +46,23 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
-- `gita rm <repo-name(s)>`: 移除库（不会删除文件）
+- `gita context`: 情境命令
+    - `gita context`: 显示当前的情境
+    - `gita context none`: 去除情境
+    - `gita context <group-name>`: 把情境设置成`group-name`, 所有的操作只作用到这个组里的库
 - `gita group`: 组群命令
-    - `gita group [ll]`: 显示已有的组
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
+    - `gita group [ll]`: 显示已有的组和它们的库
+    - `gita group ls`: 显示已有的组名
+    - `gita group rename <group-name> <new-name>: 改组名
     - `gita group rm group(s): 删除组
+- `gita info`: 显示已用的和未用的信息项
 - `gita ll`: 显示所有库的状态信息
 - `gita ll <group-name>`: 显示一个组群中库的状态信息
 - `gita ls`: 显示所有库的名字
 - `gita ls <repo-name>`: 显示一个库的绝对路径
 - `gita rename <repo-name> <new-name>`: 重命名一个库
-- `gita context`: 显示当前的情境
-- `gita context none`: 去除情境
-- `gita context <group-name>`: 把情境设置成`group-name`, 所有的操作只作用到这个组里的库
-- `gita info`: 显示已用的和未用的信息项
+- `gita rm <repo-name(s)>`: 移除库（不会删除文件）
 - `gita -v`: 显示版本号
 
 库的路径存在`$XDG_CONFIG_HOME/gita/repo_path` (多半是`~/.config/gita/repo_path`)。
