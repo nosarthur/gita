@@ -15,6 +15,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 '''
 
 import os
+import sys
 import argparse
 import subprocess
 import pkg_resources
@@ -76,6 +77,14 @@ def f_group(args: argparse.Namespace):
             print(f"{group}: {' '.join(repos)}")
     elif cmd == 'ls':
         print(' '.join(groups))
+    elif cmd == 'rename':
+        new_name = args.new_name
+        if new_name in groups:
+            sys.exit(f'{new_name} already exists.')
+        gname = args.gname
+        groups[new_name] = groups[gname]
+        del groups[gname]
+        utils.write_to_groups_file(groups, 'w')
     elif cmd == 'rm':
         for name in args.to_ungroup:
             del groups[name]
@@ -273,6 +282,12 @@ def main(argv=None):
                     metavar='group-name',
                     required=True,
                     help="group name")
+    pg_rename = group_cmds.add_parser('rename', description='Change group name.')
+    pg_rename.add_argument('gname', metavar='group-name',
+                    choices=utils.get_groups(),
+                    help="existing group to be renamed")
+    pg_rename.add_argument('new_name', metavar='new-name',
+                    help="new group name")
     group_cmds.add_parser('rm',
             description='Remove group(s).').add_argument('to_ungroup',
                     nargs='+',

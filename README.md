@@ -58,7 +58,7 @@ The bookkeeping sub-commands are
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
     - `gita group [ll]`: display existing groups with repos
     - `gita group ls`: display existing group names
-    - `gita group rename <group-name> <new-name>: change group name
+    - `gita group rename <group-name> <new-name>`: change group name
     - `gita group rm <group-name(s)>`: delete group(s)
 - `gita info`: display the used and unused information items
 - `gita ll`: display the status of all repos
