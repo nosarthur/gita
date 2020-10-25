@@ -196,6 +196,28 @@ class TestGroupCmd:
         assert err == ''
         assert 'xx: a b\nyy: a c d\n' == out
 
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.utils.write_to_groups_file')
+    def testRename(self, mock_write, _):
+        args = argparse.Namespace()
+        args.gname = 'xx'
+        args.new_name = 'zz'
+        args.group_cmd = 'rename'
+        utils.get_groups.cache_clear()
+        __main__.f_group(args)
+        expected = {'yy': ['a', 'c', 'd'], 'zz': ['a', 'b']}
+        mock_write.assert_called_once_with(expected, 'w')
+
+    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    def testRenameError(self, *_):
+        args = argparse.Namespace()
+        args.gname = 'xx'
+        args.new_name = 'yy'
+        args.group_cmd = 'rename'
+        utils.get_groups.cache_clear()
+        with pytest.raises(SystemExit, match='yy already exists.'):
+            __main__.f_group(args)
+
     @pytest.mark.parametrize('input, expected', [
         ('xx', {'yy': ['a', 'c', 'd']}),
         ("xx yy", {}),

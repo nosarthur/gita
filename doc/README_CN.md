@@ -54,7 +54,7 @@
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
     - `gita group [ll]`: 显示已有的组和它们的库
     - `gita group ls`: 显示已有的组名
-    - `gita group rename <group-name> <new-name>: 改组名
+    - `gita group rename <group-name> <new-name>`: 改组名
     - `gita group rm group(s): 删除组
 - `gita info`: 显示已用的和未用的信息项
 - `gita ll`: 显示所有库的状态信息
