@@ -29,7 +29,10 @@ I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
-Here the branch color distinguishes 5 situations between local and remote branches:
+In the screenshot, the `gita remote nowhub` command translates to `git remote -v`
+for the `nowhub` repo.
+
+The branch color distinguishes 5 situations between local and remote branches:
 
 - white: local has no remote
 - green: local is the same as remote
@@ -69,8 +72,6 @@ The bookkeeping sub-commands are
 - `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
 - `gita -v`: display gita version
 
-Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
-
 The delegating sub-commands are of two formats
 
 - `gita <sub-command> [repo-name(s) or group-name(s)]`:
@@ -78,10 +79,17 @@ The delegating sub-commands are of two formats
 - `gita <sub-command> <repo-name(s) or groups-name(s)>`:
   required repo name(s) or group name(s) input
 
+In either case, the `gita` command translates to running `git <sub-command>` for the corresponding repos.
 By default, only `fetch` and `pull` take optional input.
+To see the pre-defined sub-commands, run `gita -h` or take a look at
+[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+To add your own sub-commands, see the [customization section](#custom).
+To run arbitrary `git` command, see the [superman mode section](#superman).
 
 If more than one repos are specified, the git command will run asynchronously,
 with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.
+
+Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
 ## Installation
 
@@ -117,7 +125,7 @@ or
 [.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/.gita-completion.zsh)
 and source it in the .rc file.
 
-## Superman mode
+## <a name='superman'></a> Superman mode
 
 The superman mode delegates any git command/alias.
 Usage:
@@ -133,7 +141,7 @@ For example,
 - `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
   executes `git commit -am 'implement a new feature'` for `frontend-repo` and `backend-repo`
 
-## Customization
+## <a name='custom'></a> Customization
 
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
@@ -171,8 +179,11 @@ comaster:
 
 Another customization is the information items displayed by `gita ll`.
 The used and unused information items are shown with `gita info` and one can
-create `$XDG_CONFIG_HOME/gita/info.yml` to customize it. For example, the
-default information items setting corresponds to
+create `$XDG_CONFIG_HOME/gita/info.yml` to customize it.
+(I am thinking of hiding all these details from user at the moment, which means
+you probably don't need to read the rest of this section.)
+
+For example, the default information items setting corresponds to
 
 ```yaml
 - branch
