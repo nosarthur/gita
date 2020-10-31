@@ -42,6 +42,7 @@ def get_info_items() -> Tuple[Dict[str, Callable[[str], str]], List[str]]:
             'path': get_path, }
     display_items = ['branch', 'commit_msg']
 
+    # FIXME: remove these code
     # custom settings
     root = common.get_config_dir()
     src_fname = os.path.join(root, 'extra_repo_info.py')
@@ -113,13 +114,15 @@ def get_commit_msg(path: str) -> str:
     return result.stdout.strip()
 
 
-def get_repo_status(path: str) -> str:
+def get_repo_status(path: str, no_colors=False) -> str:
     head = get_head(path)
-    dirty, staged, untracked, color = _get_repo_status(path)
-    return f'{color}{head+" "+dirty+staged+untracked:<10}{Color.end}'
+    dirty, staged, untracked, color = _get_repo_status(path, no_colors)
+    if color:
+        return f'{color}{head+" "+dirty+staged+untracked:<10}{Color.end}'
+    return f'{head+" "+dirty+staged+untracked:<10}'
 
 
-def _get_repo_status(path: str) -> Tuple[str]:
+def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
     """
     Return the status of one repo
     """
@@ -127,6 +130,9 @@ def _get_repo_status(path: str) -> Tuple[str]:
     dirty = '*' if run_quiet_diff([]) else ''
     staged = '+' if run_quiet_diff(['--cached']) else ''
     untracked = '_' if has_untracked() else ''
+
+    if no_colors:
+        return dirty, staged, untracked, ''
 
     diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
     has_no_remote = diff_returncode == 128

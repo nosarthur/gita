@@ -2,7 +2,7 @@ import os
 import yaml
 import asyncio
 import platform
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import List, Dict, Coroutine, Union
 
@@ -197,13 +197,19 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     return errors
 
 
-def describe(repos: Dict[str, str]) -> str:
+def describe(repos: Dict[str, str], no_colors: bool=False) -> str:
     """
     Return the status of all repos
     """
     if repos:
         name_width = max(len(n) for n in repos) + 1
     funcs = info.get_info_funcs()
+
+    get_repo_status = info.get_repo_status
+    if get_repo_status in funcs and no_colors:
+        idx = funcs.index(get_repo_status)
+        funcs[idx] = partial(get_repo_status, no_colors=True)
+
     for name in sorted(repos):
         path = repos[name]
         display_items = ' '.join(f(path) for f in funcs)
