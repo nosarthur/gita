@@ -2,6 +2,7 @@ import os
 import sys
 import yaml
 import subprocess
+#from functools import lru_cache
 from typing import Tuple, List, Callable, Dict
 from . import common
 
@@ -30,6 +31,7 @@ def get_info_funcs() -> List[Callable[[str], str]]:
     return [info_items[k] for k in to_display]
 
 
+#@lru_cache()
 def get_info_items() -> Tuple[Dict[str, Callable[[str], str]], List[str]]:
     """
     Return the available information items for display in the `gita ll`

@@ -280,7 +280,9 @@ def test_rename(mock_rename, _, __):
 
 @patch('os.path.isfile', return_value=False)
 def test_info(mock_isfile, capfd):
-    __main__.f_info(None)
+    args = argparse.Namespace()
+    args.info_cmd = None
+    __main__.f_info(args)
     out, err = capfd.readouterr()
     assert 'In use: branch,commit_msg\nUnused: path\n' == out
     assert err == ''
