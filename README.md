@@ -31,6 +31,10 @@ I also hate to change directories to execute git commands.
 
 In the screenshot, the `gita remote nowhub` command translates to `git remote -v`
 for the `nowhub` repo.
+To see the pre-defined sub-commands, run `gita -h` or take a look at
+[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+To add your own sub-commands, see the [customization section](#custom).
+To run arbitrary `git` command, see the [superman mode section](#superman).
 
 The branch color distinguishes 5 situations between local and remote branches:
 
@@ -75,7 +79,7 @@ The bookkeeping sub-commands are
 The delegating sub-commands are of two formats
 
 - `gita <sub-command> [repo-name(s) or group-name(s)]`:
-  optional repo or group input, and no input means all repos.
+  optional repo or group input, and **no input means all repos**.
 - `gita <sub-command> <repo-name(s) or groups-name(s)>`:
   required repo name(s) or group name(s) input
 
