@@ -5,7 +5,7 @@ import argparse
 import shlex
 
 from gita import __main__
-from gita import utils
+from gita import utils, info
 from conftest import (
     PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
     async_mock, TEST_DIR,
@@ -35,6 +35,14 @@ class TestLsLl:
         out, err = capfd.readouterr()
         assert err == ''
         assert 'gita' in out
+        assert info.Color.end in out
+
+        # no color on branch name
+        __main__.main(['ll', '-n'])
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'gita' in out
+        assert info.Color.end not in out
 
         __main__.main(['ls', 'gita'])
         out, err = capfd.readouterr()
