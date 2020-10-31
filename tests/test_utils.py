@@ -9,12 +9,9 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ({
-        'abc': '/root/repo/'
-    }, True, 'abc \x1b[31mrepo *+_  \x1b[0m msg'),
-    ({
-        'repo': '/root/repo2/'
-    }, False, 'repo \x1b[32mrepo _    \x1b[0m msg'),
+    ([{'abc': '/root/repo/'}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg'),
+    ([{'abc': '/root/repo/'}, True], True, 'abc repo *+_   msg'),
+    ([{'repo': '/root/repo2/'}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
@@ -23,8 +20,8 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'has_untracked', lambda: True)
     monkeypatch.setattr('os.chdir', lambda x: None)
     print('expected: ', repr(expected))
-    print('got:      ', repr(next(utils.describe(test_input))))
-    assert expected == next(utils.describe(test_input))
+    print('got:      ', repr(next(utils.describe(*test_input))))
+    assert expected == next(utils.describe(*test_input))
 
 
 @pytest.mark.parametrize('path_fname, expected', [
