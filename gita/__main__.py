@@ -16,6 +16,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 
 import os
 import sys
+import yaml
 import argparse
 import subprocess
 import pkg_resources
@@ -38,12 +39,25 @@ def f_rename(args: argparse.Namespace):
     utils.rename_repo(repos, args.repo[0], args.new_name)
 
 
-def f_info(_):
-    all_items, to_display = info.get_info_items()
-    print('In use:', ','.join(to_display))
-    unused = set(all_items) - set(to_display)
-    if unused:
-        print('Unused:', ' '.join(unused))
+def f_info(args: argparse.Namespace):
+    to_display = info.get_info_items()
+    cmd = args.info_cmd or 'll'
+    if cmd == 'll':
+        print('In use:', ','.join(to_display))
+        unused = set(info.ALL_INFO_ITEMS) - set(to_display)
+        if unused:
+            print('Unused:', ' '.join(unused))
+        return
+    if cmd == 'add' and args.info_item not in to_display:
+        to_display.append(args.info_item)
+        yml_config = common.get_config_fname('info.yml')
+        with open(yml_config, 'w') as f:
+              yaml.dump(to_display, f, default_flow_style=None)
+    elif cmd == 'rm' and args.info_item in to_display:
+        to_display.remove(args.info_item)
+        yml_config = common.get_config_fname('info.yml')
+        with open(yml_config, 'w') as f:
+              yaml.dump(to_display, f, default_flow_style=None)
 
 
 def f_ll(args: argparse.Namespace):
@@ -123,7 +137,7 @@ def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
     """
-    path_file = utils.get_config_fname('repo_path')
+    path_file = common.get_config_fname('repo_path')
     if os.path.isfile(path_file):
         repos = utils.get_repos()
         for repo in args.repo:
@@ -223,8 +237,22 @@ def main(argv=None):
         help="new name")
     p_rename.set_defaults(func=f_rename)
 
-    p_info = subparsers.add_parser('info', help='show information items of the ll sub-command')
+    p_info = subparsers.add_parser('info',
+            help='list, add, or remove information items of the ll sub-command.')
     p_info.set_defaults(func=f_info)
+    info_cmds = p_info.add_subparsers(dest='info_cmd',
+            help='additional help with sub-command -h')
+    info_cmds.add_parser('ll',
+            description='show used and unused information items of the ll sub-command')
+    info_cmds.add_parser('add', description='Enable information item.'
+            ).add_argument('info_item',
+                    choices=('branch', 'commit_msg', 'path'),
+                    help="information item to add")
+    info_cmds.add_parser('rm', description='Disable information item.'
+            ).add_argument('info_item',
+                    choices=('branch', 'commit_msg', 'path'),
+                    help="information item to delete")
+
 
     ll_doc = f'''  status symbols:
     +: staged changes
@@ -287,14 +315,14 @@ def main(argv=None):
     pg_rename = group_cmds.add_parser('rename', description='Change group name.')
     pg_rename.add_argument('gname', metavar='group-name',
                     choices=utils.get_groups(),
-                    help="existing group to be renamed")
+                    help="existing group to rename")
     pg_rename.add_argument('new_name', metavar='new-name',
                     help="new group name")
     group_cmds.add_parser('rm',
             description='Remove group(s).').add_argument('to_ungroup',
                     nargs='+',
                     choices=utils.get_groups(),
-                    help="group(s) to be deleted")
+                    help="group(s) to delete")
 
     # superman mode
     p_super = subparsers.add_parser(

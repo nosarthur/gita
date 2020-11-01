@@ -6,3 +6,11 @@ def get_config_dir() -> str:
         os.path.expanduser('~'), '.config')
     root = os.path.join(parent, "gita")
     return root
+
+
+def get_config_fname(fname: str) -> str:
+    """
+    Return the file name that stores the repo locations.
+    """
+    root = get_config_dir()
+    return os.path.join(root, fname)

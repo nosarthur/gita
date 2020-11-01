@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 from pathlib import Path
 import argparse
 import shlex
@@ -13,11 +13,16 @@ from conftest import (
 
 
 class TestLsLl:
-    @patch('gita.utils.get_config_fname')
+    @patch('gita.common.get_config_fname')
     def testLl(self, mock_path_fname, capfd, tmp_path):
-        """ functional test """
+        """
+        functional test
+        """
         # avoid modifying the local configuration
-        mock_path_fname.return_value = tmp_path / 'path_config.txt'
+        def side_effect(input):
+            return tmp_path / f'{input}.txt'
+        #mock_path_fname.return_value = tmp_path / 'path_config.txt'
+        mock_path_fname.side_effect = side_effect
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
@@ -74,10 +79,14 @@ class TestLsLl:
     @patch('gita.info.get_head', return_value="master")
     @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
     @patch('gita.info.get_commit_msg', return_value="msg")
-    @patch('gita.utils.get_config_fname')
+    @patch('gita.common.get_config_fname')
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, path_fname,
                           expected, capfd):
-        mock_path_fname.return_value = path_fname
+        def side_effect(input):
+            if input == 'repo_path':
+                return path_fname
+            return f'/{input}'
+        mock_path_fname.side_effect = side_effect
         utils.get_repos.cache_clear()
         __main__.main(['ll'])
         out, err = capfd.readouterr()
@@ -87,7 +96,7 @@ class TestLsLl:
 
 
 @patch('os.path.isfile', return_value=True)
-@patch('gita.utils.get_config_fname', return_value='some path')
+@patch('gita.common.get_config_fname', return_value='some path')
 @patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 @patch('gita.utils.write_to_repo_file')
 def test_rm(mock_write, *_):
@@ -182,7 +191,7 @@ class TestContext:
 
 class TestGroupCmd:
 
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def testLs(self, _, capfd):
         args = argparse.Namespace()
         args.to_group = None
@@ -193,7 +202,7 @@ class TestGroupCmd:
         assert err == ''
         assert 'xx yy\n' == out
 
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def testLl(self, _, capfd):
         args = argparse.Namespace()
         args.to_group = None
@@ -204,7 +213,7 @@ class TestGroupCmd:
         assert err == ''
         assert 'xx: a b\nyy: a c d\n' == out
 
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testRename(self, mock_write, _):
         args = argparse.Namespace()
@@ -216,7 +225,7 @@ class TestGroupCmd:
         expected = {'yy': ['a', 'c', 'd'], 'zz': ['a', 'b']}
         mock_write.assert_called_once_with(expected, 'w')
 
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def testRenameError(self, *_):
         args = argparse.Namespace()
         args.gname = 'xx'
@@ -231,7 +240,7 @@ class TestGroupCmd:
         ("xx yy", {}),
     ])
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testRm(self, mock_write, _, __, input, expected):
         utils.get_groups.cache_clear()
@@ -240,7 +249,7 @@ class TestGroupCmd:
         mock_write.assert_called_once_with(expected, 'w')
 
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testAdd(self, mock_write, *_):
         args = argparse.Namespace()
@@ -252,7 +261,7 @@ class TestGroupCmd:
         mock_write.assert_called_once_with({'zz': ['a', 'c']}, 'a+')
 
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
-    @patch('gita.utils.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testAddToExisting(self, mock_write, *_):
         args = argparse.Namespace()
@@ -266,7 +275,7 @@ class TestGroupCmd:
 
 
 @patch('gita.utils.is_git', return_value=True)
-@patch('gita.utils.get_config_fname', return_value=PATH_FNAME)
+@patch('gita.common.get_config_fname', return_value=PATH_FNAME)
 @patch('gita.utils.rename_repo')
 def test_rename(mock_rename, _, __):
     utils.get_repos.cache_clear()
@@ -278,9 +287,39 @@ def test_rename(mock_rename, _, __):
         'repo1', 'abc')
 
 
-@patch('os.path.isfile', return_value=False)
-def test_info(mock_isfile, capfd):
-    __main__.f_info(None)
-    out, err = capfd.readouterr()
-    assert 'In use: branch,commit_msg\nUnused: path\n' == out
-    assert err == ''
+class TestInfo:
+
+    @patch('gita.common.get_config_fname', return_value='')
+    def testLl(self, _, capfd):
+        args = argparse.Namespace()
+        args.info_cmd = None
+        __main__.f_info(args)
+        out, err = capfd.readouterr()
+        assert 'In use: branch,commit_msg\nUnused: path\n' == out
+        assert err == ''
+
+    @patch('gita.common.get_config_fname', return_value='')
+    @patch('yaml.dump')
+    def testAdd(self, mock_dump, _):
+        args = argparse.Namespace()
+        args.info_cmd = 'add'
+        args.info_item = 'path'
+        with patch('builtins.open', mock_open(), create=True):
+            __main__.f_info(args)
+        mock_dump.assert_called_once()
+        args, kwargs = mock_dump.call_args
+        assert args[0] == ['branch', 'commit_msg', 'path']
+        assert kwargs == {'default_flow_style': None}
+
+    @patch('gita.common.get_config_fname', return_value='')
+    @patch('yaml.dump')
+    def testRm(self, mock_dump, _):
+        args = argparse.Namespace()
+        args.info_cmd = 'rm'
+        args.info_item = 'commit_msg'
+        with patch('builtins.open', mock_open(), create=True):
+            __main__.f_info(args)
+        mock_dump.assert_called_once()
+        args, kwargs = mock_dump.call_args
+        assert args[0] == ['branch']
+        assert kwargs == {'default_flow_style': None}
