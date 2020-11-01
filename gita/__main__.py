@@ -44,7 +44,11 @@ def f_color(args: argparse.Namespace):
     if cmd == 'll':  # pragma: no cover
         info.show_colors()
     elif cmd == 'set':
-        print('not implemented')
+        colors = info.get_color_encoding()
+        colors[args.situation] = info.Color[args.color].value
+        yml_config = common.get_config_fname('color.yml')
+        with open(yml_config, 'w') as f:
+              yaml.dump(colors, f, default_flow_style=None)
 
 
 def f_info(args: argparse.Namespace):
