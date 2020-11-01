@@ -39,6 +39,14 @@ def f_rename(args: argparse.Namespace):
     utils.rename_repo(repos, args.repo[0], args.new_name)
 
 
+def f_color(args: argparse.Namespace):
+    cmd = args.color_cmd or 'll'
+    if cmd == 'll':  # pragma: no cover
+        info.show_colors()
+    elif cmd == 'set':
+        print('not implemented')
+
+
 def f_info(args: argparse.Namespace):
     to_display = info.get_info_items()
     cmd = args.info_cmd or 'll'
@@ -236,6 +244,22 @@ def main(argv=None):
         'new_name',
         help="new name")
     p_rename.set_defaults(func=f_rename)
+
+    p_color = subparsers.add_parser('color',
+            help='display and modify branch coloring of the ll sub-command.')
+    p_color.set_defaults(func=f_color)
+    color_cmds = p_color.add_subparsers(dest='color_cmd',
+            help='additional help with sub-command -h')
+    color_cmds.add_parser('ll',
+            description='display available colors and the current branch coloring in the ll sub-command')
+    pc_set = color_cmds.add_parser('set',
+                description='Set color for local/remote situation.')
+    pc_set.add_argument('situation',
+                    choices=info.get_color_encoding(),
+                    help="5 possible local/remote situations")
+    pc_set.add_argument('color',
+                    choices=[c.name for c in info.Color],
+                    help="available colors")
 
     p_info = subparsers.add_parser('info',
             help='list, add, or remove information items of the ll sub-command.')

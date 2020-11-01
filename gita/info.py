@@ -2,13 +2,15 @@ import os
 import sys
 import yaml
 import subprocess
+from enum import Enum
 from pathlib import Path
+from functools import lru_cache
 from typing import Tuple, List, Callable, Dict
 
 from . import common
 
 
-class Color:
+class Color(str, Enum):
     """
     Terminal color
     """
@@ -29,6 +31,35 @@ class Color:
     b_purple = '\x1b[35;1m'
     b_cyan = '\x1b[36;1m'
     b_white = '\x1b[37;1m'
+
+
+def show_colors():  # pragma: no cover
+    """
+
+    """
+    for i, c in enumerate(Color, start=1):
+        if c != Color.end:
+            print(f'{c.value}{c.name:<8} ', end='')
+        if i % 9 == 0:
+            print()
+    print(f'{Color.end}')
+    for situation, c in get_color_encoding().items():
+        print(f'{situation:<12}: {c.value}{c.name:<8}{Color.end} ')
+
+
+@lru_cache()
+def get_color_encoding():
+    """
+
+    """
+    # TODO: add config file
+    return {
+            'no-remote': Color.white,
+            'in-sync': Color.green,
+            'diverged': Color.red,
+            'local-ahead': Color.purple,
+            'remote-ahead': Color.yellow,
+            }
 
 
 def get_info_funcs() -> List[Callable[[str], str]]:
@@ -139,21 +170,22 @@ def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
     if no_colors:
         return dirty, staged, untracked, ''
 
+    colors = get_color_encoding()
     diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
     has_no_remote = diff_returncode == 128
     has_no_diff = diff_returncode == 0
     if has_no_remote:
-        color = Color.white
+        color = colors['no-remote']
     elif has_no_diff:
-        color = Color.green
+        color = colors['in-sync']
     else:
         common_commit = get_common_commit()
         outdated = run_quiet_diff(['@{u}', common_commit])
         if outdated:
             diverged = run_quiet_diff(['@{0}', common_commit])
-            color = Color.red if diverged else Color.yellow
+            color = colors['diverged'] if diverged else colors['remote-ahead']
         else:  # local is ahead of remote
-            color = Color.purple
+            color = colors['local-ahead']
     return dirty, staged, untracked, color
 
 

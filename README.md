@@ -61,6 +61,9 @@ The bookkeeping sub-commands are
     - `gita context`: show current context
     - `gita context none`: remove context
     - `gita context <group-name>`: set context to `group-name`, all operations then only apply to repos in this group
+- `gita color`: color sub-command
+    - `gita color [ll]`: Show available colors and the current coloring scheme
+    - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
     - `gita group [ll]`: display existing groups with repos
