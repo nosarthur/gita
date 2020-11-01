@@ -50,13 +50,11 @@ def f_info(args: argparse.Namespace):
         return
     if cmd == 'add' and args.info_item not in to_display:
         to_display.append(args.info_item)
-        print(to_display)
         yml_config = common.get_config_fname('info.yml')
         with open(yml_config, 'w') as f:
               yaml.dump(to_display, f, default_flow_style=None)
     elif cmd == 'rm' and args.info_item in to_display:
         to_display.remove(args.info_item)
-        print(to_display)
         yml_config = common.get_config_fname('info.yml')
         with open(yml_config, 'w') as f:
               yaml.dump(to_display, f, default_flow_style=None)

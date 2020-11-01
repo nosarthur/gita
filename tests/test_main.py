@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 from pathlib import Path
 import argparse
 import shlex
@@ -287,11 +287,39 @@ def test_rename(mock_rename, _, __):
         'repo1', 'abc')
 
 
-@patch('os.path.isfile', return_value=False)
-def test_info(mock_isfile, capfd):
-    args = argparse.Namespace()
-    args.info_cmd = None
-    __main__.f_info(args)
-    out, err = capfd.readouterr()
-    assert 'In use: branch,commit_msg\nUnused: path\n' == out
-    assert err == ''
+class TestInfo:
+
+    @patch('gita.common.get_config_fname', return_value='')
+    def testLl(self, _, capfd):
+        args = argparse.Namespace()
+        args.info_cmd = None
+        __main__.f_info(args)
+        out, err = capfd.readouterr()
+        assert 'In use: branch,commit_msg\nUnused: path\n' == out
+        assert err == ''
+
+    @patch('gita.common.get_config_fname', return_value='')
+    @patch('yaml.dump')
+    def testAdd(self, mock_dump, _):
+        args = argparse.Namespace()
+        args.info_cmd = 'add'
+        args.info_item = 'path'
+        with patch('builtins.open', mock_open(), create=True):
+            __main__.f_info(args)
+        mock_dump.assert_called_once()
+        args, kwargs = mock_dump.call_args
+        assert args[0] == ['branch', 'commit_msg', 'path']
+        assert kwargs == {'default_flow_style': None}
+
+    @patch('gita.common.get_config_fname', return_value='')
+    @patch('yaml.dump')
+    def testRm(self, mock_dump, _):
+        args = argparse.Namespace()
+        args.info_cmd = 'rm'
+        args.info_item = 'commit_msg'
+        with patch('builtins.open', mock_open(), create=True):
+            __main__.f_info(args)
+        mock_dump.assert_called_once()
+        args, kwargs = mock_dump.call_args
+        assert args[0] == ['branch']
+        assert kwargs == {'default_flow_style': None}
