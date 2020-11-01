@@ -16,6 +16,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 
 import os
 import sys
+import yaml
 import argparse
 import subprocess
 import pkg_resources
@@ -39,17 +40,26 @@ def f_rename(args: argparse.Namespace):
 
 
 def f_info(args: argparse.Namespace):
-    all_items, to_display = info.get_info_items()
+    to_display = info.get_info_items()
     cmd = args.info_cmd or 'll'
     if cmd == 'll':
         print('In use:', ','.join(to_display))
-        unused = set(all_items) - set(to_display)
+        unused = set(info.ALL_INFO_ITEMS) - set(to_display)
         if unused:
             print('Unused:', ' '.join(unused))
-    elif cmd == 'add':
-        print(args.info_item)
-    elif cmd == 'rm':
-        print(args.info_item)
+        return
+    if cmd == 'add' and args.info_item not in to_display:
+        to_display.append(args.info_item)
+        print(to_display)
+        yml_config = common.get_config_fname('info.yml')
+        with open(yml_config, 'w') as f:
+              yaml.dump(to_display, f, default_flow_style=None)
+    elif cmd == 'rm' and args.info_item in to_display:
+        to_display.remove(args.info_item)
+        print(to_display)
+        yml_config = common.get_config_fname('info.yml')
+        with open(yml_config, 'w') as f:
+              yaml.dump(to_display, f, default_flow_style=None)
 
 
 def f_ll(args: argparse.Namespace):
@@ -129,7 +139,7 @@ def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
     """
-    path_file = utils.get_config_fname('repo_path')
+    path_file = common.get_config_fname('repo_path')
     if os.path.isfile(path_file):
         repos = utils.get_repos()
         for repo in args.repo:

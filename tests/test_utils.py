@@ -38,7 +38,7 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     }),
 ])
 @patch('gita.utils.is_git', return_value=True)
-@patch('gita.utils.get_config_fname')
+@patch('gita.common.get_config_fname')
 def test_get_repos(mock_path_fname, _, path_fname, expected):
     mock_path_fname.return_value = path_fname
     utils.get_repos.cache_clear()
@@ -59,7 +59,7 @@ def test_get_context(mock_config_dir):
 @pytest.mark.parametrize('group_fname, expected', [
     (GROUP_FNAME, {'xx': ['a', 'b'], 'yy': ['a', 'c', 'd']}),
 ])
-@patch('gita.utils.get_config_fname')
+@patch('gita.common.get_config_fname')
 def test_get_groups(mock_group_fname, group_fname, expected):
     mock_group_fname.return_value = group_fname
     utils.get_groups.cache_clear()

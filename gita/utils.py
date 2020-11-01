@@ -10,14 +10,6 @@ from . import info
 from . import common
 
 
-def get_config_fname(fname: str) -> str:
-    """
-    Return the file name that stores the repo locations.
-    """
-    root = common.get_config_dir()
-    return os.path.join(root, fname)
-
-
 @lru_cache()
 def get_context() -> Union[Path, None]:
     """
@@ -34,7 +26,7 @@ def get_repos() -> Dict[str, str]:
     """
     Return a `dict` of repo name to repo absolute path
     """
-    path_file = get_config_fname('repo_path')
+    path_file = common.get_config_fname('repo_path')
     repos = {}
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
@@ -59,7 +51,7 @@ def get_groups() -> Dict[str, List[str]]:
     """
     Return a `dict` of group name to repo names.
     """
-    fname = get_config_fname('groups.yml')
+    fname = common.get_config_fname('groups.yml')
     groups = {}
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
@@ -114,7 +106,7 @@ def write_to_repo_file(repos: Dict[str, str], mode: str):
     """
     """
     data = ''.join(f'{path},{name}\n' for name, path in repos.items())
-    fname = get_config_fname('repo_path')
+    fname = common.get_config_fname('repo_path')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
         f.write(data)
@@ -124,7 +116,7 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     """
 
     """
-    fname = get_config_fname('groups.yml')
+    fname = common.get_config_fname('groups.yml')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     if not groups:  # all groups are deleted
         open(fname, 'w').close()
@@ -212,8 +204,8 @@ def describe(repos: Dict[str, str], no_colors: bool=False) -> str:
 
     for name in sorted(repos):
         path = repos[name]
-        display_items = ' '.join(f(path) for f in funcs)
-        yield f'{name:<{name_width}}{display_items}'
+        info_items = ' '.join(f(path) for f in funcs)
+        yield f'{name:<{name_width}}{info_items}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:

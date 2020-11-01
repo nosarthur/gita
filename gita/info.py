@@ -2,8 +2,9 @@ import os
 import sys
 import yaml
 import subprocess
-#from functools import lru_cache
+from pathlib import Path
 from typing import Tuple, List, Callable, Dict
+
 from . import common
 
 
@@ -27,37 +28,30 @@ def get_info_funcs() -> List[Callable[[str], str]]:
     take the repo path as input and return the corresponding information as str.
     See `get_path`, `get_repo_status`, `get_common_commit` for examples.
     """
-    info_items, to_display = get_info_items()
-    return [info_items[k] for k in to_display]
+    to_display = get_info_items()
+    # This re-definition is to make unit test mocking to work
+    all_info_items = {
+            'branch': get_repo_status,
+            'commit_msg': get_commit_msg,
+            'path': get_path,
+        }
+    return [all_info_items[k] for k in to_display]
 
 
-#@lru_cache()
-def get_info_items() -> Tuple[Dict[str, Callable[[str], str]], List[str]]:
+def get_info_items() -> List[str]:
     """
-    Return the available information items for display in the `gita ll`
-    sub-command, and the ones to be displayed.
-    It loads custom information functions and configuration if they exist.
+    Return the information items to be displayed in the `gita ll` command.
     """
     # default settings
-    info_items = {'branch': get_repo_status,
-            'commit_msg': get_commit_msg,
-            'path': get_path, }
     display_items = ['branch', 'commit_msg']
 
-    # FIXME: remove these code
     # custom settings
-    root = common.get_config_dir()
-    src_fname = os.path.join(root, 'extra_repo_info.py')
-    yml_fname = os.path.join(root, 'info.yml')
-    if os.path.isfile(src_fname):
-        sys.path.append(root)
-        from extra_repo_info import extra_info_items
-        info_items.update(extra_info_items)
-    if os.path.isfile(yml_fname):
-        with open(yml_fname, 'r') as stream:
+    yml_config = Path(common.get_config_fname('info.yml'))
+    if yml_config.is_file():
+        with open(yml_config, 'r') as stream:
             display_items = yaml.load(stream, Loader=yaml.FullLoader)
-        display_items = [x for x in display_items if x in info_items]
-    return info_items, display_items
+        display_items = [x for x in display_items if x in ALL_INFO_ITEMS]
+    return display_items
 
 
 def get_path(path):
@@ -152,3 +146,10 @@ def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
         else:  # local is ahead of remote
             color = Color.purple
     return dirty, staged, untracked, color
+
+
+ALL_INFO_ITEMS = {
+        'branch': get_repo_status,
+        'commit_msg': get_commit_msg,
+        'path': get_path,
+        }
