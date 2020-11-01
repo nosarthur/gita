@@ -12,6 +12,7 @@ class Color:
     """
     Terminal color
     """
+    black = '\x1b[30m'
     red = '\x1b[31m'  # local diverges from remote
     green = '\x1b[32m'  # local == remote
     yellow = '\x1b[33m'  # local is behind
@@ -20,6 +21,14 @@ class Color:
     cyan = '\x1b[36m'
     white = '\x1b[37m'  # no remote branch
     end = '\x1b[0m'
+    b_black = '\x1b[30;1m'
+    b_red = '\x1b[31;1m'
+    b_green = '\x1b[32;1m'
+    b_yellow = '\x1b[33;1m'
+    b_blue = '\x1b[34;1m'
+    b_purple = '\x1b[35;1m'
+    b_cyan = '\x1b[36;1m'
+    b_white = '\x1b[37;1m'
 
 
 def get_info_funcs() -> List[Callable[[str], str]]:
