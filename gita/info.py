@@ -37,29 +37,36 @@ def show_colors():  # pragma: no cover
     """
 
     """
+    names = {c.value: c.name for c in Color}
     for i, c in enumerate(Color, start=1):
         if c != Color.end:
             print(f'{c.value}{c.name:<8} ', end='')
         if i % 9 == 0:
             print()
     print(f'{Color.end}')
-    for situation, c in get_color_encoding().items():
-        print(f'{situation:<12}: {c.value}{c.name:<8}{Color.end} ')
+    for situation, c in sorted(get_color_encoding().items()):
+        print(f'{situation:<12}: {c}{names[c]:<8}{Color.end} ')
 
 
 @lru_cache()
-def get_color_encoding():
+def get_color_encoding() -> Dict[str, str]:
     """
-
+    Return color scheme for different local/remote situations.
     """
-    # TODO: add config file
-    return {
-            'no-remote': Color.white,
-            'in-sync': Color.green,
-            'diverged': Color.red,
-            'local-ahead': Color.purple,
-            'remote-ahead': Color.yellow,
+    # custom settings
+    yml_config = Path(common.get_config_fname('color.yml'))
+    if yml_config.is_file():
+        with open(yml_config, 'r') as stream:
+            colors = yaml.load(stream, Loader=yaml.FullLoader)
+    else:
+        colors = {
+            'no-remote': Color.white.value,
+            'in-sync': Color.green.value,
+            'diverged': Color.red.value,
+            'local-ahead': Color.purple.value,
+            'remote-ahead': Color.yellow.value,
             }
+    return colors
 
 
 def get_info_funcs() -> List[Callable[[str], str]]:
@@ -82,20 +89,20 @@ def get_info_items() -> List[str]:
     """
     Return the information items to be displayed in the `gita ll` command.
     """
-    # default settings
-    display_items = ['branch', 'commit_msg']
-
     # custom settings
     yml_config = Path(common.get_config_fname('info.yml'))
     if yml_config.is_file():
         with open(yml_config, 'r') as stream:
             display_items = yaml.load(stream, Loader=yaml.FullLoader)
         display_items = [x for x in display_items if x in ALL_INFO_ITEMS]
+    else:
+        # default settings
+        display_items = ['branch', 'commit_msg']
     return display_items
 
 
 def get_path(path):
-    return Color.cyan + path + Color.end
+    return f'{Color.cyan}{path}{Color.end}'
 
 
 def get_head(path: str) -> str:
