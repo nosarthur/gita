@@ -209,6 +209,7 @@ For example, the default information items setting corresponds to
 
 You can see the default color scheme and the available colors via `gita color`.
 To change the color coding, use `gita color set <situation> <color>`.
+The configuration is saved in `$XDG_CONFIG_HOME/gita/color.yml`.
 
 ## Requirements
 
