@@ -43,7 +43,7 @@ class TestLsLl:
         assert info.Color.end in out
 
         # no color on branch name
-        __main__.main(['ll', '-n'])
+        __main__.main(['ll', '-C'])
         out, err = capfd.readouterr()
         assert err == ''
         assert 'gita' in out
