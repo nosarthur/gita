@@ -24,7 +24,7 @@ This tool does two things
 - display the status of multiple git repos such as branch, modification, commit message side by side
 - (batch) delegate git commands/aliases from any working directory
 
-If several repos are related, it helps to see their status together too.
+If several repos are related, it helps to see their status together.
 I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
@@ -47,6 +47,8 @@ The branch color distinguishes 5 situations between local and remote branches:
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
 using green as baseline.
+You can change the color schemes using the `gita color` sub-command.
+See the [customization section](#custom).
 
 The additional status symbols denote
 
@@ -82,22 +84,24 @@ The bookkeeping sub-commands are
 - `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
 - `gita -v`: display gita version
 
-The delegating sub-commands are of two formats
+The `git` delegating sub-commands are of two formats
 
 - `gita <sub-command> [repo-name(s) or group-name(s)]`:
   optional repo or group input, and **no input means all repos**.
 - `gita <sub-command> <repo-name(s) or groups-name(s)>`:
   required repo name(s) or group name(s) input
 
-In either case, the `gita` command translates to running `git <sub-command>` for the corresponding repos.
-By default, only `fetch` and `pull` take optional input.
+They translate to `git <sub-command>` for the corresponding repos.
+By default, only `fetch` and `pull` take optional input. In other words,
+`gita fetch` and `gita pull` apply to all repos.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 To add your own sub-commands, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 
-If more than one repos are specified, the git command will run asynchronously,
-with the exception of `log`, `difftool` and `mergetool`, which require non-trivial user input.
+If more than one repos are specified, the `git` command runs asynchronously,
+with the exception of `log`, `difftool` and `mergetool`,
+which require non-trivial user input.
 
 Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
 
@@ -109,8 +113,7 @@ To install the latest version, run
 pip3 install -U gita
 ```
 
-If development mode is preferred,
-download the source code and run
+If you prefer development mode, download the source code and run
 
 ```
 pip3 install -e <gita-source-folder>
@@ -123,8 +126,8 @@ then you can put the following line in the `.bashrc` file.
 alias gita="python3 -m gita"
 ```
 
-Windows users may need to enable the ANSI escape sequence in terminal, otherwise
-the branch color won't work.
+Windows users may need to enable the ANSI escape sequence in terminal for
+the branch color to work.
 See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
 
 ## Auto-completion
@@ -137,7 +140,7 @@ and source it in the .rc file.
 
 ## <a name='superman'></a> Superman mode
 
-The superman mode delegates any git command/alias.
+The superman mode delegates any `git` command or alias.
 Usage:
 
 ```
@@ -153,6 +156,8 @@ For example,
 
 ## <a name='custom'></a> Customization
 
+### user-defined sub-command using yaml file
+
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
 And they shadow the default ones if name collisions exist.
@@ -167,15 +172,15 @@ stat:
   help: show edit statistics
 ```
 
-which executes `git diff --stat`.
+which executes `git diff --stat` for the specified repo(s).
 
-If the delegated git command is a single word, the `cmd` tag can be omitted.
+If the delegated `git` command is a single word, the `cmd` tag can be omitted.
 See `push` for an example.
 To disable asynchronous execution, set the `disable_async` tag to be `true`.
 See `difftool` for an example.
 
-If you want a custom command to behave like `gita fetch`, i.e., to apply
-command to all repos if nothing is specified,
+If you want a custom command to behave like `gita fetch`, i.e., to apply the
+command to all repos when no repo is specified,
 set the `allow_all` option to be `true`.
 For example, the following snippet creates a new command
 `gita comaster [repo-name(s)]` with optional repo name input.
@@ -187,11 +192,11 @@ comaster:
   help: checkout the master branch
 ```
 
-Another customization is the information items displayed by `gita ll`.
-The used and unused information items are shown with `gita info` and one can
-create `$XDG_CONFIG_HOME/gita/info.yml` to customize it.
-(I am thinking of hiding all these details from user at the moment, which means
-you probably don't need to read the rest of this section.)
+### customize information displayed by the `gita ll` command
+
+You can customize the information displayed by `gita ll`.
+The used and unused information items are shown with `gita info`, and the
+configuration is saved in `$XDG_CONFIG_HOME/gita/info.yml`.
 
 For example, the default information items setting corresponds to
 
@@ -200,20 +205,10 @@ For example, the default information items setting corresponds to
 - commit_msg
 ```
 
-To create your own information items, define a dictionary called `extra_info_items`
-in `$XDG_CONFIG_HOME/gita/extra_repo_info.py`. It should map strings to functions,
-where the strings are the information item names and the functions take repo path
-as input. A trivial example is shown below.
+### customize the local/remote relationship coloring displayed by the `gita ll` command
 
-```python
-def get_delim(path: str) -> str:
-    return '|'
-
-extra_info_items = {'delim': get_delim}
-```
-
-If it works, you will see these extra items in the 'Unused' section of the
-`gita info` output. To use them, edit `$XDG_CONFIG_HOME/gita/extra_repo_info.py`.
+You can see the default color scheme and the available colors via `gita color`.
+To change the color coding, use `gita color set <situation> <color>`.
 
 ## Requirements
 
@@ -221,7 +216,7 @@ Gita requires Python 3.6 or higher, due to the use of
 [f-string](https://www.python.org/dev/peps/pep-0498/)
 and [asyncio module](https://docs.python.org/3.6/library/asyncio.html).
 
-Under the hood, gita uses subprocess to run git commands/aliases.
+Under the hood, gita uses `subprocess` to run git commands/aliases.
 Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
 their results agree.

@@ -301,7 +301,7 @@ def main(argv=None):
                       nargs='?',
                       choices=utils.get_groups(),
                       help="show repos in the chosen group")
-    p_ll.add_argument('-n', '--no-colors', action='store_true',
+    p_ll.add_argument('-C', '--no-colors', action='store_true',
             help='Disable coloring on the branch names.')
     p_ll.set_defaults(func=f_ll)
 
