@@ -73,21 +73,20 @@ def f_info(args: argparse.Namespace):
 
 
 def f_clone(args: argparse.Namespace):
-    repos = utils.get_repos()
-    for path, name, url in utils.parse_clone_config(args.fname):
-        print(path, name, url)
-        #utils.clone_repos(new_repos)
+    path = Path.cwd()
+    errors = utils.exec_async_tasks(
+            utils.run_async(repo_name, path, ['git', 'clone', url])
+            for url, repo_name, _ in utils.parse_clone_config(args.fname))
 
 
 def f_freeze(_):
     repos = utils.get_repos()
     for name, path in repos.items():
+        url = ''
         cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
         if cp.returncode == 0:
             url = cp.stdout.decode('utf-8').split('\n')[0].split()[1]
-            print(f'{path},{name},{url}')
-        else:
-            print(f'{path},{name},')
+        print(f'{url},{name},{path}')
 
 
 def f_ll(args: argparse.Namespace):
@@ -262,9 +261,6 @@ def main(argv=None):
     p_clone = subparsers.add_parser('clone', help='clone repos from config file')
     p_clone.add_argument('fname',
             help='config file. Its content should be the output of `gita freeze`.')
-    p_clone.add_argument('-r', '--relocate', dest='relocate',
-            action='store_true',
-            help='If set, attempt to relocate the repo to its original path.')
     p_clone.set_defaults(func=f_clone)
 
     p_rename = subparsers.add_parser('rename', help='rename a repo')

@@ -3,8 +3,6 @@ import yaml
 import asyncio
 import platform
 from functools import lru_cache, partial
-import subprocess
-from functools import lru_cache
 from pathlib import Path
 from typing import List, Dict, Coroutine, Union, Iterator
 
@@ -146,22 +144,10 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         print('No new repos found!')
 
 
-def clone_repos(repos: Dict[str, List[str]]):
-    """
-
-    @param repos: name -> [remote URL, path]
-    """
-    for path_name, url in repos.items():
-        subprocess.run(['git', 'clone', url])
-    # TODO: add repo afterwards
-        #write_to_repo_file(new_repos, 'a+')
-
-
 def parse_clone_config(fname: str) -> Iterator[List[str]]:
     """
-    Return the path, name, and url of all repos in `fname`.
+    Return the url, name, and path of all repos in `fname`.
     """
-    repos = {}
     with open(fname) as f:
         for line in f:
             yield line.strip().split(',')

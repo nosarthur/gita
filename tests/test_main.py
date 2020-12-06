@@ -102,7 +102,7 @@ def test_freeze(_, mock_run, capfd):
     assert mock_run.call_count == 2
     out, err = capfd.readouterr()
     assert err == ''
-    assert out == '/a/,repo1,\n/b/,repo2,\n'
+    assert out == ',repo1,/a/\n,repo2,/b/\n'
 
 
 @patch('os.path.isfile', return_value=True)
