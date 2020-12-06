@@ -242,28 +242,28 @@ def main(argv=None):
                    version=f'%(prog)s {version}')
 
     # bookkeeping sub-commands
-    p_add = subparsers.add_parser('add', help='add repo(s)')
-    p_add.add_argument('paths', nargs='+', help="add repo(s)")
+    p_add = subparsers.add_parser('add', description='add repo(s)')
+    p_add.add_argument('paths', nargs='+', help="repo(s) to add")
     p_add.add_argument('-r', dest='recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
     p_add.set_defaults(func=f_add)
 
-    p_rm = subparsers.add_parser('rm', help='remove repo(s)')
+    p_rm = subparsers.add_parser('rm', description='remove repo(s)')
     p_rm.add_argument('repo',
                       nargs='+',
                       choices=utils.get_repos(),
                       help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
-    p_freeze = subparsers.add_parser('freeze', help='print all repo information')
+    p_freeze = subparsers.add_parser('freeze', description='print all repo information')
     p_freeze.set_defaults(func=f_freeze)
 
-    p_clone = subparsers.add_parser('clone', help='clone repos from config file')
+    p_clone = subparsers.add_parser('clone', description='clone repos from config file')
     p_clone.add_argument('fname',
             help='config file. Its content should be the output of `gita freeze`.')
     p_clone.set_defaults(func=f_clone)
 
-    p_rename = subparsers.add_parser('rename', help='rename a repo')
+    p_rename = subparsers.add_parser('rename', description='rename a repo')
     p_rename.add_argument(
         'repo',
         nargs=1,
@@ -273,7 +273,7 @@ def main(argv=None):
     p_rename.set_defaults(func=f_rename)
 
     p_color = subparsers.add_parser('color',
-            help='display and modify branch coloring of the ll sub-command.')
+            description='display and modify branch coloring of the ll sub-command.')
     p_color.set_defaults(func=f_color)
     color_cmds = p_color.add_subparsers(dest='color_cmd',
             help='additional help with sub-command -h')
@@ -289,7 +289,7 @@ def main(argv=None):
                     help="available colors")
 
     p_info = subparsers.add_parser('info',
-            help='list, add, or remove information items of the ll sub-command.')
+            description='list, add, or remove information items of the ll sub-command.')
     p_info.set_defaults(func=f_info)
     info_cmds = p_info.add_subparsers(dest='info_cmd',
             help='additional help with sub-command -h')
@@ -329,7 +329,7 @@ def main(argv=None):
     p_ll.set_defaults(func=f_ll)
 
     p_context = subparsers.add_parser('context',
-            help='Set and remove context. A context is a group.'
+            description='Set and remove context. A context is a group.'
                 ' When set, all operations apply only to repos in that group.')
     p_context.add_argument('choice',
                       nargs='?',
@@ -338,7 +338,7 @@ def main(argv=None):
     p_context.set_defaults(func=f_context)
 
     p_ls = subparsers.add_parser(
-        'ls', help='display names of all repos, or path of a chosen repo')
+        'ls', description='display names of all repos, or path of a chosen repo')
     p_ls.add_argument('repo',
                       nargs='?',
                       choices=utils.get_repos(),
@@ -346,7 +346,7 @@ def main(argv=None):
     p_ls.set_defaults(func=f_ls)
 
     p_group = subparsers.add_parser(
-        'group', help='list, add, or remove repo group(s)')
+        'group', description='list, add, or remove repo group(s)')
     p_group.set_defaults(func=f_group)
     group_cmds = p_group.add_subparsers(dest='group_cmd',
             help='additional help with sub-command -h')
@@ -378,7 +378,7 @@ def main(argv=None):
     # superman mode
     p_super = subparsers.add_parser(
         'super',
-        help='superman mode: delegate any git command/alias in specified or '
+        description='Superman mode: delegate any git command/alias in specified or '
         'all repo(s).\n'
         'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
         '\t gita super repo1 repo2 repo3 checkout new-feature')
@@ -403,7 +403,7 @@ def main(argv=None):
             choices = utils.get_repos().keys() | utils.get_groups().keys()
             nargs = '+'
         help += ' for the chosen repo(s) or group(s)'
-        sp = subparsers.add_parser(name, help=help)
+        sp = subparsers.add_parser(name, description=help)
         sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
         sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
 
