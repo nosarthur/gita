@@ -95,6 +95,16 @@ class TestLsLl:
         assert out == expected
 
 
+@patch('subprocess.run')
+@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
+def test_freeze(_, mock_run, capfd):
+    __main__.main(['freeze'])
+    assert mock_run.call_count == 2
+    out, err = capfd.readouterr()
+    assert err == ''
+    assert out == ',repo1,/a/\n,repo2,/b/\n'
+
+
 @patch('os.path.isfile', return_value=True)
 @patch('gita.common.get_config_fname', return_value='some path')
 @patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})

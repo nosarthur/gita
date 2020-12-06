@@ -4,7 +4,7 @@ import asyncio
 import platform
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import List, Dict, Coroutine, Union
+from typing import List, Dict, Coroutine, Union, Iterator
 
 from . import info
 from . import common
@@ -128,6 +128,8 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
 def add_repos(repos: Dict[str, str], new_paths: List[str]):
     """
     Write new repo paths to file
+
+    @param repos: name -> path
     """
     existing_paths = set(repos.values())
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
@@ -140,6 +142,15 @@ def add_repos(repos: Dict[str, str], new_paths: List[str]):
         write_to_repo_file(new_repos, 'a+')
     else:
         print('No new repos found!')
+
+
+def parse_clone_config(fname: str) -> Iterator[List[str]]:
+    """
+    Return the url, name, and path of all repos in `fname`.
+    """
+    with open(fname) as f:
+        for line in f:
+            yield line.strip().split(',')
 
 
 async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:

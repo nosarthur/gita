@@ -72,6 +72,23 @@ def f_info(args: argparse.Namespace):
               yaml.dump(to_display, f, default_flow_style=None)
 
 
+def f_clone(args: argparse.Namespace):
+    path = Path.cwd()
+    errors = utils.exec_async_tasks(
+            utils.run_async(repo_name, path, ['git', 'clone', url])
+            for url, repo_name, _ in utils.parse_clone_config(args.fname))
+
+
+def f_freeze(_):
+    repos = utils.get_repos()
+    for name, path in repos.items():
+        url = ''
+        cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
+        if cp.returncode == 0:
+            url = cp.stdout.decode('utf-8').split('\n')[0].split()[1]
+        print(f'{url},{name},{path}')
+
+
 def f_ll(args: argparse.Namespace):
     """
     Display details of all repos
@@ -238,15 +255,21 @@ def main(argv=None):
                       help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
+    p_freeze = subparsers.add_parser('freeze', help='print all repo information')
+    p_freeze.set_defaults(func=f_freeze)
+
+    p_clone = subparsers.add_parser('clone', help='clone repos from config file')
+    p_clone.add_argument('fname',
+            help='config file. Its content should be the output of `gita freeze`.')
+    p_clone.set_defaults(func=f_clone)
+
     p_rename = subparsers.add_parser('rename', help='rename a repo')
     p_rename.add_argument(
         'repo',
         nargs=1,
         choices=utils.get_repos(),
         help="rename the chosen repo")
-    p_rename.add_argument(
-        'new_name',
-        help="new name")
+    p_rename.add_argument('new_name', help="new name")
     p_rename.set_defaults(func=f_rename)
 
     p_color = subparsers.add_parser('color',
