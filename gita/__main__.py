@@ -251,13 +251,15 @@ def main(argv=None):
                    version=f'%(prog)s {version}')
 
     # bookkeeping sub-commands
-    p_add = subparsers.add_parser('add', description='add repo(s)')
+    p_add = subparsers.add_parser('add', description='add repo(s)',
+            help='add repo(s)')
     p_add.add_argument('paths', nargs='+', help="repo(s) to add")
     p_add.add_argument('-r', dest='recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
     p_add.set_defaults(func=f_add)
 
-    p_rm = subparsers.add_parser('rm', description='remove repo(s)')
+    p_rm = subparsers.add_parser('rm', description='remove repo(s)',
+            help='remove repo(s)')
     p_rm.add_argument('repo',
                       nargs='+',
                       choices=utils.get_repos(),

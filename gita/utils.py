@@ -60,7 +60,6 @@ def get_groups() -> Dict[str, List[str]]:
     return groups
 
 
-
 def get_choices() -> List[Union[str, None]]:
     """
     Return all repo names, group names, and an additional empty list. The empty

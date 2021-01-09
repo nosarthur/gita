@@ -70,11 +70,11 @@ The bookkeeping sub-commands are
 - `gita freeze`: print information of all repos such as URL, name, and path.
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
-    - `gita group rmrepo <repo-name(s)> -n <group-name>`: remove repo(s) from existing group
     - `gita group [ll]`: display existing groups with repos
     - `gita group ls`: display existing group names
     - `gita group rename <group-name> <new-name>`: change group name
     - `gita group rm <group-name(s)>`: delete group(s)
+    - `gita group rmrepo <repo-name(s)> -n <group-name>`: remove repo(s) from existing group
 - `gita info`: info sub-command
     - `gita info [ll]`: display the used and unused information items
     - `gita info add <info-item>`: enable information item
@@ -241,18 +241,6 @@ More implementation details are in
 A step-by-step guide to reproduce this project is [here](https://nosarthur.github.io/side%20project/2019/05/27/gita-breakdown.html).
 
 You can also sponsor me on [GitHub](https://github.com/sponsors/nosarthur). Any amount is appreciated!
-
-## Contributors
-
-[![nosarthur](https://github.com/nosarthur.png?size=40 "nosarthur")](https://github.com/nosarthur)
-[![mc0239](https://github.com/mc0239.png?size=40 "mc0239")](https://github.com/mc0239)
-[![dgrant](https://github.com/dgrant.png?size=40 "dgrant")](https://github.com/dgrant)
-[![samibh](https://github.com/github.png?size=40 "samibh")](https://github.com/samibh)
-[![wbrn](https://github.com/wbrn.png?size=40 "wbrn")](https://github.com/wbrn)
-[![TpOut](https://github.com/TpOut.png?size=40 "TpOut")](https://github.com/TpOut)
-[![PabloCastellano](https://github.com/PabloCastellano.png?size=40 "PabloCastellano")](https://github.com/PabloCastellano)
-[![cd3](https://github.com/cd3.png?size=40 "cd3")](https://github.com/cd3)
-[![Steve-Xyh](https://github.com/Steve-Xyh.png?size=40 "Steve-Xyh")](https://github.com/Steve-Xyh)
 
 ## Other multi-repo tools
 
