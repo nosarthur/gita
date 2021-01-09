@@ -283,6 +283,19 @@ class TestGroupCmd:
         mock_write.assert_called_once_with(
                 {'xx': ['a', 'b', 'c'], 'yy': ['a', 'c', 'd']}, 'w')
 
+    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
+    @patch('gita.utils.write_to_groups_file')
+    def testRmRepo(self, mock_write, *_):
+        args = argparse.Namespace()
+        args.from_group = ['a', 'c']
+        args.group_cmd = 'rmrepo'
+        args.gname = 'xx'
+        utils.get_groups.cache_clear()
+        __main__.f_group(args)
+        mock_write.assert_called_once_with(
+                {'xx': ['b'], 'yy': ['a', 'c', 'd']}, 'w')
+
 
 @patch('gita.utils.is_git', return_value=True)
 @patch('gita.common.get_config_fname', return_value=PATH_FNAME)

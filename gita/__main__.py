@@ -141,6 +141,15 @@ def f_group(args: argparse.Namespace):
             utils.write_to_groups_file(groups, 'w')
         else:
             utils.write_to_groups_file({gname: sorted(args.to_group)}, 'a+')
+    elif cmd == 'rmrepo':
+        gname = args.gname
+        if gname in groups:
+            for repo in args.from_group:
+                try:
+                    groups[gname].remove(repo)
+                except ValueError as e:
+                    pass
+            utils.write_to_groups_file(groups, 'w')
 
 
 def f_context(args: argparse.Namespace):
@@ -359,6 +368,17 @@ def main(argv=None):
                     choices=utils.get_repos(),
                     help="repo(s) to be grouped")
     pg_add.add_argument('-n', '--name',
+                    dest='gname',
+                    metavar='group-name',
+                    required=True,
+                    help="group name")
+    pg_rmrepo = group_cmds.add_parser('rmrepo', description='remove repo(s) from a group.')
+    pg_rmrepo.add_argument('from_group',
+                    nargs='+',
+                    metavar='repo',
+                    choices=utils.get_repos(),
+                    help="repo(s) to be removed from the group")
+    pg_rmrepo.add_argument('-n', '--name',
                     dest='gname',
                     metavar='group-name',
                     required=True,

@@ -70,6 +70,7 @@ The bookkeeping sub-commands are
 - `gita freeze`: print information of all repos such as URL, name, and path.
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
+    - `gita group rmrepo <repo-name(s)> -n <group-name>`: remove repo(s) from existing group
     - `gita group [ll]`: display existing groups with repos
     - `gita group ls`: display existing group names
     - `gita group rename <group-name> <new-name>`: change group name
