@@ -129,8 +129,11 @@ def f_group(args: argparse.Namespace):
         del groups[gname]
         utils.write_to_groups_file(groups, 'w')
     elif cmd == 'rm':
+        ctx = utils.get_context()
         for name in args.to_ungroup:
             del groups[name]
+            if ctx and str(ctx.stem) == name:
+                ctx.unlink()
         utils.write_to_groups_file(groups, 'w')
     elif cmd == 'add':
         gname = args.gname
