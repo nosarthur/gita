@@ -30,7 +30,7 @@ I also hate to change directories to execute git commands.
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
 In the screenshot, the `gita remote nowhub` command translates to `git remote -v`
-for the `nowhub` repo.
+for the `nowhub` repo, even though we are at the `blog` repo.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 To add your own sub-commands, see the [customization section](#custom).
@@ -47,7 +47,7 @@ The branch color distinguishes 5 situations between local and remote branches:
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
 using green as baseline.
-You can change the color schemes using the `gita color` sub-command.
+You can change the color scheme using the `gita color` sub-command.
 See the [customization section](#custom).
 
 The additional status symbols denote
@@ -99,7 +99,7 @@ By default, only `fetch` and `pull` take optional input. In other words,
 `gita fetch` and `gita pull` apply to all repos.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
-To add your own sub-commands, see the [customization section](#custom).
+To add your own sub-commands or override the default behaviors, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 
 If more than one repos are specified, the `git` command runs asynchronously,
@@ -139,7 +139,7 @@ Download
 [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
 or
 [.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/.gita-completion.zsh)
-and source it in the .rc file.
+and source it in the corresponding rc file.
 
 ## <a name='superman'></a> Superman mode
 
