@@ -30,7 +30,7 @@ I also hate to change directories to execute git commands.
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
 In the screenshot, the `gita remote nowhub` command translates to `git remote -v`
-for the `nowhub` repo, even though we are at the `blog` repo.
+for the `nowhub` repo, even though we are in the `blog` repo.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 To add your own sub-commands, see the [customization section](#custom).
@@ -70,7 +70,7 @@ The bookkeeping sub-commands are
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
 - `gita freeze`: print information of all repos such as URL, name, and path.
 - `gita group`: group sub-command
-    - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new group or existing group
+    - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new or existing group
     - `gita group [ll]`: display existing groups with repos
     - `gita group ls`: display existing group names
     - `gita group rename <group-name> <new-name>`: change group name
@@ -171,11 +171,12 @@ Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all
 For example,
 
 - `gita shell ll` lists contents for all repos
-- `gita shell repo1 mkdir docs` create a new directory `docs` in repo1
+- `gita shell repo1 repo2 mkdir docs` create a new directory `docs` in `repo1` and `repo2`
+- `gita shell "git describe --abbrev=0 --tags | xargs git checkout"`: check out the latest tag for all repos
 
 ## <a name='custom'></a> Customization
 
-### user-defined sub-command using yaml file
+### add user-defined sub-command using yaml file
 
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
@@ -195,12 +196,11 @@ which executes `git diff --stat` for the specified repo(s).
 
 If the delegated `git` command is a single word, the `cmd` tag can be omitted.
 See `push` for an example.
-To disable asynchronous execution, set the `disable_async` tag to be `true`.
+To disable asynchronous execution, set `disable_async` to be `true`.
 See `difftool` for an example.
 
-If you want a custom command to behave like `gita fetch`, i.e., to apply the
-command to all repos when no repo is specified,
-set the `allow_all` option to be `true`.
+If you want a custom command to behave like `gita fetch`, i.e., to apply to all
+repos when no repo is specified, set `allow_all` to be `true`.
 For example, the following snippet creates a new command
 `gita comaster [repo-name(s)]` with optional repo name input.
 
@@ -223,7 +223,7 @@ You can customize the information displayed by `gita ll`.
 The used and unused information items are shown with `gita info`, and the
 configuration is saved in `$XDG_CONFIG_HOME/gita/info.yml`.
 
-For example, the default information items setting corresponds to
+For example, the default setting corresponds to
 
 ```yaml
 - branch
