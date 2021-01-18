@@ -249,7 +249,7 @@ def f_shell(args):
                 for r in groups[k]:
                     chosen[r] = repos[r]
         repos = chosen
-    cmds = args.man[i:]
+    cmds = ' '.join(args.man[i:])  # join the shell command into a single string
     for name, path in repos.items():
         # TODO: pull this out as a function
         got = subprocess.run(cmds, cwd=path, check=True, shell=True,
