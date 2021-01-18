@@ -159,6 +159,20 @@ def test_superman(mock_run, _, input):
     mock_run.assert_called_once_with(expected_cmds, cwd='path7')
 
 
+@pytest.mark.parametrize('input', [
+    'diff --name-only --staged',
+    "commit -am 'lala kaka'",
+])
+@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('subprocess.run')
+def test_shell(mock_run, _, input):
+    mock_run.reset_mock()
+    args = ['shell', 'repo7'] + shlex.split(input)
+    __main__.main(args)
+    expected_cmds = shlex.split(input)
+    mock_run.assert_called_once_with(expected_cmds, cwd='path7', check=True, stderr=-2, stdout=-1)
+
+
 class TestContext:
 
     @patch('gita.utils.get_context', return_value=None)
