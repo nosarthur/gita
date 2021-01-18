@@ -171,9 +171,7 @@ Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all
 For example,
 
 - `gita shell ll` lists contents for all repos
-- `gita shell repo1 "mkdir docs"` create a new directory `docs` in repo1
-
-Note that shell commands containing spaces must be wrapped by quotes to be correctly interpreted.
+- `gita shell repo1 mkdir docs` create a new directory `docs` in repo1
 
 ## <a name='custom'></a> Customization
 
