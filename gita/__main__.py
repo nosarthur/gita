@@ -252,7 +252,7 @@ def f_shell(args):
     cmds = args.man[i:]
     for name, path in repos.items():
         # TODO: pull this out as a function
-        got = subprocess.run(cmds, cwd=path, check=True,
+        got = subprocess.run(cmds, cwd=path, check=True, shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
         print(utils.format_output(got.stdout.decode(), name))
