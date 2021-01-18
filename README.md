@@ -35,6 +35,7 @@ To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 To add your own sub-commands, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
+To run arbitrary shell command, see the [shell mode section](#shell).
 
 The branch color distinguishes 5 situations between local and remote branches:
 
@@ -157,6 +158,21 @@ For example,
 - `gita super frontend-repo backend-repo commit -am 'implement a new feature'`
   executes `git commit -am 'implement a new feature'` for `frontend-repo` and `backend-repo`
 
+## <a name='shell'></a> Shell mode
+
+The shell mode delegates any shell command.
+Usage:
+
+```
+gita shell [repo-name(s) or group-name(s)] <any-shell-command>
+```
+
+Here `repo-name(s)` or `group-name(s)` are optional, and their absence means all repos.
+For example,
+
+- `gita shell ll` lists contents for all repos
+- `gita shell repo1 mkdir docs` create a new directory `docs` in repo1
+
 ## <a name='custom'></a> Customization
 
 ### user-defined sub-command using yaml file
@@ -195,6 +211,12 @@ comaster:
   help: checkout the master branch
 ```
 
+### customize the local/remote relationship coloring displayed by the `gita ll` command
+
+You can see the default color scheme and the available colors via `gita color`.
+To change the color coding, use `gita color set <situation> <color>`.
+The configuration is saved in `$XDG_CONFIG_HOME/gita/color.yml`.
+
 ### customize information displayed by the `gita ll` command
 
 You can customize the information displayed by `gita ll`.
@@ -207,12 +229,6 @@ For example, the default information items setting corresponds to
 - branch
 - commit_msg
 ```
-
-### customize the local/remote relationship coloring displayed by the `gita ll` command
-
-You can see the default color scheme and the available colors via `gita color`.
-To change the color coding, use `gita color set <situation> <color>`.
-The configuration is saved in `$XDG_CONFIG_HOME/gita/color.yml`.
 
 ## Requirements
 

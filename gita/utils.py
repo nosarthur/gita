@@ -167,7 +167,7 @@ async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, s
     stdout, stderr = await process.communicate()
     for pipe in (stdout, stderr):
         if pipe:
-            print(format_output(pipe.decode(), f'{repo_name}: '))
+            print(format_output(pipe.decode(), repo_name))
     # The existence of stderr is not good indicator since git sometimes write
     # to stderr even if the execution is successful, e.g. git fetch
     if process.returncode != 0:
@@ -178,7 +178,7 @@ def format_output(s: str, prefix: str):
     """
     Prepends every line in given string with the given prefix.
     """
-    return ''.join([f'{prefix}{line}' for line in s.splitlines(keepends=True)])
+    return ''.join([f'{prefix}: {line}' for line in s.splitlines(keepends=True)])
 
 
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:

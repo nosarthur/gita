@@ -222,6 +222,42 @@ def f_git_cmd(args: argparse.Namespace):
                 subprocess.run(cmds, cwd=path)
 
 
+def f_shell(args):
+    """
+    Delegate shell command defined in `args.man`, which may or may not
+    contain repo names.
+    """
+    names = []
+    repos = utils.get_repos()
+    groups = utils.get_groups()
+    ctx = utils.get_context()
+    for i, word in enumerate(args.man):
+        if word in repos or word in groups:
+            names.append(word)
+        else:
+            break
+    args.repo = names
+    # TODO: redundant with f_git_cmd
+    if not args.repo and ctx:
+        args.repo = [ctx.stem]
+    if args.repo:  # with user specified repo(s) or group(s)
+        chosen = {}
+        for k in args.repo:
+            if k in repos:
+                chosen[k] = repos[k]
+            if k in groups:
+                for r in groups[k]:
+                    chosen[r] = repos[r]
+        repos = chosen
+    cmds = args.man[i:]
+    for name, path in repos.items():
+        # TODO: pull this out as a function
+        got = subprocess.run(cmds, cwd=path, check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT)
+        print(utils.format_output(got.stdout.decode(), name))
+
+
 def f_super(args):
     """
     Delegate git command/alias defined in `args.man`, which may or may not
@@ -414,6 +450,21 @@ def main(argv=None):
         "Example: gita super myrepo1 diff --name-only --staged "
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
+
+    # shell mode
+    p_shell = subparsers.add_parser(
+        'shell',
+        description='shell mode: delegate any shell command in specified or '
+        'all repo(s).\n'
+        'Examples:\n \t gita shell pwd\n'
+        '\t gita shell repo1 repo2 repo3 touch xx')
+    p_shell.add_argument(
+        'man',
+        nargs=argparse.REMAINDER,
+        help="execute arbitrary shell command for specified or all repos "
+        "Example: gita shell myrepo1 ls"
+        "Another: gita shell git checkout master ")
+    p_shell.set_defaults(func=f_shell)
 
     # sub-commands that fit boilerplate
     cmds = utils.get_cmds_from_files()
