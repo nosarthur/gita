@@ -106,7 +106,8 @@ def get_path(path):
 
 
 def get_head(path: str) -> str:
-    result = subprocess.run('git rev-parse --abbrev-ref HEAD'.split(),
+    result = subprocess.run('git symbolic-ref -q --short HEAD || git describe --tags --exact-match',
+                            shell=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.DEVNULL,
                             universal_newlines=True,
