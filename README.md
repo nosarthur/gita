@@ -227,7 +227,6 @@ For example, the default setting corresponds to
 
 ```yaml
 - branch
-- commit_time
 - commit_msg
 ```
 

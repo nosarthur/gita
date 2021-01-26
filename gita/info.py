@@ -98,7 +98,7 @@ def get_info_items() -> List[str]:
         display_items = [x for x in display_items if x in ALL_INFO_ITEMS]
     else:
         # default settings
-        display_items = ['branch', 'commit_time', 'commit_msg']
+        display_items = ['branch', 'commit_msg']
     return display_items
 
 
