@@ -56,7 +56,7 @@ def f_info(args: argparse.Namespace):
     cmd = args.info_cmd or 'll'
     if cmd == 'll':
         print('In use:', ','.join(to_display))
-        unused = set(info.ALL_INFO_ITEMS) - set(to_display)
+        unused = sorted(list(set(info.ALL_INFO_ITEMS) - set(to_display)))
         if unused:
             print('Unused:', ' '.join(unused))
         return
