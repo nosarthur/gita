@@ -347,11 +347,11 @@ def main(argv=None):
             description='show used and unused information items of the ll sub-command')
     info_cmds.add_parser('add', description='Enable information item.'
             ).add_argument('info_item',
-                    choices=('branch', 'commit_msg', 'path'),
+                    choices=info.ALL_INFO_ITEMS,
                     help="information item to add")
     info_cmds.add_parser('rm', description='Disable information item.'
             ).add_argument('info_item',
-                    choices=('branch', 'commit_msg', 'path'),
+                    choices=info.ALL_INFO_ITEMS,
                     help="information item to delete")
 
 
