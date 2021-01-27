@@ -80,6 +80,7 @@ def get_info_funcs() -> List[Callable[[str], str]]:
     all_info_items = {
             'branch': get_repo_status,
             'commit_msg': get_commit_msg,
+            'commit_time': get_commit_time,
             'path': get_path,
         }
     return [all_info_items[k] for k in to_display]
@@ -158,6 +159,18 @@ def get_commit_msg(path: str) -> str:
     return result.stdout.strip()
 
 
+def get_commit_time(path: str) -> str:
+    """
+    Return the last commit time in parenthesis.
+    """
+    result = subprocess.run('git log -1 --format=%cd --date=relative'.split(),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.DEVNULL,
+                            universal_newlines=True,
+                            cwd=path)
+    return f"({result.stdout.strip()})"
+
+
 def get_repo_status(path: str, no_colors=False) -> str:
     head = get_head(path)
     dirty, staged, untracked, color = _get_repo_status(path, no_colors)
@@ -200,5 +213,6 @@ def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
 ALL_INFO_ITEMS = {
         'branch': get_repo_status,
         'commit_msg': get_commit_msg,
+        'commit_time': get_commit_time,
         'path': get_path,
         }
