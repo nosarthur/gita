@@ -14,7 +14,7 @@
 | | ____   | |     | |  |  ___  |
 | | \_  )  | |     | |  | (   ) |
 | (___) |__) (___  | |  | )   ( |
-(_______)_______/  )_(  |/     \|   v0.12
+(_______)_______/  )_(  |/     \|   v0.13
 ```
 
 # Gita: a command-line tool to manage multiple git repos
@@ -228,6 +228,7 @@ For example, the default setting corresponds to
 ```yaml
 - branch
 - commit_msg
+- commit_time
 ```
 
 ## Requirements
