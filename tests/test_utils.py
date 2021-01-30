@@ -9,14 +9,15 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ([{'abc': '/root/repo/'}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg'),
-    ([{'abc': '/root/repo/'}, True], True, 'abc repo *+_   msg'),
-    ([{'repo': '/root/repo2/'}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg'),
+    ([{'abc': '/root/repo/'}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
+    ([{'abc': '/root/repo/'}, True], True, 'abc repo *+_   msg xx'),
+    ([{'repo': '/root/repo2/'}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
     monkeypatch.setattr(info, 'run_quiet_diff', lambda _: diff_return)
     monkeypatch.setattr(info, 'get_commit_msg', lambda _: "msg")
+    monkeypatch.setattr(info, 'get_commit_time', lambda _: "xx")
     monkeypatch.setattr(info, 'has_untracked', lambda: True)
     monkeypatch.setattr('os.chdir', lambda x: None)
     print('expected: ', repr(expected))

@@ -58,7 +58,7 @@ def f_info(args: argparse.Namespace):
         print('In use:', ','.join(to_display))
         unused = sorted(list(set(info.ALL_INFO_ITEMS) - set(to_display)))
         if unused:
-            print('Unused:', ' '.join(unused))
+            print('Unused:', ','.join(unused))
         return
     if cmd == 'add' and args.info_item not in to_display:
         to_display.append(args.info_item)

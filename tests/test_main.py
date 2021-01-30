@@ -69,18 +69,19 @@ class TestLsLl:
 
     @pytest.mark.parametrize('path_fname, expected', [
         (PATH_FNAME,
-         "repo1 cmaster dsu\x1b[0m msg\nrepo2 cmaster dsu\x1b[0m msg\nxxx   cmaster dsu\x1b[0m msg\n"),
+         "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \nxxx   cmaster dsu\x1b[0m msg \n"),
         (PATH_FNAME_EMPTY, ""),
         (PATH_FNAME_CLASH,
-         "repo1   cmaster dsu\x1b[0m msg\nrepo2   cmaster dsu\x1b[0m msg\nx/repo1 cmaster dsu\x1b[0m msg\n"
+         "repo1   cmaster dsu\x1b[0m msg \nrepo2   cmaster dsu\x1b[0m msg \nx/repo1 cmaster dsu\x1b[0m msg \n"
          ),
     ])
     @patch('gita.utils.is_git', return_value=True)
     @patch('gita.info.get_head', return_value="master")
     @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
     @patch('gita.info.get_commit_msg', return_value="msg")
+    @patch('gita.info.get_commit_time', return_value="")
     @patch('gita.common.get_config_fname')
-    def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, path_fname,
+    def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, _4, path_fname,
                           expected, capfd):
         def side_effect(input):
             if input == 'repo_path':
@@ -332,7 +333,7 @@ class TestInfo:
         args.info_cmd = None
         __main__.f_info(args)
         out, err = capfd.readouterr()
-        assert 'In use: branch,commit_msg\nUnused: commit_time path\n' == out
+        assert 'In use: branch,commit_msg,commit_time\nUnused: path\n' == out
         assert err == ''
 
     @patch('gita.common.get_config_fname', return_value='')
@@ -345,7 +346,7 @@ class TestInfo:
             __main__.f_info(args)
         mock_dump.assert_called_once()
         args, kwargs = mock_dump.call_args
-        assert args[0] == ['branch', 'commit_msg', 'path']
+        assert args[0] == ['branch', 'commit_msg', 'commit_time', 'path']
         assert kwargs == {'default_flow_style': None}
 
     @patch('gita.common.get_config_fname', return_value='')
@@ -358,5 +359,5 @@ class TestInfo:
             __main__.f_info(args)
         mock_dump.assert_called_once()
         args, kwargs = mock_dump.call_args
-        assert args[0] == ['branch']
+        assert args[0] == ['branch', 'commit_time']
         assert kwargs == {'default_flow_style': None}
