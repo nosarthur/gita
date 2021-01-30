@@ -46,17 +46,26 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
+- `gita clone <config-file>`:
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
     - `gita context none`: 去除情境
     - `gita context <group-name>`: 把情境设置成`group-name`, 之后所有的操作只作用到这个组里的库
+- `gita color`:
+    - `gita color [ll]`
+    - `gita color set <situation> <color>`
+- `gita freeze`
 - `gita group`: 组群命令
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
     - `gita group [ll]`: 显示已有的组和它们的库
     - `gita group ls`: 显示已有的组名
     - `gita group rename <group-name> <new-name>`: 改组名
     - `gita group rm group(s): 删除组
+    - `gita group rmrepo -n <group-name>:
 - `gita info`: 显示已用的和未用的信息项
+    - `gita info [ll]`
+    - `gita info add <info-item>`
+    - `gita info rm <info-item>`
 - `gita ll`: 显示所有库的状态信息
 - `gita ll <group-name>`: 显示一个组群中库的状态信息
 - `gita ls`: 显示所有库的名字
@@ -155,6 +164,7 @@ comaster:
 ```yaml
 - branch
 - commit_msg
+- commit_time
 ```
 为了创建自己的信息项，命名一个目录为`extra_info_items`。
 在`$XDG_CONFIG_HOME/gita/extra_repo_info.py`中，要把信息项的名字作为字符串映射到方法中，该方法将库的路径作为输入参数。举个栗子：
