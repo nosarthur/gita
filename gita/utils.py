@@ -56,7 +56,7 @@ def get_groups() -> Dict[str, List[str]]:
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
-            groups = yaml.load(f, Loader=yaml.FullLoader)
+            groups = yaml.load(f, Loader=yaml.SafeLoader)
     return groups
 
 
@@ -95,10 +95,19 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     """
     Write new repo name to file
     """
+    # FIXME: We should check the new name is not in use
     path = repos[repo]
     del repos[repo]
     repos[new_name] = path
     write_to_repo_file(repos, 'w')
+    # update groups
+    groups = get_groups()
+    for g, members in groups.items():
+        if repo in members:
+            members.remove(repo)
+            members.append(new_name)
+            groups[g] = sorted(members)
+    write_to_groups_file(groups, 'w')
 
 
 def write_to_repo_file(repos: Dict[str, str], mode: str):
@@ -233,7 +242,7 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     # default config file
     fname = os.path.join(os.path.dirname(__file__), "cmds.yml")
     with open(fname, 'r') as stream:
-        cmds = yaml.load(stream, Loader=yaml.FullLoader)
+        cmds = yaml.load(stream, Loader=yaml.SafeLoader)
 
     # custom config file
     root = common.get_config_dir()
@@ -241,7 +250,7 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     custom_cmds = {}
     if os.path.isfile(fname) and os.path.getsize(fname):
         with open(fname, 'r') as stream:
-            custom_cmds = yaml.load(stream, Loader=yaml.FullLoader)
+            custom_cmds = yaml.load(stream, Loader=yaml.SafeLoader)
 
     # custom commands shadow default ones
     cmds.update(custom_cmds)
