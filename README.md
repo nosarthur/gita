@@ -29,8 +29,10 @@ I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
-In the screenshot, the `gita remote dotfiles` command translates to `git remote -v`
+In the screenshot, the `gita ll` command displays the status of all repos.
+The `gita remote dotfiles` command translates to `git remote -v`
 for the `dotfiles` repo, even though we are not in the repo.
+The `gita fetch` command fetches from all repos and two of them have updates.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
 To add your own sub-commands, see the [customization section](#custom).
