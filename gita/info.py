@@ -57,7 +57,7 @@ def get_color_encoding() -> Dict[str, str]:
     yml_config = Path(common.get_config_fname('color.yml'))
     if yml_config.is_file():
         with open(yml_config, 'r') as stream:
-            colors = yaml.load(stream, Loader=yaml.FullLoader)
+            colors = yaml.load(stream, Loader=yaml.SafeLoader)
     else:
         colors = {
             'no-remote': Color.white.value,
@@ -94,7 +94,7 @@ def get_info_items() -> List[str]:
     yml_config = Path(common.get_config_fname('info.yml'))
     if yml_config.is_file():
         with open(yml_config, 'r') as stream:
-            display_items = yaml.load(stream, Loader=yaml.FullLoader)
+            display_items = yaml.load(stream, Loader=yaml.SafeLoader)
         display_items = [x for x in display_items if x in ALL_INFO_ITEMS]
     else:
         # default settings
