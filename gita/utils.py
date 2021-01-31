@@ -95,10 +95,19 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     """
     Write new repo name to file
     """
+    # FIXME: We should check the new name is not in use
     path = repos[repo]
     del repos[repo]
     repos[new_name] = path
     write_to_repo_file(repos, 'w')
+    # update groups
+    groups = get_groups()
+    for g, members in groups.items():
+        if repo in members:
+            members.remove(repo)
+            members.append(new_name)
+            groups[g] = sorted(members)
+    write_to_groups_file(groups, 'w')
 
 
 def write_to_repo_file(repos: Dict[str, str], mode: str):

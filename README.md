@@ -29,13 +29,13 @@ I also hate to change directories to execute git commands.
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
-In the screenshot, the `gita ll` command displays the status of all repos.
+In this screenshot, the `gita ll` command displays the status of all repos.
 The `gita remote dotfiles` command translates to `git remote -v`
 for the `dotfiles` repo, even though we are not in the repo.
 The `gita fetch` command fetches from all repos and two of them have updates.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
 [cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
-To add your own sub-commands, see the [customization section](#custom).
+To add your own commands, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 To run arbitrary shell command, see the [shell mode section](#shell).
 
@@ -50,7 +50,7 @@ The branch color distinguishes 5 situations between local and remote branches:
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
 using green as baseline.
-You can change the color scheme using the `gita color` sub-command.
+You can change the color scheme using the `gita color` command.
 See the [customization section](#custom).
 
 The additional status symbols denote
@@ -87,7 +87,7 @@ The bookkeeping sub-commands are
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
-- `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files from disk)
+- `gita rm <repo-name(s)>`: remove repo(s) from `gita` (won't remove files on disk)
 - `gita -v`: display gita version
 
 The `git` delegating sub-commands are of two formats
