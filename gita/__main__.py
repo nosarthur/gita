@@ -128,6 +128,11 @@ def f_group(args: argparse.Namespace):
         groups[new_name] = groups[gname]
         del groups[gname]
         utils.write_to_groups_file(groups, 'w')
+        # change context
+        ctx = utils.get_context()
+        if ctx and str(ctx.stem) == gname:
+            # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
+            ctx.rename(ctx.with_name(f'{new_name}.context'))
     elif cmd == 'rm':
         ctx = utils.get_context()
         for name in args.to_ungroup:
