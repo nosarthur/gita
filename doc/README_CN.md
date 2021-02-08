@@ -19,7 +19,7 @@
 
 # Gita：一个管理多个 git 库的命令行工具
 
-这个工具有两个作用：
+这个工具有两个功能:
 
 - 并排显示多个库的状态信息，比如分支名，编辑状态，提交信息等
 - 在任何目录下（批处理）代理执行 git 指令
@@ -46,6 +46,7 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
+- `gita add -r <repo-parent-path(s)>`:
 - `gita clone <config-file>`:
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
