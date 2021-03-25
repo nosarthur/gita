@@ -79,13 +79,19 @@ def f_clone(args: argparse.Namespace):
             for url, repo_name, _ in utils.parse_clone_config(args.fname))
 
 
+
 def f_freeze(_):
     repos = utils.get_repos()
     for name, path in repos.items():
         url = ''
         cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
-        if cp.returncode == 0:
-            url = cp.stdout.decode('utf-8').split('\n')[0].split()[1]
+        lines = cp.stdout.decode('utf-8').split('\n')
+        if cp.returncode == 0 and len(lines) > 0:
+            parts = lines[0].split()
+            if len(parts)>1:
+                url = parts[1]
+            else:
+                raise ValueError(f'git remote url not set for {name} in {path}')
         print(f'{url},{name},{path}')
 
 
