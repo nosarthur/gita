@@ -90,8 +90,6 @@ def f_freeze(_):
             parts = lines[0].split()
             if len(parts)>1:
                 url = parts[1]
-            else:
-                raise ValueError(f'git remote url not set for {name} in {path}')
         print(f'{url},{name},{path}')
 
 
