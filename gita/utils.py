@@ -2,6 +2,7 @@ import os
 import yaml
 import asyncio
 import platform
+import subprocess
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import List, Dict, Coroutine, Union, Iterator
@@ -88,7 +89,11 @@ def is_git(path: str) -> bool:
     # `git rev-parse --git-common-dir`
     loc = os.path.join(path, '.git')
     # TODO: we can display the worktree repos in a different font.
-    return os.path.exists(loc)
+    return os.path.exists(loc) or \
+            subprocess.run('git rev-parse --is-bare-repository'.split(),
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                            cwd=path
+                            ).returncode == 0
 
 
 def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
