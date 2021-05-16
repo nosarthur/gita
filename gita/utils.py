@@ -22,33 +22,6 @@ def get_context() -> Union[Path, None]:
 
 
 @lru_cache()
-def get_repos(root=None) -> Dict[str, str]:
-    """
-    Return a `dict` of repo name to repo absolute path
-
-    @param config_dir: If None, use either global or local config depending on cwd.
-    """
-    path_file = common.get_config_fname('repo_path', root)
-    repos = {}
-    # Each line is a repo path and repo name separated by ,
-    if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
-        with open(path_file) as f:
-            for line in f:
-                line = line.rstrip()
-                if not line:  # blank line
-                    continue
-                path, name = line.split(',')
-                if not is_git(path):
-                    continue
-                if name not in repos:
-                    repos[name] = path
-                else:  # repo name collision for different paths: include parent path name
-                    par_name = os.path.basename(os.path.dirname(path))
-                    repos[os.path.join(par_name, name)] = path
-    return repos
-
-
-@lru_cache()
 def get_groups() -> Dict[str, List[str]]:
     """
     Return a `dict` of group name to repo names.
@@ -71,26 +44,10 @@ def get_choices() -> List[Union[str, None]]:
     and
     https://bugs.python.org/issue27227
     """
-    choices = list(get_repos())
+    choices = list(common.get_repos())
     choices.extend(get_groups())
     choices.append([])
     return choices
-
-
-def is_git(path: str) -> bool:
-    """
-    Return True if the path is a git repo.
-    """
-    # An alternative is to call `git rev-parse --is-inside-work-tree`
-    # I don't see why that one is better yet.
-    # For a regular git repo, .git is a folder, for a worktree repo, .git is a file.
-    # However, git submodule repo also has .git as a file.
-    # A more reliable way to differentiable regular and worktree repos is to
-    # compare the result of `git rev-parse --git-dir` and
-    # `git rev-parse --git-common-dir`
-    loc = os.path.join(path, '.git')
-    # TODO: we can display the worktree repos in a different font.
-    return os.path.exists(loc)
 
 
 def rename_repo(repos: Dict[str, str], repo: str, new_name: str):

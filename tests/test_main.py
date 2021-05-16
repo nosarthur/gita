@@ -29,7 +29,7 @@ class TestLsLl:
         assert 'Found 1 new repo(s).\n' == out
 
         # in production this is not needed
-        utils.get_repos.cache_clear()
+        common.get_repos.cache_clear()
 
         __main__.main(['ls'])
         out, err = capfd.readouterr()
@@ -52,10 +52,10 @@ class TestLsLl:
         __main__.main(['ls', 'gita'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert out.strip() == utils.get_repos()['gita']
+        assert out.strip() == common.get_repos()['gita']
 
     def testLs(self, monkeypatch, capfd):
-        monkeypatch.setattr(utils, 'get_repos',
+        monkeypatch.setattr(common, 'get_repos',
                 lambda: {'repo1': '/a/', 'repo2': '/b/'})
         monkeypatch.setattr(utils, 'describe', lambda x: x)
         __main__.main(['ls'])
@@ -75,7 +75,7 @@ class TestLsLl:
          "repo1   cmaster dsu\x1b[0m msg \nrepo2   cmaster dsu\x1b[0m msg \nx/repo1 cmaster dsu\x1b[0m msg \n"
          ),
     ])
-    @patch('gita.utils.is_git', return_value=True)
+    @patch('gita.common.is_git', return_value=True)
     @patch('gita.info.get_head', return_value="master")
     @patch('gita.info._get_repo_status', return_value=("d", "s", "u", "c"))
     @patch('gita.info.get_commit_msg', return_value="msg")
@@ -88,7 +88,7 @@ class TestLsLl:
                 return path_fname
             return f'/{input}'
         mock_path_fname.side_effect = side_effect
-        utils.get_repos.cache_clear()
+        common.get_repos.cache_clear()
         __main__.main(['ll'])
         out, err = capfd.readouterr()
         print(out)
@@ -97,7 +97,7 @@ class TestLsLl:
 
 
 @patch('subprocess.run')
-@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
+@patch('gita.common.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 def test_freeze(_, mock_run, capfd):
     __main__.main(['freeze'])
     assert mock_run.call_count == 2
@@ -108,7 +108,7 @@ def test_freeze(_, mock_run, capfd):
 
 @patch('os.path.isfile', return_value=True)
 @patch('gita.common.get_config_fname', return_value='some path')
-@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
+@patch('gita.common.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
 @patch('gita.utils.write_to_repo_file')
 def test_rm(mock_write, *_):
     args = argparse.Namespace()
@@ -122,7 +122,7 @@ def test_not_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-@patch('gita.utils.get_repos', return_value={'repo2': '/d/efg'})
+@patch('gita.common.get_repos', return_value={'repo2': '/d/efg'})
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
     __main__.main(['fetch'])
@@ -130,7 +130,7 @@ def test_fetch(mock_run, *_):
 
 
 @patch(
-    'gita.utils.get_repos', return_value={
+    'gita.common.get_repos', return_value={
         'repo1': '/a/bc',
         'repo2': '/d/efg'
     })
@@ -150,7 +150,7 @@ def test_async_fetch(*_):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('gita.common.get_repos', return_value={'repo7': 'path7'})
 @patch('subprocess.run')
 def test_superman(mock_run, _, input):
     mock_run.reset_mock()
@@ -164,7 +164,7 @@ def test_superman(mock_run, _, input):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('gita.common.get_repos', return_value={'repo7': 'path7'})
 @patch('subprocess.run')
 def test_shell(mock_run, _, input):
     mock_run.reset_mock()
@@ -264,7 +264,7 @@ class TestGroupCmd:
         ('xx', {'yy': ['a', 'c', 'd']}),
         ("xx yy", {}),
     ])
-    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.common.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testRm(self, mock_write, _, __, input, expected):
@@ -273,7 +273,7 @@ class TestGroupCmd:
         __main__.main(args)
         mock_write.assert_called_once_with(expected, 'w')
 
-    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.common.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testAdd(self, mock_write, *_):
@@ -285,7 +285,7 @@ class TestGroupCmd:
         __main__.f_group(args)
         mock_write.assert_called_once_with({'zz': ['a', 'c']}, 'a+')
 
-    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.common.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testAddToExisting(self, mock_write, *_):
@@ -298,7 +298,7 @@ class TestGroupCmd:
         mock_write.assert_called_once_with(
                 {'xx': ['a', 'b', 'c'], 'yy': ['a', 'c', 'd']}, 'w')
 
-    @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
+    @patch('gita.common.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
     def testRmRepo(self, mock_write, *_):
@@ -312,11 +312,11 @@ class TestGroupCmd:
                 {'xx': ['b'], 'yy': ['a', 'c', 'd']}, 'w')
 
 
-@patch('gita.utils.is_git', return_value=True)
+@patch('gita.common.is_git', return_value=True)
 @patch('gita.common.get_config_fname', return_value=PATH_FNAME)
 @patch('gita.utils.rename_repo')
 def test_rename(mock_rename, _, __):
-    utils.get_repos.cache_clear()
+    common.get_repos.cache_clear()
     args = ['rename', 'repo1', 'abc']
     __main__.main(args)
     mock_rename.assert_called_once_with(

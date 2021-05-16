@@ -27,11 +27,10 @@ from . import utils, info, common
 
 
 def f_add(args: argparse.Namespace):
-    repos = utils.get_repos()
+    repos = common.get_repos()
     paths = args.paths
     if args.main:
         # add to global and tag as main
-        print('globally')
         main_repos = utils.add_repos(repos, paths, repo_type=1)
         # add sub-repo recursively and save to local config_dir
         for main_repo, main_path in main_repos.items():
@@ -45,7 +44,7 @@ def f_add(args: argparse.Namespace):
 
 
 def f_rename(args: argparse.Namespace):
-    repos = utils.get_repos()
+    repos = common.get_repos()
     utils.rename_repo(repos, args.repo[0], args.new_name)
 
 
@@ -91,7 +90,7 @@ def f_clone(args: argparse.Namespace):
 
 
 def f_freeze(_):
-    repos = utils.get_repos()
+    repos = common.get_repos()
     for name, path in repos.items():
         url = ''
         cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
@@ -107,7 +106,7 @@ def f_ll(args: argparse.Namespace):
     """
     Display details of all repos
     """
-    repos = utils.get_repos()
+    repos = common.get_repos()
     ctx = utils.get_context()
     if args.group is None and ctx:
         args.group = ctx.stem
@@ -119,7 +118,7 @@ def f_ll(args: argparse.Namespace):
 
 
 def f_ls(args: argparse.Namespace):
-    repos = utils.get_repos()
+    repos = common.get_repos()
     if args.repo:  # one repo, show its path
         print(repos[args.repo])
     else:  # show names of all repos
@@ -199,7 +198,7 @@ def f_rm(args: argparse.Namespace):
     """
     path_file = common.get_config_fname('repo_path')
     if os.path.isfile(path_file):
-        repos = utils.get_repos()
+        repos = common.get_repos()
         for repo in args.repo:
             del repos[repo]
         utils.write_to_repo_file(repos, 'w')
@@ -210,7 +209,7 @@ def f_git_cmd(args: argparse.Namespace):
     Delegate git command/alias defined in `args.cmd`. Asynchronous execution is
     disabled for commands in the `args.async_blacklist`.
     """
-    repos = utils.get_repos()
+    repos = common.get_repos()
     groups = utils.get_groups()
     ctx = utils.get_context()
     if not args.repo and ctx:
@@ -247,7 +246,7 @@ def f_shell(args):
     contain repo names.
     """
     names = []
-    repos = utils.get_repos()
+    repos = common.get_repos()
     groups = utils.get_groups()
     ctx = utils.get_context()
     for i, word in enumerate(args.man):
@@ -283,7 +282,7 @@ def f_super(args):
     contain repo names.
     """
     names = []
-    repos = utils.get_repos()
+    repos = common.get_repos()
     groups = utils.get_groups()
     for i, word in enumerate(args.man):
         if word in repos or word in groups:
@@ -322,7 +321,7 @@ def main(argv=None):
             help='remove repo(s)')
     p_rm.add_argument('repo',
                       nargs='+',
-                      choices=utils.get_repos(),
+                      choices=common.get_repos(),
                       help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
@@ -338,7 +337,7 @@ def main(argv=None):
     p_rename.add_argument(
         'repo',
         nargs=1,
-        choices=utils.get_repos(),
+        choices=common.get_repos(),
         help="rename the chosen repo")
     p_rename.add_argument('new_name', help="new name")
     p_rename.set_defaults(func=f_rename)
@@ -412,7 +411,7 @@ def main(argv=None):
         'ls', description='display names of all repos, or path of a chosen repo')
     p_ls.add_argument('repo',
                       nargs='?',
-                      choices=utils.get_repos(),
+                      choices=common.get_repos(),
                       help="show path of the chosen repo")
     p_ls.set_defaults(func=f_ls)
 
@@ -427,7 +426,7 @@ def main(argv=None):
     pg_add.add_argument('to_group',
                     nargs='+',
                     metavar='repo',
-                    choices=utils.get_repos(),
+                    choices=common.get_repos(),
                     help="repo(s) to be grouped")
     pg_add.add_argument('-n', '--name',
                     dest='gname',
@@ -438,7 +437,7 @@ def main(argv=None):
     pg_rmrepo.add_argument('from_group',
                     nargs='+',
                     metavar='repo',
-                    choices=utils.get_repos(),
+                    choices=common.get_repos(),
                     help="repo(s) to be removed from the group")
     pg_rmrepo.add_argument('-n', '--name',
                     dest='gname',
@@ -497,7 +496,7 @@ def main(argv=None):
             nargs = '*'
             help += ' for all repos or'
         else:
-            choices = utils.get_repos().keys() | utils.get_groups().keys()
+            choices = common.get_repos().keys() | utils.get_groups().keys()
             nargs = '+'
         help += ' for the chosen repo(s) or group(s)'
         sp = subparsers.add_parser(name, description=help)
