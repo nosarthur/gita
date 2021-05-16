@@ -22,11 +22,13 @@ def get_context() -> Union[Path, None]:
 
 
 @lru_cache()
-def get_repos() -> Dict[str, str]:
+def get_repos(root=None) -> Dict[str, str]:
     """
     Return a `dict` of repo name to repo absolute path
+
+    @param config_dir: If None, use either global or local config depending on cwd.
     """
-    path_file = common.get_config_fname('repo_path')
+    path_file = common.get_config_fname('repo_path', root)
     repos = {}
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
@@ -110,11 +112,11 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     write_to_groups_file(groups, 'w')
 
 
-def write_to_repo_file(repos: Dict[str, str], mode: str):
+def write_to_repo_file(repos: Dict[str, str], mode: str, root=None):
     """
     """
     data = ''.join(f'{path},{name}\n' for name, path in repos.items())
-    fname = common.get_config_fname('repo_path')
+    fname = common.get_config_fname('repo_path', root)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
         f.write(data)
@@ -133,23 +135,26 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
             yaml.dump(groups, f, default_flow_style=None)
 
 
-def add_repos(repos: Dict[str, str], new_paths: List[str]):
+def add_repos(repos: Dict[str, str], new_paths: List[str],
+        repo_type=0, root=None) -> Dict[str, str]:
     """
-    Write new repo paths to file
+    Write new repo paths to file; return the added repos.
 
     @param repos: name -> path
     """
     existing_paths = set(repos.values())
     new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
     new_paths = new_paths - existing_paths
+    new_repos = {}
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
         new_repos = {
                 os.path.basename(os.path.normpath(path)): path
                 for path in new_paths}
-        write_to_repo_file(new_repos, 'a+')
+        write_to_repo_file(new_repos, 'a+', root)
     else:
         print('No new repos found!')
+    return new_repos
 
 
 def parse_clone_config(fname: str) -> Iterator[List[str]]:
