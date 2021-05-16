@@ -19,7 +19,7 @@ class TestLsLl:
         functional test
         """
         # avoid modifying the local configuration
-        def side_effect(input):
+        def side_effect(input, _=None):
             return tmp_path / f'{input}.txt'
         #mock_path_fname.return_value = tmp_path / 'path_config.txt'
         mock_path_fname.side_effect = side_effect
@@ -83,7 +83,7 @@ class TestLsLl:
     @patch('gita.common.get_config_fname')
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, _4, path_fname,
                           expected, capfd):
-        def side_effect(input):
+        def side_effect(input, _=None):
             if input == 'repo_path':
                 return path_fname
             return f'/{input}'
