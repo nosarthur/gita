@@ -10,15 +10,12 @@ from . import info
 from . import common
 
 
-@lru_cache()
-def get_context() -> Union[Path, None]:
+# TODO: python3.9 pathlib has is_relative_to() function
+def is_relative_to(kid: str, parent: str) -> bool:
     """
-    Return the context: either a group name or 'none'
+    Both the `kid` and `parent` should be absolute path
     """
-    config_dir = Path(common.get_config_dir())
-    matches = list(config_dir.glob('*.context'))
-    assert len(matches) < 2, "Cannot have multiple .context file"
-    return matches[0] if matches else None
+    return parent == os.path.commonpath((kid, parent))
 
 
 @lru_cache()
@@ -45,7 +42,23 @@ def get_repos(root=None) -> Dict[str, str]:
                 else:  # repo name collision for different paths: include parent path name
                     par_name = os.path.basename(os.path.dirname(path))
                     repos[os.path.join(par_name, name)] = path
+    if root is None:  # detect if inside a main path
+        cwd = os.getcwd()
+        for _, path in repos.items():
+            if is_relative_to(cwd, path):
+                return get_repos(path)
     return repos
+
+
+@lru_cache()
+def get_context() -> Union[Path, None]:
+    """
+    Return the context: either a group name or 'none'
+    """
+    config_dir = Path(common.get_config_dir())
+    matches = list(config_dir.glob('*.context'))
+    assert len(matches) < 2, "Cannot have multiple .context file"
+    return matches[0] if matches else None
 
 
 @lru_cache()

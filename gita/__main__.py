@@ -31,7 +31,6 @@ def f_add(args: argparse.Namespace):
     paths = args.paths
     if args.main:
         # add to global and tag as main
-        print('globally')
         main_repos = utils.add_repos(repos, paths, repo_type=1)
         # add sub-repo recursively and save to local config_dir
         for main_repo, main_path in main_repos.items():
