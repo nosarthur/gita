@@ -29,9 +29,19 @@ from . import utils, info, common
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
-    if args.recursive:
-        paths = chain.from_iterable(Path(p).glob('**') for p in args.paths)
-    utils.add_repos(repos, paths)
+    if args.main:
+        # add to global and tag as main
+        print('globally')
+        main_repos = utils.add_repos(repos, paths, repo_type=1)
+        # add sub-repo recursively and save to local config_dir
+        for main_repo, main_path in main_repos.items():
+            print('locally,', main_repo)
+            sub_paths = Path(main_path).glob('**')
+            utils.add_repos({}, sub_paths, root=main_path)
+    else:
+        if args.recursive:
+            paths = chain.from_iterable(Path(p).glob('**') for p in args.paths)
+        utils.add_repos(repos, paths)
 
 
 def f_rename(args: argparse.Namespace):
@@ -304,6 +314,8 @@ def main(argv=None):
     p_add.add_argument('paths', nargs='+', help="repo(s) to add")
     p_add.add_argument('-r', dest='recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
+    p_add.add_argument('-m', '--main', action='store_true',
+            help="make main repo(s), sub-repos are recursively added.")
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', description='remove repo(s)',
