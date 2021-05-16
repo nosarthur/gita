@@ -38,7 +38,7 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
         'x/repo1': '/root/x/repo1'
     }),
 ])
-@patch('gita.common.is_git', return_value=True)
+@patch('gita.utils.is_git', return_value=True)
 @patch('gita.common.get_config_fname')
 def test_get_repos(mock_path_fname, _, path_fname, expected):
     mock_path_fname.return_value = path_fname
@@ -87,7 +87,7 @@ def test_custom_push_cmd(*_):
          '/home/some/repo1,repo1\n'),  # add one old one new
     ])
 @patch('os.makedirs')
-@patch('gita.common.is_git', return_value=True)
+@patch('gita.utils.is_git', return_value=True)
 def test_add_repos(_0, _1, path_input, expected, monkeypatch):
     monkeypatch.setenv('XDG_CONFIG_HOME', '/config')
     with patch('builtins.open', mock_open()) as mock_file:
