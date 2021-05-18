@@ -1,7 +1,4 @@
 import os
-from pathlib import Path
-from functools import lru_cache
-from typing import Dict
 
 
 def get_config_dir(root=None) -> str:

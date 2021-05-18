@@ -1,10 +1,11 @@
 import os
-import yaml
+import yaml  # TODO: to be removed
+import csv
 import asyncio
 import platform
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Iterator
+from typing import List, Dict, Coroutine, Union, Iterator, Tuple
 
 from . import info
 from . import common
@@ -21,31 +22,23 @@ def is_relative_to(kid: str, parent: str) -> bool:
 @lru_cache()
 def get_repos(root=None) -> Dict[str, str]:
     """
-    Return a `dict` of repo name to repo absolute path
+    Return a `dict` of repo name to repo absolute path and repo type
 
-    @param config_dir: If None, use either global or local config depending on cwd.
+    @param root: Use local config if set. If None, use either global or local
+                 config depending on cwd.
     """
-    path_file = common.get_config_fname('repo_path', root)
+    path_file = common.get_config_fname('repos.csv', root)
     repos = {}
-    # Each line is a repo path and repo name separated by ,
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            for line in f:
-                line = line.rstrip()
-                if not line:  # blank line
-                    continue
-                path, name = line.split(',')
-                if not is_git(path):
-                    continue
-                if name not in repos:
-                    repos[name] = path
-                else:  # repo name collision for different paths: include parent path name
-                    par_name = os.path.basename(os.path.dirname(path))
-                    repos[os.path.join(par_name, name)] = path
+            rows = csv.DictReader(f, ['path', 'name', 'type'])  # it's actually a reader
+            repos = {r['name']: {'path': r['path'], 'type': r['type']}
+                        for r in rows if is_git(r['path'])}
     if root is None:  # detect if inside a main path
         cwd = os.getcwd()
-        for _, path in repos.items():
-            if is_relative_to(cwd, path):
+        for prop in repos.values():
+            path = prop['path']
+            if prop['type'] == 'm' and is_relative_to(cwd, path):
                 return get_repos(path)
     return repos
 
@@ -106,16 +99,29 @@ def is_git(path: str) -> bool:
     return os.path.exists(loc)
 
 
-def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
+def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     """
     Write new repo name to file
     """
     # FIXME: We should check the new name is not in use
-    path = repos[repo]
+    prop = repos[repo]
     del repos[repo]
-    repos[new_name] = path
-    write_to_repo_file(repos, 'w')
-    # update groups
+    repos[new_name] = prop
+    data = [(prop['path'], name, prop['type']) for name, prop in repos.items()]
+    # write to local config if inside a main path
+    main_paths = (d[0] for d in data if d[2] == 'm')
+    cwd = os.getcwd()
+    is_local_config = True
+    for p in main_paths:
+        if is_relative_to(cwd, p):
+            write_to_repo_file(data, 'w', p)
+            break
+    else:  # global config
+        write_to_repo_file(data, 'w')
+        is_local_config = False
+    # update groups only when outside any main repos
+    if is_local_config:
+        return
     groups = get_groups()
     for g, members in groups.items():
         if repo in members:
@@ -125,14 +131,15 @@ def rename_repo(repos: Dict[str, str], repo: str, new_name: str):
     write_to_groups_file(groups, 'w')
 
 
-def write_to_repo_file(repos: Dict[str, str], mode: str, root=None):
+def write_to_repo_file(repos: List[Tuple[str]], mode: str, root=None):
     """
+    @param repos: each repo is (path, name, type)
     """
-    data = ''.join(f'{path},{name}\n' for name, path in repos.items())
-    fname = common.get_config_fname('repo_path', root)
+    fname = common.get_config_fname('repos.csv', root)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
-        f.write(data)
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(repos)
 
 
 def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
@@ -148,22 +155,50 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
             yaml.dump(groups, f, default_flow_style=None)
 
 
-def add_repos(repos: Dict[str, str], new_paths: List[str],
-        repo_type=0, root=None) -> Dict[str, str]:
+def _make_name(path: str, repos: Dict[str, Dict[str, str]]) -> str:
+    """
+    Given a new repo `path`, create a repo name. By default, basename is used.
+    If name collision exists, further include parent path name.
+
+    @param path: It should not be in `repos`
+    """
+    name = os.path.basename(os.path.normpath(path))
+    if name in repos:
+        par_name = os.path.basename(os.path.dirname(path))
+        return os.path.join(par_name, name)
+    return name
+
+
+def _get_repo_type(path, repo_type, root):
+    """
+
+    """
+    if repo_type is not None:
+        return repo_type
+    if root is None:
+        return None
+    if root == path:
+        return 'm'
+
+
+def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
+        repo_type=None, root=None) -> List[Tuple]:
     """
     Write new repo paths to file; return the added repos.
 
     @param repos: name -> path
     """
-    existing_paths = set(repos.values())
-    new_paths = set(os.path.abspath(p) for p in new_paths if is_git(p))
+    existing_paths = {prop['path'] for prop in repos.values()}
+    new_paths = {os.path.abspath(p) for p in new_paths if is_git(p)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
-        new_repos = {
-                os.path.basename(os.path.normpath(path)): path
-                for path in new_paths}
+        new_repos = [(path, _make_name(path, repos),
+                        _get_repo_type(path, repo_type, root))
+                     for path in new_paths]
+        # When root is not None, we could optionally set its type to 'm', i.e.,
+        # main repo.
         write_to_repo_file(new_repos, 'a+', root)
     else:
         print('No new repos found!')
@@ -226,7 +261,7 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     return errors
 
 
-def describe(repos: Dict[str, str], no_colors: bool=False) -> str:
+def describe(repos: Dict[str, Dict[str, str]], no_colors: bool=False) -> str:
     """
     Return the status of all repos
     """
@@ -240,7 +275,7 @@ def describe(repos: Dict[str, str], no_colors: bool=False) -> str:
         funcs[idx] = partial(get_repo_status, no_colors=True)
 
     for name in sorted(repos):
-        path = repos[name]
+        path = repos[name]['path']
         info_items = ' '.join(f(path) for f in funcs)
         yield f'{name:<{name_width}}{info_items}'
 
