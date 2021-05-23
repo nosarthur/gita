@@ -180,6 +180,29 @@ For example,
 
 ## <a name='custom'></a> Customization
 
+### define main repos and shadow the global configuration setting with local setting
+
+The so-called main repos contain `.gita` folder to save local configurations.
+When executing `gita` commands within/relative to a main repo, local configurations
+are used. To add a main repo, run
+
+```
+gita add -m main-repo-path
+```
+
+Subordinate repos are added recursively. It should work best for the following
+project structure
+
+```
+main-repo
+├── sub-repo1
+│   └── sub-sub-repo
+├── sub-repo2
+└── sub-repo3
+```
+
+On the other hand, the `group` works best for independent but related repos.
+
 ### add user-defined sub-command using yaml file
 
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`

@@ -12,6 +12,25 @@ from conftest import (
 )
 
 
+class TestAdd:
+
+    @pytest.mark.parametrize('input, expected', [
+        (['add', '.'], ''),
+        (['add', '-m', '.'], 'm'),
+        ])
+    @patch('gita.common.get_config_fname')
+    def testAdd(self, mock_path_fname, tmp_path, input, expected):
+        def side_effect(input, _=None):
+            return tmp_path / f'{input}.txt'
+        mock_path_fname.side_effect = side_effect
+        utils.get_repos.cache_clear()
+        __main__.main(input)
+        utils.get_repos.cache_clear()
+        got = utils.get_repos()
+        assert len(got) == 1
+        assert got['gita']['type'] == expected
+
+
 class TestLsLl:
     @patch('gita.common.get_config_fname')
     def testLl(self, mock_path_fname, capfd, tmp_path):
@@ -21,8 +40,8 @@ class TestLsLl:
         # avoid modifying the local configuration
         def side_effect(input, _=None):
             return tmp_path / f'{input}.txt'
-        #mock_path_fname.return_value = tmp_path / 'path_config.txt'
         mock_path_fname.side_effect = side_effect
+        utils.get_repos.cache_clear()
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''
@@ -52,11 +71,11 @@ class TestLsLl:
         __main__.main(['ls', 'gita'])
         out, err = capfd.readouterr()
         assert err == ''
-        assert out.strip() == utils.get_repos()['gita']
+        assert out.strip() == utils.get_repos()['gita']['path']
 
     def testLs(self, monkeypatch, capfd):
         monkeypatch.setattr(utils, 'get_repos',
-                lambda: {'repo1': '/a/', 'repo2': '/b/'})
+                lambda: {'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}})
         monkeypatch.setattr(utils, 'describe', lambda x: x)
         __main__.main(['ls'])
         out, err = capfd.readouterr()
@@ -72,7 +91,7 @@ class TestLsLl:
          "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \nxxx   cmaster dsu\x1b[0m msg \n"),
         (PATH_FNAME_EMPTY, ""),
         (PATH_FNAME_CLASH,
-         "repo1   cmaster dsu\x1b[0m msg \nrepo2   cmaster dsu\x1b[0m msg \nx/repo1 cmaster dsu\x1b[0m msg \n"
+         "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \n"
          ),
     ])
     @patch('gita.utils.is_git', return_value=True)
@@ -84,7 +103,7 @@ class TestLsLl:
     def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, _4, path_fname,
                           expected, capfd):
         def side_effect(input, _=None):
-            if input == 'repo_path':
+            if input == 'repos.csv':
                 return path_fname
             return f'/{input}'
         mock_path_fname.side_effect = side_effect
@@ -97,7 +116,7 @@ class TestLsLl:
 
 
 @patch('subprocess.run')
-@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
+@patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}})
 def test_freeze(_, mock_run, capfd):
     __main__.main(['freeze'])
     assert mock_run.call_count == 2
@@ -108,13 +127,13 @@ def test_freeze(_, mock_run, capfd):
 
 @patch('os.path.isfile', return_value=True)
 @patch('gita.common.get_config_fname', return_value='some path')
-@patch('gita.utils.get_repos', return_value={'repo1': '/a/', 'repo2': '/b/'})
+@patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/', 'type': None}, 'repo2': {'path': '/b/', 'type': None}})
 @patch('gita.utils.write_to_repo_file')
 def test_rm(mock_write, *_):
     args = argparse.Namespace()
     args.repo = ['repo1']
     __main__.f_rm(args)
-    mock_write.assert_called_once_with({'repo2': '/b/'}, 'w')
+    mock_write.assert_called_once_with([('/b/', 'repo2', None)], 'w')
 
 
 def test_not_add():
@@ -122,7 +141,7 @@ def test_not_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-@patch('gita.utils.get_repos', return_value={'repo2': '/d/efg'})
+@patch('gita.utils.get_repos', return_value={'repo2': {'path': '/d/efg'}})
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
     __main__.main(['fetch'])
@@ -131,8 +150,8 @@ def test_fetch(mock_run, *_):
 
 @patch(
     'gita.utils.get_repos', return_value={
-        'repo1': '/a/bc',
-        'repo2': '/d/efg'
+        'repo1': {'path': '/a/bc'},
+        'repo2': {'path': '/d/efg'}
     })
 @patch('gita.utils.run_async', new=async_mock())
 @patch('subprocess.run')
@@ -150,7 +169,7 @@ def test_async_fetch(*_):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7'}})
 @patch('subprocess.run')
 def test_superman(mock_run, _, input):
     mock_run.reset_mock()
@@ -164,7 +183,7 @@ def test_superman(mock_run, _, input):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': 'path7'})
+@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7'}})
 @patch('subprocess.run')
 def test_shell(mock_run, _, input):
     mock_run.reset_mock()
@@ -320,8 +339,9 @@ def test_rename(mock_rename, _, __):
     args = ['rename', 'repo1', 'abc']
     __main__.main(args)
     mock_rename.assert_called_once_with(
-        {'repo1': '/a/bcd/repo1', 'repo2': '/e/fgh/repo2',
-            'xxx': '/a/b/c/repo3'},
+        {'repo1': {'path': '/a/bcd/repo1', 'type': None},
+            'xxx': {'path': '/a/b/c/repo3', 'type': None},
+            'repo2': {'path': '/e/fgh/repo2', 'type': None}},
         'repo1', 'abc')
 
 

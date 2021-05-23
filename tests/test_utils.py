@@ -9,9 +9,9 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ([{'abc': '/root/repo/'}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
-    ([{'abc': '/root/repo/'}, True], True, 'abc repo *+_   msg xx'),
-    ([{'repo': '/root/repo2/'}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/'}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/'}}, True], True, 'abc repo *+_   msg xx'),
+    ([{'repo': {'path': '/root/repo2/'}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
@@ -27,15 +27,14 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
 
 @pytest.mark.parametrize('path_fname, expected', [
     (PATH_FNAME, {
-        'repo1': '/a/bcd/repo1',
-        'repo2': '/e/fgh/repo2',
-        'xxx': '/a/b/c/repo3',
+        'repo1': {'path': '/a/bcd/repo1', 'type': None},
+        'repo2': {'path': '/e/fgh/repo2', 'type': None},
+        'xxx': {'path': '/a/b/c/repo3', 'type': None},
     }),
     (PATH_FNAME_EMPTY, {}),
     (PATH_FNAME_CLASH, {
-        'repo1': '/a/bcd/repo1',
-        'repo2': '/e/fgh/repo2',
-        'x/repo1': '/root/x/repo1'
+        'repo2': {'path': '/e/fgh/repo2', 'type': None},
+        'repo1': {'path': '/root/x/repo1', 'type': None}
     }),
 ])
 @patch('gita.utils.is_git', return_value=True)
@@ -79,25 +78,26 @@ def test_custom_push_cmd(*_):
 @pytest.mark.parametrize(
     'path_input, expected',
     [
-        (['/home/some/repo/'], '/home/some/repo,repo\n'),  # add one new
+        (['/home/some/repo/'], '/home/some/repo,some/repo,\r\n'),  # add one new
         (['/home/some/repo1', '/repo2'],
-            {'/repo2,repo2\n/home/some/repo1,repo1\n',  # add two new
-            '/home/some/repo1,repo1\n/repo2,repo2\n'}),  # add two new
+            {'/repo2,repo2,\r\n',  # add two new
+            '/home/some/repo1,repo1,\r\n'}),  # add two new
         (['/home/some/repo1', '/nos/repo'],
-         '/home/some/repo1,repo1\n'),  # add one old one new
+         '/home/some/repo1,repo1,\r\n'),  # add one old one new
     ])
 @patch('os.makedirs')
 @patch('gita.utils.is_git', return_value=True)
 def test_add_repos(_0, _1, path_input, expected, monkeypatch):
     monkeypatch.setenv('XDG_CONFIG_HOME', '/config')
     with patch('builtins.open', mock_open()) as mock_file:
-        utils.add_repos({'repo': '/nos/repo'}, path_input)
-    mock_file.assert_called_with('/config/gita/repo_path', 'a+')
+        utils.add_repos({'repo': {'path': '/nos/repo'}}, path_input)
+    mock_file.assert_called_with('/config/gita/repos.csv', 'a+')
     handle = mock_file()
     if type(expected) == str:
         handle.write.assert_called_once_with(expected)
     else:
-        handle.write.assert_called_once()
+        # the write order is random
+        assert handle.write.call_count == 2
         args, kwargs = handle.write.call_args
         assert args[0] in expected
         assert not kwargs
@@ -105,8 +105,10 @@ def test_add_repos(_0, _1, path_input, expected, monkeypatch):
 
 @patch('gita.utils.write_to_repo_file')
 def test_rename_repo(mock_write):
-    utils.rename_repo({'r1': '/a/b', 'r2': '/c/c'}, 'r2', 'xxx')
-    mock_write.assert_called_once_with({'r1': '/a/b', 'xxx': '/c/c'}, 'w')
+    utils.rename_repo({'r1': {'path': '/a/b', 'type': None},
+        'r2': {'path': '/c/c', 'type': None}}, 'r2', 'xxx')
+    mock_write.assert_called_once_with(
+            [('/a/b', 'r1', None), ('/c/c', 'xxx', None)], 'w')
 
 
 def test_async_output(capfd):

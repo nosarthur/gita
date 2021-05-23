@@ -31,10 +31,10 @@ def f_add(args: argparse.Namespace):
     paths = args.paths
     if args.main:
         # add to global and tag as main
-        main_repos = utils.add_repos(repos, paths, repo_type=1)
-        # add sub-repo recursively and save to local config_dir
-        for main_repo, main_path in main_repos.items():
-            print('locally,', main_repo)
+        main_repos = utils.add_repos(repos, paths, repo_type='m')
+        # add sub-repo recursively and save to local config
+        for main_path, name, _ in main_repos:
+            print('locally,', name)
             sub_paths = Path(main_path).glob('**')
             utils.add_repos({}, sub_paths, root=main_path)
     else:
@@ -91,7 +91,10 @@ def f_clone(args: argparse.Namespace):
 
 def f_freeze(_):
     repos = utils.get_repos()
-    for name, path in repos.items():
+    for name, prop in repos.items():
+        path = prop['path']
+        # TODO: What do we do with main repos? Maybe give an option to print
+        #       their sub-repos too.
         url = ''
         cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
         lines = cp.stdout.decode('utf-8').split('\n')
@@ -120,7 +123,7 @@ def f_ll(args: argparse.Namespace):
 def f_ls(args: argparse.Namespace):
     repos = utils.get_repos()
     if args.repo:  # one repo, show its path
-        print(repos[args.repo])
+        print(repos[args.repo]['path'])
     else:  # show names of all repos
         print(' '.join(repos))
 
@@ -196,12 +199,23 @@ def f_rm(args: argparse.Namespace):
     """
     Unregister repo(s) from gita
     """
-    path_file = common.get_config_fname('repo_path')
+    path_file = common.get_config_fname('repos.csv')
     if os.path.isfile(path_file):
         repos = utils.get_repos()
+        main_paths = [prop['path'] for prop in repos.values() if prop['type'] == 'm']
+        # TODO: add test case to delete main repo from main repo
+        #       only local setting should be affected instead of the global one
         for repo in args.repo:
             del repos[repo]
-        utils.write_to_repo_file(repos, 'w')
+        data = [(prop['path'], name, prop['type']) for name, prop in repos.items()]
+        # If cwd is relative to any main repo, write to local config
+        cwd = os.getcwd()
+        for p in main_paths:
+            if utils.is_relative_to(cwd, p):
+                utils.write_to_repo_file(data, 'w', p)
+                break
+        else:  # global config
+            utils.write_to_repo_file(data, 'w')
 
 
 def f_git_cmd(args: argparse.Namespace):
@@ -225,7 +239,8 @@ def f_git_cmd(args: argparse.Namespace):
         repos = chosen
     cmds = ['git'] + args.cmd
     if len(repos) == 1 or cmds[1] in args.async_blacklist:
-        for path in repos.values():
+        for prop in repos.values():
+            path = prop['path']
             print(path)
             subprocess.run(cmds, cwd=path)
     else:  # run concurrent subprocesses
@@ -233,7 +248,7 @@ def f_git_cmd(args: argparse.Namespace):
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, path, cmds) for repo_name, path in repos.items())
+            utils.run_async(repo_name, prop['path'], cmds) for repo_name, prop in repos.items())
         for path in errors:
             if path:
                 print(path)
@@ -268,9 +283,9 @@ def f_shell(args):
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ' '.join(args.man[i:])  # join the shell command into a single string
-    for name, path in repos.items():
+    for name, prop in repos.items():
         # TODO: pull this out as a function
-        got = subprocess.run(cmds, cwd=path, check=True, shell=True,
+        got = subprocess.run(cmds, cwd=prop['path'], check=True, shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
         print(utils.format_output(got.stdout.decode(), name))
