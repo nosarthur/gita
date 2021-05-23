@@ -31,7 +31,7 @@ def get_repos(root=None) -> Dict[str, str]:
     repos = {}
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            rows = csv.DictReader(f, ['path', 'name', 'type'])  # it's actually a reader
+            rows = csv.DictReader(f, ['path', 'name', 'type'], restval='')  # it's actually a reader
             repos = {r['name']: {'path': r['path'], 'type': r['type']}
                         for r in rows if is_git(r['path'])}
     if root is None:  # detect if inside a main path
@@ -276,7 +276,13 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool=False) -> str:
     for name in sorted(repos):
         path = repos[name]['path']
         info_items = ' '.join(f(path) for f in funcs)
-        yield f'{name:<{name_width}}{info_items}'
+        if repos[name]['type'] == 'm':
+            # ANSI color code also takes length in Python
+            name = f'{info.Color.underline}{name}{info.Color.end}'
+            width = name_width + 8
+            yield f'{name:<{width}}{info_items}'
+        else:
+            yield f'{name:<{name_width}}{info_items}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:

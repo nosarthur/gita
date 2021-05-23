@@ -11,6 +11,7 @@ def fullpath(fname: str):
 PATH_FNAME = fullpath('mock_path_file')
 PATH_FNAME_EMPTY = fullpath('empty_path_file')
 PATH_FNAME_CLASH = fullpath('clash_path_file')
+PATH_FNAME_MAIN = fullpath('main_path_file')
 GROUP_FNAME = fullpath('mock_group_file')
 
 def async_mock():

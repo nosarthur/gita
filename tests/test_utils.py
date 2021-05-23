@@ -9,9 +9,9 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ([{'abc': {'path': '/root/repo/'}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
-    ([{'abc': {'path': '/root/repo/'}}, True], True, 'abc repo *+_   msg xx'),
-    ([{'repo': {'path': '/root/repo2/'}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': ''}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': ''}}, True], True, 'abc repo *+_   msg xx'),
+    ([{'repo': {'path': '/root/repo2/', 'type': ''}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
@@ -27,14 +27,14 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
 
 @pytest.mark.parametrize('path_fname, expected', [
     (PATH_FNAME, {
-        'repo1': {'path': '/a/bcd/repo1', 'type': None},
-        'repo2': {'path': '/e/fgh/repo2', 'type': None},
-        'xxx': {'path': '/a/b/c/repo3', 'type': None},
+        'repo1': {'path': '/a/bcd/repo1', 'type': ''},
+        'repo2': {'path': '/e/fgh/repo2', 'type': ''},
+        'xxx': {'path': '/a/b/c/repo3', 'type': ''},
     }),
     (PATH_FNAME_EMPTY, {}),
     (PATH_FNAME_CLASH, {
-        'repo2': {'path': '/e/fgh/repo2', 'type': None},
-        'repo1': {'path': '/root/x/repo1', 'type': None}
+        'repo2': {'path': '/e/fgh/repo2', 'type': ''},
+        'repo1': {'path': '/root/x/repo1', 'type': ''}
     }),
 ])
 @patch('gita.utils.is_git', return_value=True)

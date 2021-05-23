@@ -31,6 +31,7 @@ class Color(str, Enum):
     b_purple = '\x1b[35;1m'
     b_cyan = '\x1b[36;1m'
     b_white = '\x1b[37;1m'
+    underline = '\x1B[4m'
 
 
 def show_colors():  # pragma: no cover
@@ -39,7 +40,7 @@ def show_colors():  # pragma: no cover
     """
     names = {c.value: c.name for c in Color}
     for i, c in enumerate(Color, start=1):
-        if c != Color.end:
+        if c != Color.end and c != Color.underline:
             print(f'{c.value}{c.name:<8} ', end='')
         if i % 9 == 0:
             print()
