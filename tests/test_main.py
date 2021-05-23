@@ -12,6 +12,25 @@ from conftest import (
 )
 
 
+class TestAdd:
+
+    @pytest.mark.parametrize('input, expected', [
+        (['add', '.'], ''),
+        (['add', '-m', '.'], 'm'),
+        ])
+    @patch('gita.common.get_config_fname')
+    def testAdd(self, mock_path_fname, tmp_path, input, expected):
+        def side_effect(input, _=None):
+            return tmp_path / f'{input}.txt'
+        mock_path_fname.side_effect = side_effect
+        utils.get_repos.cache_clear()
+        __main__.main(input)
+        utils.get_repos.cache_clear()
+        got = utils.get_repos()
+        assert len(got) == 1
+        assert got['gita']['type'] == expected
+
+
 class TestLsLl:
     @patch('gita.common.get_config_fname')
     def testLl(self, mock_path_fname, capfd, tmp_path):
@@ -21,8 +40,8 @@ class TestLsLl:
         # avoid modifying the local configuration
         def side_effect(input, _=None):
             return tmp_path / f'{input}.txt'
-        #mock_path_fname.return_value = tmp_path / 'path_config.txt'
         mock_path_fname.side_effect = side_effect
+        utils.get_repos.cache_clear()
         __main__.main(['add', '.'])
         out, err = capfd.readouterr()
         assert err == ''

@@ -169,20 +169,19 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]]) -> str:
     return name
 
 
-def _get_repo_type(path, repo_type, root):
+def _get_repo_type(path, repo_type, root) -> str:
     """
 
     """
-    if repo_type is not None:
+    if repo_type != '':  # explicitly set
         return repo_type
-    if root is None:
-        return None
-    if root == path:
+    if root == path:  # main repo
         return 'm'
+    return ''
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-        repo_type=None, root=None) -> List[Tuple]:
+        repo_type='', root=None) -> List[Tuple]:
     """
     Write new repo paths to file; return the added repos.
 
