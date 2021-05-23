@@ -7,7 +7,7 @@ import shlex
 from gita import __main__
 from gita import utils, info
 from conftest import (
-    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
+    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME, PATH_FNAME_MAIN,
     async_mock, TEST_DIR,
 )
 
@@ -90,6 +90,8 @@ class TestLsLl:
         (PATH_FNAME,
          "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \nxxx   cmaster dsu\x1b[0m msg \n"),
         (PATH_FNAME_EMPTY, ""),
+        (PATH_FNAME_MAIN,
+         '\x1b[4mmain1\x1b[0m cmaster dsu\x1b[0m msg \nxx    cmaster dsu\x1b[0m msg \n'),
         (PATH_FNAME_CLASH,
          "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \n"
          ),
@@ -339,9 +341,9 @@ def test_rename(mock_rename, _, __):
     args = ['rename', 'repo1', 'abc']
     __main__.main(args)
     mock_rename.assert_called_once_with(
-        {'repo1': {'path': '/a/bcd/repo1', 'type': None},
-            'xxx': {'path': '/a/b/c/repo3', 'type': None},
-            'repo2': {'path': '/e/fgh/repo2', 'type': None}},
+        {'repo1': {'path': '/a/bcd/repo1', 'type': ''},
+            'xxx': {'path': '/a/b/c/repo3', 'type': ''},
+            'repo2': {'path': '/e/fgh/repo2', 'type': ''}},
         'repo1', 'abc')
 
 
