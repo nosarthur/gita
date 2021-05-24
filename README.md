@@ -183,15 +183,7 @@ For example,
 ### define main repos and shadow the global configuration setting with local setting
 
 The so-called main repos contain `.gita` folder to save local configurations.
-When executing `gita` commands within/relative to a main repo, local configurations
-are used. To add a main repo, run
-
-```
-gita add -m main-repo-path
-```
-
-Subordinate repos are added recursively. It should work best for the following
-project structure
+It works best for the following project structure: repos within repo
 
 ```
 main-repo
@@ -201,7 +193,41 @@ main-repo
 └── sub-repo3
 ```
 
-On the other hand, the `group` works best for independent but related repos.
+When executing `gita` commands within/relative to a main repo, local configurations
+are used. And only repos within the current main repos are in effect.
+
+To add a main repo, run
+
+```
+gita add -m main-repo-path
+```
+
+Subordinate repos are added recursively to the local configuration.
+Only the main repo is saved to the global configuration.
+
+In the `gita ll` display, the main repos are underlined.
+
+### define repo group and context
+
+Apart from the repos-within-repo situations, another common situation is to
+have several independent but related repos.
+One can then define a group and execute `gita` command on this group.
+For example,
+
+```
+gita group add repo1 repo2 -n my-group
+gita ll my-group
+gita pull my-group
+```
+
+To save more typing, one can set a group as context, then any `gita` command
+is scoped to the group
+
+```
+gita context my-group
+gita ll
+gita pull
+```
 
 ### add user-defined sub-command using yaml file
 
