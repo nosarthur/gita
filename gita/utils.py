@@ -33,7 +33,7 @@ def get_repos(root=None) -> Dict[str, str]:
         with open(path_file) as f:
             rows = csv.DictReader(f, ['path', 'name', 'type'], restval='')  # it's actually a reader
             repos = {r['name']: {'path': r['path'], 'type': r['type']}
-                        for r in rows if is_git(r['path'])}
+                     for r in rows if is_git(r['path'])}
     if root is None:  # detect if inside a main path
         cwd = os.getcwd()
         for prop in repos.values():
@@ -103,9 +103,9 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     """
     Write new repo name to file
     """
-    if new_name in repos: 
-    	print("repo name already in use!")
-    	return
+    if new_name in repos:
+        print("repo name already in use!")
+        return
     prop = repos[repo]
     del repos[repo]
     repos[new_name] = prop
@@ -183,7 +183,7 @@ def _get_repo_type(path, repo_type, root) -> str:
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-        repo_type='', root=None) -> List[Tuple]:
+              repo_type='', root=None) -> List[Tuple]:
     """
     Write new repo paths to file; return the added repos.
 
@@ -196,7 +196,7 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
         new_repos = [(path, _make_name(path, repos),
-                        _get_repo_type(path, repo_type, root))
+                      _get_repo_type(path, repo_type, root))
                      for path in new_paths]
         # When root is not None, we could optionally set its type to 'm', i.e.,
         # main repo.
@@ -262,7 +262,7 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     return errors
 
 
-def describe(repos: Dict[str, Dict[str, str]], no_colors: bool=False) -> str:
+def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
     """
     Return the status of all repos
     """
