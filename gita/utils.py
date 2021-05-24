@@ -104,7 +104,7 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     Write new repo name to file
     """
     if new_name in repos:
-        print("repo name already in use!")
+        print(f"{new_name} is already in use!")
         return
     prop = repos[repo]
     del repos[repo]
