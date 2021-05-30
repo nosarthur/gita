@@ -33,8 +33,9 @@ def f_add(args: argparse.Namespace):
         # add to global and tag as main
         main_repos = utils.add_repos(repos, paths, repo_type='m')
         # add sub-repo recursively and save to local config
-        for main_path, name, _ in main_repos:
-            print('locally,', name)
+        for name, prop in main_repos.items():
+            main_path = prop['path']
+            print('Inside main repo:', name)
             sub_paths = Path(main_path).glob('**')
             utils.add_repos({}, sub_paths, root=main_path)
     else:
@@ -46,6 +47,20 @@ def f_add(args: argparse.Namespace):
 def f_rename(args: argparse.Namespace):
     repos = utils.get_repos()
     utils.rename_repo(repos, args.repo[0], args.new_name)
+
+
+def f_flags(args: argparse.Namespace):
+    cmd = args.flags_cmd or 'll'
+    repos = utils.get_repos()
+    if cmd == 'll':
+        for r, prop in repos.items():
+            if prop['flags']:
+                print(f"{r}: {prop['flags']}")
+    elif cmd == 'set':
+        # when in memory, flags are List[str], when on disk, they are space
+        # delimited str
+        repos[args.repo]['flags'] = args.flags
+        utils.write_to_repo_file(repos, 'w')
 
 
 def f_color(args: argparse.Namespace):
@@ -91,7 +106,6 @@ def f_clone(args: argparse.Namespace):
         utils.exec_async_tasks(
             utils.run_async(repo_name, path, ['git', 'clone', url])
             for url, repo_name, _ in utils.parse_clone_config(args.fname))
-
 
 
 def f_freeze(_):
@@ -212,15 +226,14 @@ def f_rm(args: argparse.Namespace):
         #       only local setting should be affected instead of the global one
         for repo in args.repo:
             del repos[repo]
-        data = [(prop['path'], name, prop['type']) for name, prop in repos.items()]
         # If cwd is relative to any main repo, write to local config
         cwd = os.getcwd()
         for p in main_paths:
             if utils.is_relative_to(cwd, p):
-                utils.write_to_repo_file(data, 'w', p)
+                utils.write_to_repo_file(repos, 'w', p)
                 break
         else:  # global config
-            utils.write_to_repo_file(data, 'w')
+            utils.write_to_repo_file(repos, 'w')
 
 
 def f_git_cmd(args: argparse.Namespace):
@@ -247,13 +260,14 @@ def f_git_cmd(args: argparse.Namespace):
         for prop in repos.values():
             path = prop['path']
             print(path)
-            subprocess.run(cmds, cwd=path)
+            subprocess.run(cmds + prop['flags'], cwd=path)
     else:  # run concurrent subprocesses
         # Async execution cannot deal with multiple repos' user name/password.
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, prop['path'], cmds) for repo_name, prop in repos.items())
+            utils.run_async(repo_name, prop['path'], cmds + prop['flags'])
+                            for repo_name, prop in repos.items())
         for path in errors:
             if path:
                 print(path)
@@ -345,17 +359,22 @@ def main(argv=None):
                       help="remove the chosen repo(s)")
     p_rm.set_defaults(func=f_rm)
 
-    p_freeze = subparsers.add_parser('freeze', description='print all repo information')
+    p_freeze = subparsers.add_parser('freeze',
+            description='print all repo information',
+            help='print all repo information')
     p_freeze.set_defaults(func=f_freeze)
 
-    p_clone = subparsers.add_parser('clone', description='clone repos from config file')
+    p_clone = subparsers.add_parser('clone',
+            description='clone repos from config file',
+            help='clone repos from config file')
     p_clone.add_argument('fname',
             help='config file. Its content should be the output of `gita freeze`.')
     p_clone.add_argument('-p', '--preserve-path', dest='preserve_path', action='store_true',
             help="clone repo(s) in their original paths")
     p_clone.set_defaults(func=f_clone)
 
-    p_rename = subparsers.add_parser('rename', description='rename a repo')
+    p_rename = subparsers.add_parser('rename', description='rename a repo',
+            help='rename a repo')
     p_rename.add_argument(
         'repo',
         nargs=1,
@@ -364,8 +383,25 @@ def main(argv=None):
     p_rename.add_argument('new_name', help="new name")
     p_rename.set_defaults(func=f_rename)
 
+    p_flags = subparsers.add_parser('flags',
+            description='Set custom git flags for repo.',
+            help='git flags configuration')
+    p_flags.set_defaults(func=f_flags)
+    flags_cmds = p_flags.add_subparsers(dest='flags_cmd',
+            help='additional help with sub-command -h')
+    flags_cmds.add_parser('ll',
+            description='display repos with custom flags')
+    pf_set = flags_cmds.add_parser('set',
+            description='Set flags for repo.')
+    pf_set.add_argument('repo', choices=utils.get_repos(),
+            help="repo name")
+    pf_set.add_argument('flags',
+            nargs=argparse.REMAINDER,
+            help="custom flags, use quotes")
+
     p_color = subparsers.add_parser('color',
-            description='display and modify branch coloring of the ll sub-command.')
+            description='display and modify branch coloring of the ll sub-command.',
+            help='color configuration')
     p_color.set_defaults(func=f_color)
     color_cmds = p_color.add_subparsers(dest='color_cmd',
             help='additional help with sub-command -h')
@@ -381,7 +417,8 @@ def main(argv=None):
                     help="available colors")
 
     p_info = subparsers.add_parser('info',
-            description='list, add, or remove information items of the ll sub-command.')
+            description='list, add, or remove information items of the ll sub-command.',
+            help='information setting')
     p_info.set_defaults(func=f_info)
     info_cmds = p_info.add_subparsers(dest='info_cmd',
             help='additional help with sub-command -h')
@@ -421,6 +458,7 @@ def main(argv=None):
     p_ll.set_defaults(func=f_ll)
 
     p_context = subparsers.add_parser('context',
+            help='set context',
             description='Set and remove context. A context is a group.'
                 ' When set, all operations apply only to repos in that group.')
     p_context.add_argument('choice',
@@ -430,7 +468,8 @@ def main(argv=None):
     p_context.set_defaults(func=f_context)
 
     p_ls = subparsers.add_parser(
-        'ls', description='display names of all repos, or path of a chosen repo')
+        'ls', help='show repo(s) or repo path',
+        description='display names of all repos, or path of a chosen repo')
     p_ls.add_argument('repo',
                       nargs='?',
                       choices=utils.get_repos(),
@@ -438,7 +477,8 @@ def main(argv=None):
     p_ls.set_defaults(func=f_ls)
 
     p_group = subparsers.add_parser(
-        'group', description='list, add, or remove repo group(s)')
+        'group', description='list, add, or remove repo group(s)',
+        help='group repos')
     p_group.set_defaults(func=f_group)
     group_cmds = p_group.add_subparsers(dest='group_cmd',
             help='additional help with sub-command -h')
@@ -481,6 +521,7 @@ def main(argv=None):
     # superman mode
     p_super = subparsers.add_parser(
         'super',
+        help='run any git command/alias',
         description='Superman mode: delegate any git command/alias in specified or '
         'all repo(s).\n'
         'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
@@ -496,6 +537,7 @@ def main(argv=None):
     # shell mode
     p_shell = subparsers.add_parser(
         'shell',
+        help='run any shell command',
         description='shell mode: delegate any shell command in specified or '
         'all repo(s).\n'
         'Examples:\n \t gita shell pwd\n'

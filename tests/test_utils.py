@@ -27,14 +27,14 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
 
 @pytest.mark.parametrize('path_fname, expected', [
     (PATH_FNAME, {
-        'repo1': {'path': '/a/bcd/repo1', 'type': ''},
-        'repo2': {'path': '/e/fgh/repo2', 'type': ''},
-        'xxx': {'path': '/a/b/c/repo3', 'type': ''},
+        'repo1': {'path': '/a/bcd/repo1', 'type': '', 'flags': []},
+        'repo2': {'path': '/e/fgh/repo2', 'type': '', 'flags': []},
+        'xxx': {'path': '/a/b/c/repo3', 'type': '', 'flags': []},
     }),
     (PATH_FNAME_EMPTY, {}),
     (PATH_FNAME_CLASH, {
-        'repo2': {'path': '/e/fgh/repo2', 'type': ''},
-        'repo1': {'path': '/root/x/repo1', 'type': ''}
+        'repo2': {'path': '/e/fgh/repo2', 'type': '', 'flags': ['--haha', '--pp']},
+        'repo1': {'path': '/root/x/repo1', 'type': '', 'flags': []}
     }),
 ])
 @patch('gita.utils.is_git', return_value=True)
@@ -78,12 +78,12 @@ def test_custom_push_cmd(*_):
 @pytest.mark.parametrize(
     'path_input, expected',
     [
-        (['/home/some/repo/'], '/home/some/repo,some/repo,\r\n'),  # add one new
+        (['/home/some/repo/'], '/home/some/repo,some/repo,,\r\n'),  # add one new
         (['/home/some/repo1', '/repo2'],
-            {'/repo2,repo2,\r\n',  # add two new
-            '/home/some/repo1,repo1,\r\n'}),  # add two new
+            {'/repo2,repo2,,\r\n',  # add two new
+            '/home/some/repo1,repo1,,\r\n'}),  # add two new
         (['/home/some/repo1', '/nos/repo'],
-         '/home/some/repo1,repo1,\r\n'),  # add one old one new
+         '/home/some/repo1,repo1,,\r\n'),  # add one old one new
     ])
 @patch('os.makedirs')
 @patch('gita.utils.is_git', return_value=True)
@@ -105,10 +105,10 @@ def test_add_repos(_0, _1, path_input, expected, monkeypatch):
 
 @patch('gita.utils.write_to_repo_file')
 def test_rename_repo(mock_write):
-    utils.rename_repo({'r1': {'path': '/a/b', 'type': None},
-        'r2': {'path': '/c/c', 'type': None}}, 'r2', 'xxx')
-    mock_write.assert_called_once_with(
-            [('/a/b', 'r1', None), ('/c/c', 'xxx', None)], 'w')
+    repos = {'r1': {'path': '/a/b', 'type': None},
+            'r2': {'path': '/c/c', 'type': None}}
+    utils.rename_repo(repos, 'r2', 'xxx')
+    mock_write.assert_called_once_with(repos, 'w')
 
 
 def test_async_output(capfd):

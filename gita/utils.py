@@ -20,7 +20,7 @@ def is_relative_to(kid: str, parent: str) -> bool:
 
 
 @lru_cache()
-def get_repos(root=None) -> Dict[str, str]:
+def get_repos(root=None) -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
 
@@ -31,8 +31,11 @@ def get_repos(root=None) -> Dict[str, str]:
     repos = {}
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            rows = csv.DictReader(f, ['path', 'name', 'type'], restval='')  # it's actually a reader
-            repos = {r['name']: {'path': r['path'], 'type': r['type']}
+            rows = csv.DictReader(f, ['path', 'name', 'type', 'flags'],
+                                  restval='')  # it's actually a reader
+            repos = {r['name']:
+                    {'path': r['path'], 'type': r['type'],
+                        'flags': r['flags'].split()}
                      for r in rows if is_git(r['path'])}
     if root is None:  # detect if inside a main path
         cwd = os.getcwd()
@@ -109,17 +112,16 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     prop = repos[repo]
     del repos[repo]
     repos[new_name] = prop
-    data = [(prop['path'], name, prop['type']) for name, prop in repos.items()]
     # write to local config if inside a main path
-    main_paths = (d[0] for d in data if d[2] == 'm')
+    main_paths = (prop['path'] for prop in repos.values() if prop['type'] == 'm')
     cwd = os.getcwd()
     is_local_config = True
     for p in main_paths:
         if is_relative_to(cwd, p):
-            write_to_repo_file(data, 'w', p)
+            write_to_repo_file(repos, 'w', p)
             break
     else:  # global config
-        write_to_repo_file(data, 'w')
+        write_to_repo_file(repos, 'w')
         is_local_config = False
     # update groups only when outside any main repos
     if is_local_config:
@@ -133,15 +135,17 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     write_to_groups_file(groups, 'w')
 
 
-def write_to_repo_file(repos: List[Tuple[str]], mode: str, root=None):
+def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str, root=None):
     """
-    @param repos: each repo is (path, name, type)
+    @param repos: each repo is {name: {properties}}
     """
+    data = [(prop['path'], name, prop['type'], ''.join(prop['flags']))
+                for name, prop in repos.items()]
     fname = common.get_config_fname('repos.csv', root)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode) as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerows(repos)
+        writer.writerows(data)
 
 
 def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
@@ -183,7 +187,7 @@ def _get_repo_type(path, repo_type, root) -> str:
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-              repo_type='', root=None) -> List[Tuple]:
+              repo_type='', root=None) -> Dict[str, Dict[str, str]]:
     """
     Write new repo paths to file; return the added repos.
 
@@ -195,9 +199,11 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     new_repos = {}
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
-        new_repos = [(path, _make_name(path, repos),
-                      _get_repo_type(path, repo_type, root))
-                     for path in new_paths]
+        new_repos = {_make_name(path, repos): {
+            'path': path,
+            'type': _get_repo_type(path, repo_type, root),
+            'flags': '',
+            } for path in new_paths}
         # When root is not None, we could optionally set its type to 'm', i.e.,
         # main repo.
         write_to_repo_file(new_repos, 'a+', root)
