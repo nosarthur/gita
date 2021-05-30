@@ -73,8 +73,8 @@ The bookkeeping sub-commands are
     - `gita color [ll]`: Show available colors and the current coloring scheme
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
 - `gita flags`: flags sub-command
-    - `gita flags set <repo-name> <flags>`: add custom <flags> to repo
-    - `gita flags [ll]`: display existing flags and the associated repos
+    - `gita flags set <repo-name> <"flags">`: add custom `flags` to repo
+    - `gita flags [ll]`: display repos with custom flags
 - `gita freeze`: print information of all repos such as URL, name, and path.
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new or existing group
@@ -286,6 +286,16 @@ For example, the default setting corresponds to
 - commit_msg
 - commit_time
 ```
+
+### customize git command flags
+
+One can set custom flags to run `git` commands. For example
+
+```
+gita flags set my-repo "--git-dir=$HOME/somefolder --work-tree=$HOME"
+```
+
+Then any `git` command/alias triggered from `gita` on `my-repo` will use the flags.
 
 ## Requirements
 

@@ -56,7 +56,7 @@
     - `gita color [ll]`:
     - `gita color set <situation> <color>`:
 - `gita flags`:
-    - `gita flags set <repo-name> <flags>`:
+    - `gita flags set <repo-name> <"flags">`:
     - `gita flags [ll]`:
 - `gita freeze`
 - `gita group`: 组群命令

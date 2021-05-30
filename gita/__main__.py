@@ -52,7 +52,7 @@ def f_rename(args: argparse.Namespace):
 def f_flags(args: argparse.Namespace):
     cmd = args.flags_cmd or 'll'
     repos = utils.get_repos()
-    if cmd == 'll':  # pragma: no cover
+    if cmd == 'll':
         for r, prop in repos.items():
             if prop['flags']:
                 print(f"{r}: {prop['flags']}")

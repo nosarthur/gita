@@ -32,6 +32,22 @@ class TestAdd:
         assert got['gita']['type'] == expected
 
 
+@pytest.mark.parametrize('path_fname, expected', [
+    (PATH_FNAME, ''),
+    (PATH_FNAME_CLASH, "repo2: ['--haha', '--pp']\n"),
+    ])
+@patch('gita.utils.is_git', return_value=True)
+@patch('gita.utils.get_groups', return_value={})
+@patch('gita.common.get_config_fname')
+def test_flags(mock_path_fname, _, __, path_fname, expected, capfd):
+    mock_path_fname.return_value = path_fname
+    utils.get_repos.cache_clear()
+    __main__.main(['flags'])
+    out, err = capfd.readouterr()
+    assert err == ''
+    assert out == expected
+
+
 class TestLsLl:
     @patch('gita.common.get_config_fname')
     def testLl(self, mock_path_fname, capfd, tmp_path):
@@ -162,13 +178,15 @@ def test_clone_with_preserve_path(*_):
 
 @patch('os.path.isfile', return_value=True)
 @patch('gita.common.get_config_fname', return_value='some path')
-@patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/', 'type': None}, 'repo2': {'path': '/b/', 'type': None}})
+@patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/', 'type': ''},
+                                             'repo2': {'path': '/b/', 'type': ''}})
 @patch('gita.utils.write_to_repo_file')
 def test_rm(mock_write, *_):
     args = argparse.Namespace()
     args.repo = ['repo1']
     __main__.f_rm(args)
-    mock_write.assert_called_once_with([('/b/', 'repo2', None)], 'w')
+    mock_write.assert_called_once_with(
+            {'repo2': {'path': '/b/', 'type': ''}}, 'w')
 
 
 def test_not_add():
@@ -176,7 +194,8 @@ def test_not_add():
     __main__.main(['add', '/home/some/repo/'])
 
 
-@patch('gita.utils.get_repos', return_value={'repo2': {'path': '/d/efg'}})
+@patch('gita.utils.get_repos', return_value={'repo2': {'path': '/d/efg',
+                    'flags': []}})
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -186,8 +205,8 @@ def test_fetch(mock_run, *_):
 
 @patch(
     'gita.utils.get_repos', return_value={
-        'repo1': {'path': '/a/bc'},
-        'repo2': {'path': '/d/efg'}
+        'repo1': {'path': '/a/bc', 'flags': []},
+        'repo2': {'path': '/d/efg', 'flags': []}
     })
 @patch('gita.utils.run_async', new=async_mock())
 @patch('subprocess.run')
@@ -205,7 +224,7 @@ def test_async_fetch(*_):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7'}})
+@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7', 'flags': []}})
 @patch('subprocess.run')
 def test_superman(mock_run, _, input):
     mock_run.reset_mock()
@@ -219,7 +238,7 @@ def test_superman(mock_run, _, input):
     'diff --name-only --staged',
     "commit -am 'lala kaka'",
 ])
-@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7'}})
+@patch('gita.utils.get_repos', return_value={'repo7': {'path': 'path7', 'flags': []}})
 @patch('subprocess.run')
 def test_shell(mock_run, _, input):
     mock_run.reset_mock()
@@ -375,9 +394,9 @@ def test_rename(mock_rename, _, __):
     args = ['rename', 'repo1', 'abc']
     __main__.main(args)
     mock_rename.assert_called_once_with(
-        {'repo1': {'path': '/a/bcd/repo1', 'type': ''},
-            'xxx': {'path': '/a/b/c/repo3', 'type': ''},
-            'repo2': {'path': '/e/fgh/repo2', 'type': ''}},
+            {'repo1': {'path': '/a/bcd/repo1', 'type': '', 'flags': []},
+                'xxx': {'path': '/a/b/c/repo3', 'type': '', 'flags': []},
+                'repo2': {'path': '/e/fgh/repo2', 'type': '', 'flags': []}},
         'repo1', 'abc')
 
 
