@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, mock_open
 from pathlib import Path
 import argparse
+import asyncio
 import shlex
 
 from gita import __main__
@@ -127,6 +128,38 @@ def test_freeze(_, mock_run, capfd):
     assert out == ',repo1,/a/\n,repo2,/b/\n'
 
 
+@patch('gita.utils.parse_clone_config', return_value=[
+    ['git@github.com:user/repo.git', 'repo', '/a/repo']])
+@patch('gita.utils.run_async', new=async_mock())
+@patch('subprocess.run')
+def test_clone(*_):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    args = argparse.Namespace()
+    args.fname = ['freeze_filename']
+    args.preserve_path = None
+    __main__.f_clone(args)
+    mock_run = utils.run_async.mock
+    assert mock_run.call_count == 1
+    cmds = ['git', 'clone', 'git@github.com:user/repo.git']
+    mock_run.assert_called_once_with('repo', Path.cwd(), cmds)
+
+
+@patch('gita.utils.parse_clone_config', return_value=[
+    ['git@github.com:user/repo.git', 'repo', '/a/repo']])
+@patch('gita.utils.run_async', new=async_mock())
+@patch('subprocess.run')
+def test_clone_with_preserve_path(*_):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    args = argparse.Namespace()
+    args.fname = ['freeze_filename']
+    args.preserve_path = True
+    __main__.f_clone(args)
+    mock_run = utils.run_async.mock
+    assert mock_run.call_count == 1
+    cmds = ['git', 'clone', 'git@github.com:user/repo.git', '/a/repo']
+    mock_run.assert_called_once_with('repo', Path.cwd(), cmds)
+
+
 @patch('os.path.isfile', return_value=True)
 @patch('gita.common.get_config_fname', return_value='some path')
 @patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/', 'type': None}, 'repo2': {'path': '/b/', 'type': None}})
@@ -146,6 +179,7 @@ def test_not_add():
 @patch('gita.utils.get_repos', return_value={'repo2': {'path': '/d/efg'}})
 @patch('subprocess.run')
 def test_fetch(mock_run, *_):
+    asyncio.set_event_loop(asyncio.new_event_loop())
     __main__.main(['fetch'])
     mock_run.assert_called_once_with(['git', 'fetch'], cwd='/d/efg')
 

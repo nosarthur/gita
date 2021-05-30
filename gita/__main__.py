@@ -83,7 +83,12 @@ def f_info(args: argparse.Namespace):
 
 def f_clone(args: argparse.Namespace):
     path = Path.cwd()
-    errors = utils.exec_async_tasks(
+    if args.preserve_path:
+        utils.exec_async_tasks(
+            utils.run_async(repo_name, path, ['git', 'clone', url, abs_path])
+            for url, repo_name, abs_path in utils.parse_clone_config(args.fname))
+    else:
+        utils.exec_async_tasks(
             utils.run_async(repo_name, path, ['git', 'clone', url])
             for url, repo_name, _ in utils.parse_clone_config(args.fname))
 
@@ -346,6 +351,8 @@ def main(argv=None):
     p_clone = subparsers.add_parser('clone', description='clone repos from config file')
     p_clone.add_argument('fname',
             help='config file. Its content should be the output of `gita freeze`.')
+    p_clone.add_argument('-p', '--preserve-path', dest='preserve_path', action='store_true',
+            help="clone repo(s) in their original paths")
     p_clone.set_defaults(func=f_clone)
 
     p_rename = subparsers.add_parser('rename', description='rename a repo')
