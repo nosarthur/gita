@@ -72,6 +72,9 @@ The bookkeeping sub-commands are
 - `gita color`: color sub-command
     - `gita color [ll]`: Show available colors and the current coloring scheme
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
+- `gita flags`: flags sub-command
+    - `gita flags set <repo-name> <flags>`: add custom <flags> to repo
+    - `gita flags [ll]`: display existing flags and the associated repos
 - `gita freeze`: print information of all repos such as URL, name, and path.
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new or existing group

@@ -53,8 +53,11 @@
     - `gita context none`: 去除情境
     - `gita context <group-name>`: 把情境设置成`group-name`, 之后所有的操作只作用到这个组里的库
 - `gita color`:
-    - `gita color [ll]`
-    - `gita color set <situation> <color>`
+    - `gita color [ll]`:
+    - `gita color set <situation> <color>`:
+- `gita flags`:
+    - `gita flags set <repo-name> <flags>`:
+    - `gita flags [ll]`:
 - `gita freeze`
 - `gita group`: 组群命令
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
