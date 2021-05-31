@@ -46,6 +46,8 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
+- `gita add -b <bare-repo-path(s)>`:
+- `gita add -m <main-repo-path(s)>`:
 - `gita add -r <repo-parent-path(s)>`:
 - `gita clone <config-file>`:
 - `gita clone -p <config-file>`:
@@ -57,7 +59,7 @@
     - `gita color [ll]`:
     - `gita color set <situation> <color>`:
 - `gita flags`:
-    - `gita flags set <repo-name> <"flags">`:
+    - `gita flags set <repo-name> <flags>`:
     - `gita flags [ll]`:
 - `gita freeze`:
 - `gita group`: 组群命令

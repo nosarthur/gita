@@ -6,7 +6,7 @@ import platform
 import subprocess
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Iterator, Tuple
+from typing import List, Dict, Coroutine, Union, Iterator
 
 from . import info
 from . import common
@@ -37,7 +37,7 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
             repos = {r['name']:
                     {'path': r['path'], 'type': r['type'],
                         'flags': r['flags'].split()}
-                     for r in rows if is_git(r['path'])}
+                     for r in rows if is_git(r['path'], is_bare=True)}
     if root is None:  # detect if inside a main path
         cwd = os.getcwd()
         for prop in repos.values():
@@ -87,10 +87,12 @@ def get_choices() -> List[Union[str, None]]:
     return choices
 
 
-def is_git(path: str) -> bool:
+def is_git(path: str, is_bare=False) -> bool:
     """
     Return True if the path is a git repo.
     """
+    if not os.path.exists(path):
+        return False
     # An alternative is to call `git rev-parse --is-inside-work-tree`
     # I don't see why that one is better yet.
     # For a regular git repo, .git is a folder, for a worktree repo, .git is a file.
@@ -100,12 +102,18 @@ def is_git(path: str) -> bool:
     # `git rev-parse --git-common-dir`
     loc = os.path.join(path, '.git')
     # TODO: we can display the worktree repos in a different font.
-    return os.path.exists(loc) or \
-            subprocess.run('git rev-parse --is-bare-repository'.split(),
+    if os.path.exists(loc):
+        return True
+    if not is_bare:
+        return False
+    # detect bare repo
+    got = subprocess.run('git rev-parse --is-bare-repository'.split(),
                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                             cwd=path
-                            ).returncode == 0
-
+                            )
+    if got.returncode == 0 and got.stdout == b'true\n':
+        return True
+    return False
 
 def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     """
@@ -144,7 +152,7 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str, root=None):
     """
     @param repos: each repo is {name: {properties}}
     """
-    data = [(prop['path'], name, prop['type'], ''.join(prop['flags']))
+    data = [(prop['path'], name, prop['type'], ' '.join(prop['flags']))
                 for name, prop in repos.items()]
     fname = common.get_config_fname('repos.csv', root)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
@@ -192,14 +200,14 @@ def _get_repo_type(path, repo_type, root) -> str:
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-              repo_type='', root=None) -> Dict[str, Dict[str, str]]:
+              repo_type='', root=None, is_bare=False) -> Dict[str, Dict[str, str]]:
     """
     Write new repo paths to file; return the added repos.
 
     @param repos: name -> path
     """
     existing_paths = {prop['path'] for prop in repos.values()}
-    new_paths = {os.path.abspath(p) for p in new_paths if is_git(p)}
+    new_paths = {os.path.abspath(p) for p in new_paths if is_git(p, is_bare)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
@@ -287,8 +295,7 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
         funcs[idx] = partial(get_repo_status, no_colors=True)
 
     for name in sorted(repos):
-        path = repos[name]['path']
-        info_items = ' '.join(f(path) for f in funcs)
+        info_items = ' '.join(f(repos[name]) for f in funcs)
         if repos[name]['type'] == 'm':
             # ANSI color code also takes length in Python
             name = f'{info.Color.underline}{name}{info.Color.end}'

@@ -103,10 +103,11 @@ def get_info_items() -> List[str]:
     return display_items
 
 
-def get_path(path):
-    return f'{Color.cyan}{path}{Color.end}'
+def get_path(prop: Dict[str, str]) -> str:
+    return f'{Color.cyan}{prop["path"]}{Color.end}'
 
 
+# TODO: do we need to add the flags here too?
 def get_head(path: str) -> str:
     result = subprocess.run('git symbolic-ref -q --short HEAD || git describe --tags --exact-match',
                             shell=True,
@@ -117,12 +118,12 @@ def get_head(path: str) -> str:
     return result.stdout.strip()
 
 
-def run_quiet_diff(args: List[str]) -> bool:
+def run_quiet_diff(flags: List[str], args: List[str]) -> int:
     """
     Return the return code of git diff `args` in quiet mode
     """
     result = subprocess.run(
-        ['git', 'diff', '--quiet'] + args,
+        ['git'] + flags + ['diff', '--quiet'] + args,
         stderr=subprocess.DEVNULL,
     )
     return result.returncode
@@ -138,62 +139,67 @@ def get_common_commit() -> str:
     return result.stdout.strip()
 
 
-def has_untracked() -> bool:
+def has_untracked(flags: List[str]) -> bool:
     """
     Return True if untracked file/folder exists
     """
-    result = subprocess.run('git ls-files -zo --exclude-standard'.split(),
+    cmd = ['git'] + flags + 'ls-files -zo --exclude-standard'.split()
+    result = subprocess.run(cmd,
                             stdout=subprocess.PIPE)
     return bool(result.stdout)
 
 
-def get_commit_msg(path: str) -> str:
+def get_commit_msg(prop: Dict[str, str]) -> str:
     """
     Return the last commit message.
     """
     # `git show-branch --no-name HEAD` is faster than `git show -s --format=%s`
-    result = subprocess.run('git show-branch --no-name HEAD'.split(),
+    cmd = ['git'] + prop['flags'] + 'show-branch --no-name HEAD'.split()
+    result = subprocess.run(cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.DEVNULL,
                             universal_newlines=True,
-                            cwd=path)
+                            cwd=prop['path'])
     return result.stdout.strip()
 
 
-def get_commit_time(path: str) -> str:
+def get_commit_time(prop: Dict[str, str]) -> str:
     """
     Return the last commit time in parenthesis.
     """
-    result = subprocess.run('git log -1 --format=%cd --date=relative'.split(),
+    cmd = ['git'] + prop['flags'] + 'log -1 --format=%cd --date=relative'.split()
+    result = subprocess.run(cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.DEVNULL,
                             universal_newlines=True,
-                            cwd=path)
+                            cwd=prop['path'])
     return f"({result.stdout.strip()})"
 
 
-def get_repo_status(path: str, no_colors=False) -> str:
-    head = get_head(path)
-    dirty, staged, untracked, color = _get_repo_status(path, no_colors)
+def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
+    head = get_head(prop['path'])
+    dirty, staged, untracked, color = _get_repo_status(prop, no_colors)
     if color:
         return f'{color}{head+" "+dirty+staged+untracked:<10}{Color.end}'
     return f'{head+" "+dirty+staged+untracked:<10}'
 
 
-def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
+def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
     """
     Return the status of one repo
     """
+    path = prop['path']
+    flags = prop['flags']
     os.chdir(path)
-    dirty = '*' if run_quiet_diff([]) else ''
-    staged = '+' if run_quiet_diff(['--cached']) else ''
-    untracked = '_' if has_untracked() else ''
+    dirty = '*' if run_quiet_diff(flags, []) else ''
+    staged = '+' if run_quiet_diff(flags, ['--cached']) else ''
+    untracked = '_' if has_untracked(flags) else ''
 
     if no_colors:
         return dirty, staged, untracked, ''
 
     colors = get_color_encoding()
-    diff_returncode = run_quiet_diff(['@{u}', '@{0}'])
+    diff_returncode = run_quiet_diff(flags, ['@{u}', '@{0}'])
     has_no_remote = diff_returncode == 128
     has_no_diff = diff_returncode == 0
     if has_no_remote:
@@ -202,9 +208,9 @@ def _get_repo_status(path: str, no_colors: bool) -> Tuple[str]:
         color = colors['in-sync']
     else:
         common_commit = get_common_commit()
-        outdated = run_quiet_diff(['@{u}', common_commit])
+        outdated = run_quiet_diff(flags, ['@{u}', common_commit])
         if outdated:
-            diverged = run_quiet_diff(['@{0}', common_commit])
+            diverged = run_quiet_diff(flags, ['@{0}', common_commit])
             color = colors['diverged'] if diverged else colors['remote-ahead']
         else:  # local is ahead of remote
             color = colors['local-ahead']
