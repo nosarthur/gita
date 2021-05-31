@@ -346,7 +346,7 @@ def main(argv=None):
             help='add repo(s)')
     p_add.add_argument('paths', nargs='+', help="repo(s) to add")
     xgroup = p_add.add_mutually_exclusive_group()
-    xgroup.add_argument('-r', '--recursive', dest='recursive', action='store_true',
+    xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
     xgroup.add_argument('-m', '--main', action='store_true',
             help="make main repo(s), sub-repos are recursively added.")

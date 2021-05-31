@@ -1,5 +1,7 @@
 import pytest
 import asyncio
+import subprocess
+from pathlib import Path
 from unittest.mock import patch, mock_open
 
 from gita import utils, info
@@ -127,3 +129,10 @@ def test_async_output(capfd):
     out, err = capfd.readouterr()
     assert err == ''
     assert out == 'myrepo: 0\nmyrepo: 0\n\nmyrepo: 1\nmyrepo: 1\n\nmyrepo: 2\nmyrepo: 2\n\nmyrepo: 3\nmyrepo: 3\n\n'
+
+
+def test_is_git(tmpdir):
+    with tmpdir.as_cwd():
+        subprocess.run('git init --bare .'.split())
+        assert utils.is_git(Path.cwd()) is False
+        assert utils.is_git(Path.cwd(), is_bare=True) is True

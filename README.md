@@ -298,6 +298,14 @@ gita flags set my-repo --git-dir=$HOME/somefolder --work-tree=$HOME
 ```
 
 Then any `git` command/alias triggered from `gita` on `my-repo` will use the flags.
+Note that the flags are applied immediately after `git`. For example,
+`gita st my-repo` translates to
+
+```
+git --git-dir=$HOME/somefolder --work-tree=$HOME status
+```
+
+running from the `my-repo` directory.
 
 ## Requirements
 
