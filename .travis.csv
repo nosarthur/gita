@@ -1,0 +1,2 @@
+language,python,install,script,after_success
+python,['3.6'],"['pip3 install .', 'pip install -r requirements.txt']",make test,['bash <(curl -s https://codecov.io/bash)']

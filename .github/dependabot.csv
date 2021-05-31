@@ -1,0 +1,2 @@
+version,updates
+2,"[{'package-ecosystem': 'pip', 'directory': '/', 'schedule': {'interval': 'daily'}, 'open-pull-requests-limit': 10}]"
