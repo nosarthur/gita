@@ -1,5 +1,7 @@
 import pytest
 import asyncio
+import subprocess
+from pathlib import Path
 from unittest.mock import patch, mock_open
 
 from gita import utils, info
@@ -9,16 +11,16 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ([{'abc': {'path': '/root/repo/', 'type': ''}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
-    ([{'abc': {'path': '/root/repo/', 'type': ''}}, True], True, 'abc repo *+_   msg xx'),
-    ([{'repo': {'path': '/root/repo2/', 'type': ''}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, True], True, 'abc repo *+_   msg xx'),
+    ([{'repo': {'path': '/root/repo2/', 'type': '', 'flags': []}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
-    monkeypatch.setattr(info, 'run_quiet_diff', lambda _: diff_return)
-    monkeypatch.setattr(info, 'get_commit_msg', lambda _: "msg")
-    monkeypatch.setattr(info, 'get_commit_time', lambda _: "xx")
-    monkeypatch.setattr(info, 'has_untracked', lambda: True)
+    monkeypatch.setattr(info, 'run_quiet_diff', lambda *_: diff_return)
+    monkeypatch.setattr(info, 'get_commit_msg', lambda *_: "msg")
+    monkeypatch.setattr(info, 'get_commit_time', lambda *_: "xx")
+    monkeypatch.setattr(info, 'has_untracked', lambda *_: True)
     monkeypatch.setattr('os.chdir', lambda x: None)
     print('expected: ', repr(expected))
     print('got:      ', repr(next(utils.describe(*test_input))))
@@ -127,3 +129,10 @@ def test_async_output(capfd):
     out, err = capfd.readouterr()
     assert err == ''
     assert out == 'myrepo: 0\nmyrepo: 0\n\nmyrepo: 1\nmyrepo: 1\n\nmyrepo: 2\nmyrepo: 2\n\nmyrepo: 3\nmyrepo: 3\n\n'
+
+
+def test_is_git(tmpdir):
+    with tmpdir.as_cwd():
+        subprocess.run('git init --bare .'.split())
+        assert utils.is_git(Path.cwd()) is False
+        assert utils.is_git(Path.cwd(), is_bare=True) is True

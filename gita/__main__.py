@@ -41,7 +41,7 @@ def f_add(args: argparse.Namespace):
     else:
         if args.recursive:
             paths = chain.from_iterable(Path(p).glob('**') for p in args.paths)
-        utils.add_repos(repos, paths)
+        utils.add_repos(repos, paths, is_bare=args.bare)
 
 
 def f_rename(args: argparse.Namespace):
@@ -255,18 +255,18 @@ def f_git_cmd(args: argparse.Namespace):
                 for r in groups[k]:
                     chosen[r] = repos[r]
         repos = chosen
-    cmds = ['git'] + args.cmd
-    if len(repos) == 1 or cmds[1] in args.async_blacklist:
+    cmds = args.cmd
+    if len(repos) == 1 or cmds[0] in args.async_blacklist:
         for prop in repos.values():
             path = prop['path']
             print(path)
-            subprocess.run(cmds + prop['flags'], cwd=path)
+            subprocess.run(['git'] + prop['flags'] + cmds, cwd=path)
     else:  # run concurrent subprocesses
         # Async execution cannot deal with multiple repos' user name/password.
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, prop['path'], cmds + prop['flags'])
+            utils.run_async(repo_name, prop['path'], ['git'] + prop['flags'] + cmds)
                             for repo_name, prop in repos.items())
         for path in errors:
             if path:
@@ -345,10 +345,13 @@ def main(argv=None):
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
     p_add.add_argument('paths', nargs='+', help="repo(s) to add")
-    p_add.add_argument('-r', dest='recursive', action='store_true',
+    xgroup = p_add.add_mutually_exclusive_group()
+    xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
-    p_add.add_argument('-m', '--main', action='store_true',
+    xgroup.add_argument('-m', '--main', action='store_true',
             help="make main repo(s), sub-repos are recursively added.")
+    xgroup.add_argument('-b', '--bare', action='store_true',
+            help="add bare repo(s)")
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser('rm', description='remove repo(s)',

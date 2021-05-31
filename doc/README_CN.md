@@ -46,8 +46,11 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
+- `gita add -b <bare-repo-path(s)>`:
+- `gita add -m <main-repo-path(s)>`:
 - `gita add -r <repo-parent-path(s)>`:
 - `gita clone <config-file>`:
+- `gita clone -p <config-file>`:
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
     - `gita context none`: 去除情境
@@ -56,9 +59,9 @@
     - `gita color [ll]`:
     - `gita color set <situation> <color>`:
 - `gita flags`:
-    - `gita flags set <repo-name> <"flags">`:
+    - `gita flags set <repo-name> <flags>`:
     - `gita flags [ll]`:
-- `gita freeze`
+- `gita freeze`:
 - `gita group`: 组群命令
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
     - `gita group [ll]`: 显示已有的组和它们的库
