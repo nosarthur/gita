@@ -14,7 +14,7 @@
 | | ____   | |     | |  |  ___  |
 | | \_  )  | |     | |  | (   ) |
 | (___) |__) (___  | |  | )   ( |
-(_______)_______/  )_(  |/     \|   v0.13
+(_______)_______/  )_(  |/     \|   v0.14
 ```
 
 # Gita: a command-line tool to manage multiple git repos
@@ -326,7 +326,7 @@ To contribute, you can
 - request/implement features
 - star/recommend this project
 
-Read [this article](https://www.dataschool.io/how-to-contribute-on-github/) if you have never contribute to open source project before.
+Read [this article](https://www.dataschool.io/how-to-contribute-on-github/) if you have never contribute code to open source project before.
 
 Chat room is available on [![Join the chat at https://gitter.im/nosarthur/gita](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
