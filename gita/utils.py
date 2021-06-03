@@ -68,8 +68,8 @@ def get_groups() -> Dict[str, List[str]]:
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
-            rows = csv.DictReader(f, ['group', 'repos'])
-            groups = {r['group']: r['repos'].split() for r in rows}
+            rows = csv.reader(f, delimiter=':')
+            groups = {r[0]: r[1].split() for r in rows}
     return groups
 
 
@@ -176,7 +176,7 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
                     (group, ' '.join(repos))
                     for group, repos in groups.items()
                     ]
-            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(f, delimiter=':', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerows(data)
 
 
