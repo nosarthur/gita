@@ -1,2 +1,2 @@
-xx: [a, b]
-yy: [a, c, d]
+xx,a b
+yy,a c d

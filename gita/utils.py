@@ -63,12 +63,13 @@ def get_groups() -> Dict[str, List[str]]:
     """
     Return a `dict` of group name to repo names.
     """
-    fname = common.get_config_fname('groups.yml')
+    fname = common.get_config_fname('groups.csv')
     groups = {}
     # Each line is a repo path and repo name separated by ,
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
-            groups = yaml.load(f, Loader=yaml.SafeLoader)
+            rows = csv.DictReader(f, ['group', 'repos'])
+            groups = {r['group']: r['repos'].split() for r in rows}
     return groups
 
 
@@ -165,13 +166,18 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     """
 
     """
-    fname = common.get_config_fname('groups.yml')
+    fname = common.get_config_fname('groups.csv')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     if not groups:  # all groups are deleted
         open(fname, 'w').close()
     else:
         with open(fname, mode) as f:
-            yaml.dump(groups, f, default_flow_style=None)
+            data = [
+                    (group, ' '.join(repos))
+                    for group, repos in groups.items()
+                    ]
+            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(data)
 
 
 def _make_name(path: str, repos: Dict[str, Dict[str, str]]) -> str:
