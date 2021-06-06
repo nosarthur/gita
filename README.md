@@ -274,6 +274,19 @@ comaster:
   help: checkout the master branch
 ```
 
+Any command that runs in the [superman mode](#superman) mode or the
+[shell mode](#shell)) can be defined in this yaml format.
+For example, the following command runs in shell mode. It only fetches the
+current branch from upstream.
+
+```yaml
+fetchcrt:
+  cmd: git rev-parse --abbrev-ref HEAD | xargs git fetch --prune upstream
+  allow_all: true
+  shell: true
+  help: fetch current branch only
+```
+
 ### customize the local/remote relationship coloring displayed by the `gita ll` command
 
 You can see the default color scheme and the available colors via `gita color`.

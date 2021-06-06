@@ -67,7 +67,3 @@ st:
 tag:
   cmd: git tag -n
   help: show tags
-whatchanged:
-  cmd: git whatchanged
-  disable_async: true
-  help: show detailed log

@@ -255,7 +255,6 @@ def f_git_cmd(args: argparse.Namespace):
                 for r in groups[k]:
                     chosen[r] = repos[r]
         repos = chosen
-    #print(args.cmd, '============')
     per_repo_cmds = []
     for repo_name, prop in repos.items():
         cmds = args.cmd.copy()
@@ -280,7 +279,8 @@ def f_git_cmd(args: argparse.Namespace):
         for path in errors:
             if path:
                 print(path)
-                # FIXME: this is broken, flags are missing
+                # FIXME: This is broken, flags are missing. But probably few
+                #        people will use `gita flags`
                 subprocess.run(args.cmd, cwd=path)
 
 
