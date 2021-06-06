@@ -245,6 +245,7 @@ async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, s
     Run `cmds` asynchronously in `path` directory. Return the `path` if
     execution fails.
     """
+    # TODO: deprecated since 3.8, will be removed in 3.10
     process = await asyncio.create_subprocess_exec(
         *cmds,
         stdin=asyncio.subprocess.DEVNULL,

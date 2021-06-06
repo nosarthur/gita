@@ -200,7 +200,7 @@ def test_not_add():
 def test_fetch(mock_run, *_):
     asyncio.set_event_loop(asyncio.new_event_loop())
     __main__.main(['fetch'])
-    mock_run.assert_called_once_with(['git', 'fetch'], cwd='/d/efg')
+    mock_run.assert_called_once_with(['git', 'fetch'], cwd='/d/efg', shell=False)
 
 
 @patch(
@@ -231,7 +231,7 @@ def test_superman(mock_run, _, input):
     args = ['super', 'repo7'] + shlex.split(input)
     __main__.main(args)
     expected_cmds = ['git'] + shlex.split(input)
-    mock_run.assert_called_once_with(expected_cmds, cwd='path7')
+    mock_run.assert_called_once_with(expected_cmds, cwd='path7', shell=False)
 
 
 @pytest.mark.parametrize('input', [

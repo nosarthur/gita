@@ -255,23 +255,33 @@ def f_git_cmd(args: argparse.Namespace):
                 for r in groups[k]:
                     chosen[r] = repos[r]
         repos = chosen
-    cmds = args.cmd
-    if len(repos) == 1 or cmds[0] in args.async_blacklist:
-        for prop in repos.values():
+    per_repo_cmds = []
+    for repo_name, prop in repos.items():
+        cmds = args.cmd.copy()
+        if cmds[0] == 'git' and prop['flags']:
+            cmds.insert(1, prop['flags'])
+        per_repo_cmds.append(cmds)
+
+    # This async blacklist mechanism is broken if the git command name does
+    # not match with the gita command name.
+    if len(repos) == 1 or args.cmd[1] in args.async_blacklist:
+        for prop, cmds in zip(repos.values(), per_repo_cmds):
             path = prop['path']
             print(path)
-            subprocess.run(['git'] + prop['flags'] + cmds, cwd=path)
+            subprocess.run(cmds, cwd=path, shell=args.shell)
     else:  # run concurrent subprocesses
         # Async execution cannot deal with multiple repos' user name/password.
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, prop['path'], ['git'] + prop['flags'] + cmds)
-                            for repo_name, prop in repos.items())
+            utils.run_async(repo_name, prop['path'], cmds)
+                            for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items()))
         for path in errors:
             if path:
                 print(path)
-                subprocess.run(cmds, cwd=path)
+                # FIXME: This is broken, flags are missing. But probably few
+                #        people will use `gita flags`
+                subprocess.run(args.cmd, cwd=path)
 
 
 def f_shell(args):
@@ -323,8 +333,9 @@ def f_super(args):
             names.append(word)
         else:
             break
-    args.cmd = args.man[i:]
+    args.cmd = ['git'] + args.man[i:]
     args.repo = names
+    args.shell = False
     f_git_cmd(args)
 
 
@@ -532,7 +543,7 @@ def main(argv=None):
     p_super.add_argument(
         'man',
         nargs=argparse.REMAINDER,
-        help="execute arbitrary git command/alias for specified or all repos "
+        help="execute arbitrary git command/alias for specified or all repos\n"
         "Example: gita super myrepo1 diff --name-only --staged "
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
@@ -557,7 +568,7 @@ def main(argv=None):
     cmds = utils.get_cmds_from_files()
     for name, data in cmds.items():
         help = data.get('help')
-        cmd = data.get('cmd') or name
+        cmd = data['cmd']
         if data.get('allow_all'):
             choices = utils.get_choices()
             nargs = '*'
@@ -568,7 +579,14 @@ def main(argv=None):
         help += ' for the chosen repo(s) or group(s)'
         sp = subparsers.add_parser(name, description=help)
         sp.add_argument('repo', nargs=nargs, choices=choices, help=help)
-        sp.set_defaults(func=f_git_cmd, cmd=cmd.split())
+        is_shell = bool(data.get('shell'))
+        sp.add_argument('-s', '--shell', default=is_shell, type=bool,
+                help='If set, run in shell mode')
+        if is_shell:
+            cmd = [cmd]
+        else:
+            cmd = cmd.split()
+        sp.set_defaults(func=f_git_cmd, cmd=cmd)
 
     args = p.parse_args(argv)
 
