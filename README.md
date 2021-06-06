@@ -246,16 +246,21 @@ For example, `gita stat <repo-name(s)>` is registered as
 
 ```yaml
 stat:
-  cmd: diff --stat
+  cmd: git diff --stat
   help: show edit statistics
 ```
 
 which executes `git diff --stat` for the specified repo(s).
 
-If the delegated `git` command is a single word, the `cmd` tag can be omitted.
-See `push` for an example.
 To disable asynchronous execution, set `disable_async` to be `true`.
-See `difftool` for an example.
+See the `difftool` example:
+
+```yaml
+difftool:
+  cmd: git difftool
+  disable_async: true
+  help: show differences using a tool
+```
 
 If you want a custom command to behave like `gita fetch`, i.e., to apply to all
 repos when no repo is specified, set `allow_all` to be `true`.
