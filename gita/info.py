@@ -1,5 +1,5 @@
 import os
-import sys
+import csv
 import yaml
 import subprocess
 from enum import Enum
@@ -92,10 +92,11 @@ def get_info_items() -> List[str]:
     Return the information items to be displayed in the `gita ll` command.
     """
     # custom settings
-    yml_config = Path(common.get_config_fname('info.yml'))
-    if yml_config.is_file():
-        with open(yml_config, 'r') as stream:
-            display_items = yaml.load(stream, Loader=yaml.SafeLoader)
+    csv_config = Path(common.get_config_fname('info.csv'))
+    if csv_config.is_file():
+        with open(csv_config, 'r') as f:
+            reader = csv.reader(f)
+            display_items = next(reader)
         display_items = [x for x in display_items if x in ALL_INFO_ITEMS]
     else:
         # default settings

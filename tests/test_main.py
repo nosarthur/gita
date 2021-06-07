@@ -403,7 +403,7 @@ def test_rename(mock_rename, _, __):
 class TestInfo:
 
     @patch('gita.common.get_config_fname', return_value='')
-    def testLl(self, _, capfd):
+    def test_ll(self, _, capfd):
         args = argparse.Namespace()
         args.info_cmd = None
         __main__.f_info(args)
@@ -411,28 +411,26 @@ class TestInfo:
         assert 'In use: branch,commit_msg,commit_time\nUnused: path\n' == out
         assert err == ''
 
-    @patch('gita.common.get_config_fname', return_value='')
-    @patch('yaml.dump')
-    def testAdd(self, mock_dump, _):
+    @patch('gita.common.get_config_fname')
+    def test_add(self, mock_get_fname, tmpdir):
         args = argparse.Namespace()
         args.info_cmd = 'add'
         args.info_item = 'path'
-        with patch('builtins.open', mock_open(), create=True):
+        with tmpdir.as_cwd():
+            csv_config = Path.cwd() / 'info.csv'
+            mock_get_fname.return_value = csv_config
             __main__.f_info(args)
-        mock_dump.assert_called_once()
-        args, kwargs = mock_dump.call_args
-        assert args[0] == ['branch', 'commit_msg', 'commit_time', 'path']
-        assert kwargs == {'default_flow_style': None}
+            items = info.get_info_items()
+        assert items == ['branch', 'commit_msg', 'commit_time', 'path']
 
-    @patch('gita.common.get_config_fname', return_value='')
-    @patch('yaml.dump')
-    def testRm(self, mock_dump, _):
+    @patch('gita.common.get_config_fname')
+    def test_rm(self, mock_get_fname, tmpdir):
         args = argparse.Namespace()
         args.info_cmd = 'rm'
         args.info_item = 'commit_msg'
-        with patch('builtins.open', mock_open(), create=True):
+        with tmpdir.as_cwd():
+            csv_config = Path.cwd() / 'info.csv'
+            mock_get_fname.return_value = csv_config
             __main__.f_info(args)
-        mock_dump.assert_called_once()
-        args, kwargs = mock_dump.call_args
-        assert args[0] == ['branch', 'commit_time']
-        assert kwargs == {'default_flow_style': None}
+            items = info.get_info_items()
+        assert items == ['branch', 'commit_time']

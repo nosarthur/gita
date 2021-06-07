@@ -16,6 +16,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 
 import os
 import sys
+import csv
 import yaml
 import argparse
 import subprocess
@@ -70,6 +71,7 @@ def f_color(args: argparse.Namespace):
     elif cmd == 'set':
         colors = info.get_color_encoding()
         colors[args.situation] = info.Color[args.color].value
+        # TODO: replace by .csv format
         yml_config = common.get_config_fname('color.yml')
         with open(yml_config, 'w') as f:
               yaml.dump(colors, f, default_flow_style=None)
@@ -86,14 +88,16 @@ def f_info(args: argparse.Namespace):
         return
     if cmd == 'add' and args.info_item not in to_display:
         to_display.append(args.info_item)
-        yml_config = common.get_config_fname('info.yml')
-        with open(yml_config, 'w') as f:
-              yaml.dump(to_display, f, default_flow_style=None)
+        csv_config = common.get_config_fname('info.csv')
+        with open(csv_config, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(to_display)
     elif cmd == 'rm' and args.info_item in to_display:
         to_display.remove(args.info_item)
-        yml_config = common.get_config_fname('info.yml')
-        with open(yml_config, 'w') as f:
-              yaml.dump(to_display, f, default_flow_style=None)
+        csv_config = common.get_config_fname('info.csv')
+        with open(csv_config, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(to_display)
 
 
 def f_clone(args: argparse.Namespace):
