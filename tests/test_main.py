@@ -434,3 +434,19 @@ class TestInfo:
             __main__.f_info(args)
             items = info.get_info_items()
         assert items == ['branch', 'commit_time']
+
+
+@patch('gita.common.get_config_fname')
+def test_set_color(mock_get_fname, tmpdir):
+        args = argparse.Namespace()
+        args.color_cmd = 'set'
+        args.color = 'red'
+        args.situation = 'in-sync'
+        with tmpdir.as_cwd():
+            csv_config = Path.cwd() / 'colors.csv'
+            mock_get_fname.return_value = csv_config
+            __main__.f_color(args)
+            items = info.get_color_encoding()
+        assert items == {'no-remote': 'white', 'in-sync': 'red',
+                'diverged': 'red', 'local-ahead': 'purple',
+                'remote-ahead': 'yellow'}
