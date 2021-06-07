@@ -105,8 +105,9 @@ def test_add_repos(_0, _1, path_input, expected, monkeypatch):
         assert not kwargs
 
 
+@patch('gita.utils.write_to_groups_file')
 @patch('gita.utils.write_to_repo_file')
-def test_rename_repo(mock_write):
+def test_rename_repo(mock_write, _):
     repos = {'r1': {'path': '/a/b', 'type': None},
             'r2': {'path': '/c/c', 'type': None}}
     utils.rename_repo(repos, 'r2', 'xxx')
