@@ -34,9 +34,6 @@ class Color(str, Enum):
     underline = '\x1B[4m'
 
 
-ColorNames = {c.value: c.name for c in Color}
-
-
 def show_colors():  # pragma: no cover
     """
 
@@ -48,13 +45,14 @@ def show_colors():  # pragma: no cover
             print()
     print(f'{Color.end}')
     for situation, c in sorted(get_color_encoding().items()):
-        print(f'{situation:<12}: {c}{ColorNames[c]:<8}{Color.end} ')
+        print(f'{situation:<12}: {Color[c].value}{c:<8}{Color.end} ')
 
 
 @lru_cache()
 def get_color_encoding() -> Dict[str, str]:
     """
     Return color scheme for different local/remote situations.
+    In the format of {situation: color name}
     """
     # custom settings
     csv_config = Path(common.get_config_fname('color.csv'))
@@ -62,14 +60,13 @@ def get_color_encoding() -> Dict[str, str]:
         with open(csv_config, 'r') as f:
             reader = csv.DictReader(f)
             colors = next(reader)
-        colors = {situ: Color[name].value for situ, name in colors.items()}
     else:
         colors = {
-            'no-remote': Color.white.value,
-            'in-sync': Color.green.value,
-            'diverged': Color.red.value,
-            'local-ahead': Color.purple.value,
-            'remote-ahead': Color.yellow.value,
+            'no-remote': Color.white.name,
+            'in-sync': Color.green.name,
+            'diverged': Color.red.name,
+            'local-ahead': Color.purple.name,
+            'remote-ahead': Color.yellow.name,
             }
     return colors
 
@@ -203,7 +200,8 @@ def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
     if no_colors:
         return dirty, staged, untracked, ''
 
-    colors = get_color_encoding()
+    colors = {situ: Color[name].value
+            for situ, name in get_color_encoding().items()}
     diff_returncode = run_quiet_diff(flags, ['@{u}', '@{0}'])
     has_no_remote = diff_returncode == 128
     has_no_diff = diff_returncode == 0

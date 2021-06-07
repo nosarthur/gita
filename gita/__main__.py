@@ -68,8 +68,7 @@ def f_color(args: argparse.Namespace):
     if cmd == 'll':  # pragma: no cover
         info.show_colors()
     elif cmd == 'set':
-        colors = {situ: info.ColorNames[code]
-                for situ, code in info.get_color_encoding().items()}
+        colors = info.get_color_encoding()
         colors[args.situation] = args.color
         csv_config = common.get_config_fname('color.csv')
         with open(csv_config, 'w', newline='') as f:
