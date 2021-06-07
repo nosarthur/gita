@@ -11,9 +11,12 @@ from conftest import (
 
 
 @pytest.mark.parametrize('test_input, diff_return, expected', [
-    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, False], True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
-    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, True], True, 'abc repo *+_   msg xx'),
-    ([{'repo': {'path': '/root/repo2/', 'type': '', 'flags': []}}, False], False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, False],
+        True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),
+    ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, True],
+        True, 'abc repo *+_   msg xx'),
+    ([{'repo': {'path': '/root/repo2/', 'type': '', 'flags': []}}, False],
+        False, 'repo \x1b[32mrepo _    \x1b[0m msg xx'),
 ])
 def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_head', lambda x: 'repo')
