@@ -17,7 +17,6 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 import os
 import sys
 import csv
-import yaml
 import argparse
 import subprocess
 import pkg_resources
@@ -69,12 +68,14 @@ def f_color(args: argparse.Namespace):
     if cmd == 'll':  # pragma: no cover
         info.show_colors()
     elif cmd == 'set':
-        colors = info.get_color_encoding()
-        colors[args.situation] = info.Color[args.color].value
-        # TODO: replace by .csv format
-        yml_config = common.get_config_fname('color.yml')
-        with open(yml_config, 'w') as f:
-              yaml.dump(colors, f, default_flow_style=None)
+        colors = {situ: info.ColorNames[code]
+                for situ, code in info.get_color_encoding().items()}
+        colors[args.situation] = args.color
+        csv_config = common.get_config_fname('color.csv')
+        with open(csv_config, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=colors)
+            writer.writeheader()
+            writer.writerow(colors)
 
 
 def f_info(args: argparse.Namespace):

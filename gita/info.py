@@ -34,11 +34,13 @@ class Color(str, Enum):
     underline = '\x1B[4m'
 
 
+ColorNames = {c.value: c.name for c in Color}
+
+
 def show_colors():  # pragma: no cover
     """
 
     """
-    names = {c.value: c.name for c in Color}
     for i, c in enumerate(Color, start=1):
         if c != Color.end and c != Color.underline:
             print(f'{c.value}{c.name:<8} ', end='')
@@ -46,7 +48,7 @@ def show_colors():  # pragma: no cover
             print()
     print(f'{Color.end}')
     for situation, c in sorted(get_color_encoding().items()):
-        print(f'{situation:<12}: {c}{names[c]:<8}{Color.end} ')
+        print(f'{situation:<12}: {c}{ColorNames[c]:<8}{Color.end} ')
 
 
 @lru_cache()
@@ -55,10 +57,12 @@ def get_color_encoding() -> Dict[str, str]:
     Return color scheme for different local/remote situations.
     """
     # custom settings
-    yml_config = Path(common.get_config_fname('color.yml'))
-    if yml_config.is_file():
-        with open(yml_config, 'r') as stream:
-            colors = yaml.load(stream, Loader=yaml.SafeLoader)
+    csv_config = Path(common.get_config_fname('color.csv'))
+    if csv_config.is_file():
+        with open(csv_config, 'r') as f:
+            reader = csv.DictReader(f)
+            colors = next(reader)
+        colors = {situ: Color[name].value for situ, name in colors.items()}
     else:
         colors = {
             'no-remote': Color.white.value,
