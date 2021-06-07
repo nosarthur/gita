@@ -166,12 +166,10 @@ comaster:
   help: checkout the master branch
 ```
 另一个自定义功能是针对`gita ll`展示的信息项。
-`gita info`可以展示所有用到的和没用到的信息项，并且可以通过修改`$XDG_CONFIG_HOME/gita/info.yml`支持自定义。举个栗子，默认的信息项显示配置相当于是：
+`gita info`可以展示所有用到的和没用到的信息项，并且可以通过修改`$XDG_CONFIG_HOME/gita/info.csv`支持自定义。举个栗子，默认的信息项显示配置相当于是：
 
-```yaml
-- branch
-- commit_msg
-- commit_time
+```csv
+branch,commit_msg,commit_time
 ```
 为了创建自己的信息项，命名一个目录为`extra_info_items`。
 在`$XDG_CONFIG_HOME/gita/extra_repo_info.py`中，要把信息项的名字作为字符串映射到方法中，该方法将库的路径作为输入参数。举个栗子：

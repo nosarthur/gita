@@ -297,14 +297,12 @@ The configuration is saved in `$XDG_CONFIG_HOME/gita/color.yml`.
 
 You can customize the information displayed by `gita ll`.
 The used and unused information items are shown with `gita info`, and the
-configuration is saved in `$XDG_CONFIG_HOME/gita/info.yml`.
+configuration is saved in `$XDG_CONFIG_HOME/gita/info.csv`.
 
 For example, the default setting corresponds to
 
-```yaml
-- branch
-- commit_msg
-- commit_time
+```csv
+branch,commit_msg,commit_time
 ```
 
 ### customize git command flags
