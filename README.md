@@ -116,7 +116,8 @@ If more than one repos are specified, the `git` command runs asynchronously,
 with the exception of `log`, `difftool` and `mergetool`,
 which require non-trivial user input.
 
-Repo paths are saved in `$XDG_CONFIG_HOME/gita/repo_path` (most likely `~/.config/gita/repo_path`).
+Repo configuration is saved in `$XDG_CONFIG_HOME/gita/repos.csv`
+(most likely `~/.config/gita/repos.csv`).
 
 ## Installation
 
@@ -133,7 +134,7 @@ pip3 install -e <gita-source-folder>
 ```
 
 In either case, calling `gita` in terminal may not work,
-then you can put the following line in the `.bashrc` file.
+then put the following line in the `.bashrc` file.
 
 ```
 alias gita="python3 -m gita"
@@ -149,7 +150,7 @@ Download
 [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
 or
 [.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/.gita-completion.zsh)
-and source it in the corresponding rc file.
+and source it in shell.
 
 ## <a name='superman'></a> Superman mode
 
@@ -185,38 +186,10 @@ For example,
 
 ## <a name='custom'></a> Customization
 
-### define main repos and shadow the global configuration setting with local setting
-
-The so-called main repos contain `.gita` folder to save local configurations.
-It works best for the following project structure: repos within repo
-
-```
-main-repo
-├── sub-repo1
-│   └── sub-sub-repo
-├── sub-repo2
-└── sub-repo3
-```
-
-When executing `gita` commands within/relative to a main repo, local configurations
-are used. And only repos within the current main repos are in effect.
-
-To add a main repo, run
-
-```
-gita add -m main-repo-path
-```
-
-Subordinate repos are added recursively to the local configuration.
-Only the main repo is saved to the global configuration.
-
-In the `gita ll` display, the main repos are underlined.
-
 ### define repo group and context
 
-Apart from the repos-within-repo situations, another common situation is to
-have several independent but related repos.
-One can then define a group and execute `gita` command on this group.
+When the project contains several independent but related repos,
+we can define a group and execute `gita` command on this group.
 For example,
 
 ```
@@ -234,7 +207,36 @@ gita ll
 gita pull
 ```
 
+### define main repos and shadow the global configuration setting with local setting
+
+The so-called main repos contain `.gita` folder for local configurations.
+It works best for the repos-within-repo project structure, for example,
+
+```
+main-repo
+├── sub-repo1
+│   └── sub-sub-repo
+├── sub-repo2
+└── sub-repo3
+```
+
+When executing `gita` commands within/relative to a main repo, local configurations
+are used. And only repos within the current main repos are in the scope.
+
+To add a main repo, run
+
+```
+gita add -m main-repo-path
+```
+
+Subordinate repos are added recursively to the local configuration.
+Only the main repo is saved to the global configuration.
+
+In the `gita ll` display, the main repos are underlined.
+
 ### add user-defined sub-command using yaml file
+
+(To be changed to csv soon.)
 
 Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
 (most likely `~/.config/gita/cmds.yml`).
@@ -275,8 +277,8 @@ comaster:
 ```
 
 Any command that runs in the [superman mode](#superman) mode or the
-[shell mode](#shell)) can be defined in this yaml format.
-For example, the following command runs in shell mode. It only fetches the
+[shell mode](#shell) can be defined in this yaml format.
+For example, the following command runs in shell mode and fetches only the
 current branch from upstream.
 
 ```yaml
@@ -291,7 +293,7 @@ fetchcrt:
 
 You can see the default color scheme and the available colors via `gita color`.
 To change the color coding, use `gita color set <situation> <color>`.
-The configuration is saved in `$XDG_CONFIG_HOME/gita/color.yml`.
+The configuration is saved in `$XDG_CONFIG_HOME/gita/color.csv`.
 
 ### customize information displayed by the `gita ll` command
 
@@ -313,7 +315,7 @@ One can set custom flags to run `git` commands. For example
 gita flags set my-repo --git-dir=$HOME/somefolder --work-tree=$HOME
 ```
 
-Then any `git` command/alias triggered from `gita` on `my-repo` will use the flags.
+Then any `git` command/alias triggered from `gita` on `my-repo` will use these flags.
 Note that the flags are applied immediately after `git`. For example,
 `gita st my-repo` translates to
 

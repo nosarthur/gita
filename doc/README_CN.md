@@ -81,7 +81,7 @@
 - `gita rm <repo-name(s)>`: 移除库（不会删除文件）
 - `gita -v`: 显示版本号
 
-库的路径存在`$XDG_CONFIG_HOME/gita/repo_path` (多半是`~/.config/gita/repo_path`)。
+库的路径存在`$XDG_CONFIG_HOME/gita/repos.csv` (多半是`~/.config/gita/repos.csv`)。
 
 代理执行的子命令有两种格式：
 
