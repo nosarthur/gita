@@ -349,6 +349,7 @@ Read [this article](https://www.dataschool.io/how-to-contribute-on-github/) if y
 Chat room is available on [![Join the chat at https://gitter.im/nosarthur/gita](https://badges.gitter.im/nosarthur/gita.svg)](https://gitter.im/nosarthur/gita?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 To run tests locally, simply `pytest` in the source code folder.
+Note that context should be set as `none`.
 More implementation details are in
 [design.md](https://github.com/nosarthur/gita/blob/master/doc/design.md).
 A step-by-step guide to reproduce this project is [here](https://nosarthur.github.io/side%20project/2019/05/27/gita-breakdown.html).

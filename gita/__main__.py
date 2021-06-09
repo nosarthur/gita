@@ -260,10 +260,10 @@ def f_git_cmd(args: argparse.Namespace):
                     chosen[r] = repos[r]
         repos = chosen
     per_repo_cmds = []
-    for repo_name, prop in repos.items():
+    for prop in repos.values():
         cmds = args.cmd.copy()
         if cmds[0] == 'git' and prop['flags']:
-            cmds.insert(1, prop['flags'])
+            cmds[1:1] = prop['flags']
         per_repo_cmds.append(cmds)
 
     # This async blacklist mechanism is broken if the git command name does
