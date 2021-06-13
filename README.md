@@ -34,7 +34,7 @@ The `gita remote dotfiles` command translates to `git remote -v`
 for the `dotfiles` repo, even though we are not in the repo.
 The `gita fetch` command fetches from all repos and two of them have updates.
 To see the pre-defined commands, run `gita -h` or take a look at
-[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+[cmds.json](https://github.com/nosarthur/gita/blob/master/gita/cmds.json).
 To add your own commands, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 To run arbitrary shell command, see the [shell mode section](#shell).
@@ -108,7 +108,7 @@ They translate to `git <sub-command>` for the corresponding repos.
 By default, only `fetch` and `pull` take optional input. In other words,
 `gita fetch` and `gita pull` apply to all repos.
 To see the pre-defined sub-commands, run `gita -h` or take a look at
-[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+[cmds.json](https://github.com/nosarthur/gita/blob/master/gita/cmds.json).
 To add your own sub-commands or override the default behaviors, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 
@@ -234,22 +234,21 @@ Only the main repo is saved to the global configuration.
 
 In the `gita ll` display, the main repos are underlined.
 
-### add user-defined sub-command using yaml file
+### add user-defined sub-command using json file
 
-(To be changed to csv soon.)
-
-Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.yml`
-(most likely `~/.config/gita/cmds.yml`).
+Custom delegating sub-commands can be defined in `$XDG_CONFIG_HOME/gita/cmds.json`
+(most likely `~/.config/gita/cmds.json`)
 And they shadow the default ones if name collisions exist.
 
 Default delegating sub-commands are defined in
-[cmds.yml](https://github.com/nosarthur/gita/blob/master/gita/cmds.yml).
+[cmds.json](https://github.com/nosarthur/gita/blob/master/gita/cmds.json).
 For example, `gita stat <repo-name(s)>` is registered as
 
-```yaml
-stat:
-  cmd: git diff --stat
-  help: show edit statistics
+```json
+"stat":{
+  "cmd": "git diff --stat",
+  "help": "show edit statistics"
+}
 ```
 
 which executes `git diff --stat` for the specified repo(s).
@@ -257,11 +256,12 @@ which executes `git diff --stat` for the specified repo(s).
 To disable asynchronous execution, set `disable_async` to be `true`.
 See the `difftool` example:
 
-```yaml
-difftool:
-  cmd: git difftool
-  disable_async: true
-  help: show differences using a tool
+```json
+"difftool":{
+  "cmd": "git difftool",
+  "disable_async": true,
+  "help": "show differences using a tool"
+}
 ```
 
 If you want a custom command to behave like `gita fetch`, i.e., to apply to all
@@ -269,24 +269,26 @@ repos when no repo is specified, set `allow_all` to be `true`.
 For example, the following snippet creates a new command
 `gita comaster [repo-name(s)]` with optional repo name input.
 
-```yaml
-comaster:
-  cmd: checkout master
-  allow_all: true
-  help: checkout the master branch
+```json
+"comaster":{
+  "cmd": "checkout master",
+  "allow_all": true,
+  "help": "checkout the master branch"
+}
 ```
 
 Any command that runs in the [superman mode](#superman) mode or the
-[shell mode](#shell) can be defined in this yaml format.
+[shell mode](#shell) can be defined in this json format.
 For example, the following command runs in shell mode and fetches only the
 current branch from upstream.
 
-```yaml
-fetchcrt:
-  cmd: git rev-parse --abbrev-ref HEAD | xargs git fetch --prune upstream
-  allow_all: true
-  shell: true
-  help: fetch current branch only
+```json
+"fetchcrt":{
+  "cmd": "git rev-parse --abbrev-ref HEAD | xargs git fetch --prune upstream",
+  "allow_all": true,
+  "shell": true,
+  "help": "fetch current branch only"
+}
 ```
 
 ### customize the local/remote relationship coloring displayed by the `gita ll` command

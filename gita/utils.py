@@ -1,5 +1,5 @@
 import os
-import yaml  # TODO: to be removed
+import json
 import csv
 import asyncio
 import platform
@@ -325,17 +325,17 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     }
     """
     # default config file
-    fname = os.path.join(os.path.dirname(__file__), "cmds.yml")
-    with open(fname, 'r') as stream:
-        cmds = yaml.load(stream, Loader=yaml.SafeLoader)
+    fname = os.path.join(os.path.dirname(__file__), "cmds.json")
+    with open(fname, 'r') as f:
+        cmds = json.load(f)
 
     # custom config file
     root = common.get_config_dir()
-    fname = os.path.join(root, 'cmds.yml')
+    fname = os.path.join(root, 'cmds.json')
     custom_cmds = {}
     if os.path.isfile(fname) and os.path.getsize(fname):
-        with open(fname, 'r') as stream:
-            custom_cmds = yaml.load(stream, Loader=yaml.SafeLoader)
+        with open(fname, 'r') as f:
+            custom_cmds = json.load(f)
 
     # custom commands shadow default ones
     cmds.update(custom_cmds)
