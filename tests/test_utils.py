@@ -75,9 +75,9 @@ def test_get_groups(mock_group_fname, group_fname, expected):
 @patch('os.path.getsize', return_value=True)
 def test_custom_push_cmd(*_):
     with patch('builtins.open',
-               mock_open(read_data='push:\n  cmd: hand\n  help: me')):
+            mock_open(read_data='{"push":{"cmd":"hand","help":"me","allow_all":true}}')):
         cmds = utils.get_cmds_from_files()
-    assert cmds['push'] == {'cmd': 'hand', 'help': 'me'}
+    assert cmds['push'] == {'cmd': 'hand', 'help': 'me', 'allow_all': True}
 
 
 @pytest.mark.parametrize(

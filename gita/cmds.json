@@ -1,0 +1,89 @@
+{
+"br":{
+  "cmd": "git branch -vv",
+  "help":"show local branches"},
+"clean":{
+  "cmd": "git clean -dfx",
+  "help": "remove all untracked files/folders"},
+"diff":{
+  "cmd": "git diff",
+  "help": "git show differences"},
+"difftool":{
+  "cmd": "git difftool",
+  "disable_async": true,
+  "help": "show differences using a tool"
+  },
+"fetch":{
+  "cmd": "git fetch",
+  "allow_all": true,
+  "help": "fetch remote update"
+  },
+"last":{
+  "cmd": "git log -1 HEAD",
+  "help": "show log information of HEAD"
+  },
+"log":
+  {"cmd": "git log",
+  "disable_async": true,
+  "help": "show logs"
+  },
+"merge":{
+  "cmd": "git merge @{u}",
+  "help": "merge remote updates"
+  },
+"mergetool":{
+  "cmd": "git mergetool",
+  "disable_async": true,
+  "help": "merge updates with a tool"
+  },
+"patch":{
+  "cmd": "git format-patch HEAD~",
+  "help": "make a patch"
+  },
+"pull":{
+  "cmd": "git pull",
+  "allow_all": true,
+  "help": "pull remote updates"
+  },
+"push":{
+  "cmd": "git push",
+  "help": "push the local updates"
+  },
+"rebase":{
+  "cmd": "git rebase",
+  "help": "rebase from master"
+  },
+"reflog":{
+  "cmd": "git reflog",
+  "help": "show ref logs"
+  },
+"remote":{
+  "cmd": "git remote -v",
+  "help": "show remote settings"
+  },
+"reset":{
+  "cmd": "git reset",
+  "help": "reset repo(s)"
+  },
+"show":{
+  "cmd": "git show",
+  "disable_async": true,
+  "help": "show detailed commit information"
+  },
+"stash":{
+  "cmd": "git stash",
+  "help": "store uncommited changes"
+  },
+"stat":{
+  "cmd": "git diff --stat",
+  "help": "show edit statistics"
+  },
+"st":{
+  "cmd": "git status",
+  "help": "show status"
+  },
+"tag":{
+  "cmd": "git tag -n",
+  "help": "show tags"
+  }
+}

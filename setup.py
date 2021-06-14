@@ -7,7 +7,7 @@ with open('README.md', encoding='utf-8') as f:
 setup(
     name='gita',
     packages=['gita'],
-    version='0.14.5',
+    version='0.14.6',
     license='MIT',
     description='Manage multiple git repos with sanity',
     long_description=long_description,
@@ -18,7 +18,6 @@ setup(
     author='Dong Zhou',
     author_email='zhou.dong@gmail.com',
     entry_points={'console_scripts': ['gita = gita.__main__:main']},
-    install_requires=['pyyaml>=5.1'],
     python_requires='~=3.6',
     classifiers=[
         "Development Status :: 4 - Beta",
