@@ -21,7 +21,7 @@ _gita_completions()
       add)
         COMPREPLY=($(compgen -d ${cur}))
         ;;
-      ll)
+      ll | context)
         groups=`gita group ls`
         COMPREPLY=($(compgen -W "${groups}" ${cur}))
         return
