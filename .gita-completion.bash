@@ -10,7 +10,6 @@ _gita_completions()
   # FIXME: this is somewhat slow
   commands=`gita -h | sed '2q;d' |sed 's/[{}.,]/ /g'`
 
-  repos=`gita ls`
   # this doesn't work for two repos with the same basename
   #gita_path=${XDG_CONFIG_HOME:-$HOME/.config}/gita/repo_path
   #repos=`awk '{split($0, paths, ":")} END {for (i in paths) {n=split(paths[i],b, /\//); print b[n]}}' ${gita_path}`
@@ -23,9 +22,12 @@ _gita_completions()
         COMPREPLY=($(compgen -d ${cur}))
         ;;
       ll)
+        groups=`gita group ls`
+        COMPREPLY=($(compgen -W "${groups}" ${cur}))
         return
         ;;
       *)
+        repos=`gita ls`
         COMPREPLY=($(compgen -W "${repos}" ${cur}))
         ;;
     esac
