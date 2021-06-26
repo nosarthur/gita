@@ -13,6 +13,14 @@ from conftest import (
 )
 
 
+@patch('gita.utils.get_repos', return_value={'aa'})
+def test_group_name(_):
+    got = __main__._group_name('xx')
+    assert got == 'xx'
+    with pytest.raises(SystemExit):
+        __main__._group_name('aa')
+
+
 class TestAdd:
 
     @pytest.mark.parametrize('input, expected', [

@@ -26,6 +26,17 @@ from pathlib import Path
 from . import utils, info, common
 
 
+def _group_name(name: str) -> str:
+    """
+
+    """
+    repos = utils.get_repos()
+    if name in repos:
+        print(f"Cannot use group name {name} since it's a repo name.")
+        sys.exit(1)
+    return name
+
+
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
@@ -510,6 +521,7 @@ def main(argv=None):
                     help="repo(s) to be grouped")
     pg_add.add_argument('-n', '--name',
                     dest='gname',
+                    type=_group_name,
                     metavar='group-name',
                     required=True,
                     help="group name")
@@ -529,6 +541,7 @@ def main(argv=None):
                     choices=utils.get_groups(),
                     help="existing group to rename")
     pg_rename.add_argument('new_name', metavar='new-name',
+                    type=_group_name,
                     help="new group name")
     group_cmds.add_parser('rm',
             description='Remove group(s).').add_argument('to_ungroup',
