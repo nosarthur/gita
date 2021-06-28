@@ -142,14 +142,18 @@ class TestLsLl:
         assert out == expected
 
 
+@pytest.mark.parametrize('input, expected', [
+    ({'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}}, ''),
+    ])
 @patch('subprocess.run')
-@patch('gita.utils.get_repos', return_value={'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}})
-def test_freeze(_, mock_run, capfd):
+@patch('gita.utils.get_repos')
+def test_freeze(mock_repos, mock_run, input, expected, capfd):
+    mock_repos.return_value = input
     __main__.main(['freeze'])
     assert mock_run.call_count == 2
     out, err = capfd.readouterr()
     assert err == ''
-    assert out == ',repo1,/a/\n,repo2,/b/\n'
+    assert out == expected
 
 
 @patch('gita.utils.parse_clone_config', return_value=[

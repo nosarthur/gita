@@ -125,6 +125,7 @@ def f_clone(args: argparse.Namespace):
 
 def f_freeze(_):
     repos = utils.get_repos()
+    seen = {''}
     for name, prop in repos.items():
         path = prop['path']
         # TODO: What do we do with main repos? Maybe give an option to print
@@ -136,7 +137,9 @@ def f_freeze(_):
             parts = lines[0].split()
             if len(parts)>1:
                 url = parts[1]
-        print(f'{url},{name},{path}')
+        if url not in seen:
+            seen.add(url)
+            print(f'{url},{name},{path}')
 
 
 def f_ll(args: argparse.Namespace):
