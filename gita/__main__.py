@@ -104,13 +104,13 @@ def f_info(args: argparse.Namespace):
     if cmd == 'add' and args.info_item not in to_display:
         to_display.append(args.info_item)
         csv_config = common.get_config_fname('info.csv')
-        with open(csv_config, 'w') as f:
+        with open(csv_config, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(to_display)
     elif cmd == 'rm' and args.info_item in to_display:
         to_display.remove(args.info_item)
         csv_config = common.get_config_fname('info.csv')
-        with open(csv_config, 'w') as f:
+        with open(csv_config, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(to_display)
 

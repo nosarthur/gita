@@ -96,7 +96,7 @@ def test_add_repos(_0, _1, path_input, expected, monkeypatch):
     monkeypatch.setenv('XDG_CONFIG_HOME', '/config')
     with patch('builtins.open', mock_open()) as mock_file:
         utils.add_repos({'repo': {'path': '/nos/repo'}}, path_input)
-    mock_file.assert_called_with('/config/gita/repos.csv', 'a+')
+    mock_file.assert_called_with('/config/gita/repos.csv', 'a+', newline='')
     handle = mock_file()
     if type(expected) == str:
         handle.write.assert_called_once_with(expected)

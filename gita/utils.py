@@ -158,7 +158,7 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str, root=None):
                 for name, prop in repos.items()]
     fname = common.get_config_fname('repos.csv', root)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, mode) as f:
+    with open(fname, mode, newline='') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerows(data)
 
@@ -172,7 +172,7 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     if not groups:  # all groups are deleted
         open(fname, 'w').close()
     else:
-        with open(fname, mode) as f:
+        with open(fname, mode, newline='') as f:
             data = [
                     (group, ' '.join(repos))
                     for group, repos in groups.items()
