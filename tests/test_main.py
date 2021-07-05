@@ -41,35 +41,33 @@ class TestAdd:
         assert got['gita']['type'] == expected
 
     @patch('gita.utils.is_git', return_value=True)
-    def test_add_main(self, _, tmp_path, monkeypatch):
+    def test_add_main(self, _, tmp_path, monkeypatch, tmpdir):
         def side_effect(root=None):
             if root is None:
                 return os.path.join(tmp_path, "gita")
             else:
                 return os.path.join(root, ".gita")
 
-        monkeypatch.setattr(common, 'get_config_dir', side_effect)
-
-        utils.get_repos.cache_clear()
-
-        __main__.main(['add', '-m', '.'])
-
-        utils.get_repos.cache_clear()
-
         def desc(repos, **_):
             print(len(repos), repos.keys())
             assert len(repos) > 0
             for r, prop in repos.items():
                 if prop['type'] == 'm':
-                    assert 'gita' in r
+                    assert 'test_add_main' in r
                     break
             else:
                 assert 0, 'no main repo found'
             return ''
 
+        monkeypatch.setattr(common, 'get_config_dir', side_effect)
         monkeypatch.setattr(utils, 'describe', desc)
 
-        __main__.main(['ll'])
+        utils.get_repos.cache_clear()
+
+        with tmpdir.as_cwd():
+            __main__.main(['add', '-m', '.'])
+            utils.get_repos.cache_clear()
+            __main__.main(['ll'])
 
 
 @pytest.mark.parametrize('path_fname, expected', [
