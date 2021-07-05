@@ -1,3 +1,4 @@
+import os
 import pytest
 from unittest.mock import patch
 from pathlib import Path
@@ -6,7 +7,7 @@ import asyncio
 import shlex
 
 from gita import __main__
-from gita import utils, info
+from gita import utils, info, common
 from conftest import (
     PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME, PATH_FNAME_MAIN,
     async_mock, TEST_DIR,
@@ -40,20 +41,25 @@ class TestAdd:
         assert got['gita']['type'] == expected
 
     @patch('gita.utils.is_git', return_value=True)
-    @patch('gita.common.get_config_fname')
-    def test_add_main(self, mock_path_fname, _,
-                        capfd, tmp_path, monkeypatch):
-        def side_effect(input, _=None):
-            return tmp_path / f'{input}.txt'
-        mock_path_fname.side_effect = side_effect
-        utils.get_repos.cache_clear()
-        __main__.main(['add', '-m', '.'])
-        out, err = capfd.readouterr()
-        assert err == ''
+    def test_add_main(self, _, tmp_path, monkeypatch):
+        def side_effect(root=None):
+            if root is None:
+                return os.path.join(tmp_path, "gita")
+            else:
+                return os.path.join(root, ".gita")
+
+        monkeypatch.setattr(common, 'get_config_dir', side_effect)
 
         utils.get_repos.cache_clear()
+
+        __main__.main(['add', '-m', '.'])
+
+        utils.get_repos.cache_clear()
+        r = utils.get_repos()
+        print(r, '===========')
+
         def desc(repos, **_):
-            print(repos)
+            print(repos, len(repos))
             assert len(repos) > 0
             for r, prop in repos.items():
                 if prop['type'] == 'm':

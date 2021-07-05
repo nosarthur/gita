@@ -377,8 +377,7 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
-    p_add.add_argument('paths', nargs='+', help="repo(s) to add",
-            type=os.path.abspath)
+    p_add.add_argument('paths', nargs='+', help="repo(s) to add")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
