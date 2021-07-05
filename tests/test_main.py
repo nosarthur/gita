@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 from pathlib import Path
 import argparse
 import asyncio
@@ -38,6 +38,34 @@ class TestAdd:
         got = utils.get_repos()
         assert len(got) == 1
         assert got['gita']['type'] == expected
+
+    @patch('gita.utils.is_git', return_value=True)
+    @patch('gita.common.get_config_fname')
+    def test_add_main(self, mock_path_fname, _,
+                        capfd, tmp_path, monkeypatch):
+        def side_effect(input, _=None):
+            return tmp_path / f'{input}.txt'
+        mock_path_fname.side_effect = side_effect
+        utils.get_repos.cache_clear()
+        __main__.main(['add', '-m', '.'])
+        out, err = capfd.readouterr()
+        assert err == ''
+
+        utils.get_repos.cache_clear()
+        def desc(repos, **_):
+            print(repos)
+            assert len(repos) > 0
+            for r, prop in repos.items():
+                if prop['type'] == 'm':
+                    assert r == 'gita'
+                    break
+            else:
+                assert 0, 'no main repo found'
+            return ''
+
+        monkeypatch.setattr(utils, 'describe', desc)
+
+        __main__.main(['ll'])
 
 
 @pytest.mark.parametrize('path_fname, expected', [

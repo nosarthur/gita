@@ -22,6 +22,7 @@ import subprocess
 import pkg_resources
 from itertools import chain
 from pathlib import Path
+import glob
 
 from . import utils, info, common
 
@@ -47,11 +48,14 @@ def f_add(args: argparse.Namespace):
         for name, prop in main_repos.items():
             main_path = prop['path']
             print('Inside main repo:', name)
-            sub_paths = Path(main_path).glob('**')
+            #sub_paths = Path(main_path).glob('**')
+            sub_paths = glob.glob(os.path.join(main_path,'**/'), recursive=True)
             utils.add_repos({}, sub_paths, root=main_path)
     else:
         if args.recursive:
-            paths = chain.from_iterable(Path(p).glob('**') for p in args.paths)
+            paths = chain.from_iterable(
+                    glob.glob(os.path.join(p, '**/'), recursive=True)
+                    for p in args.paths)
         utils.add_repos(repos, paths, is_bare=args.bare)
 
 
@@ -373,7 +377,8 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
-    p_add.add_argument('paths', nargs='+', help="repo(s) to add")
+    p_add.add_argument('paths', nargs='+', help="repo(s) to add",
+            type=os.path.abspath)
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path.")
