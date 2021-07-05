@@ -7,6 +7,7 @@ import subprocess
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import List, Dict, Coroutine, Union, Iterator
+from collections import Counter
 
 from . import info
 from . import common
@@ -180,7 +181,8 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
             writer.writerows(data)
 
 
-def _make_name(path: str, repos: Dict[str, Dict[str, str]]) -> str:
+def _make_name(path: str, repos: Dict[str, Dict[str, str]],
+                name_counts: Counter) -> str:
     """
     Given a new repo `path`, create a repo name. By default, basename is used.
     If name collision exists, further include parent path name.
@@ -188,7 +190,7 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]]) -> str:
     @param path: It should not be in `repos`
     """
     name = os.path.basename(os.path.normpath(path))
-    if name in repos:
+    if name in repos or name_counts[name] > 1:
         par_name = os.path.basename(os.path.dirname(path))
         return os.path.join(par_name, name)
     return name
@@ -218,7 +220,10 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     new_repos = {}
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
-        new_repos = {_make_name(path, repos): {
+        name_counts = Counter(
+            os.path.basename(os.path.normpath(p)) for p in new_paths
+                )
+        new_repos = {_make_name(path, repos, name_counts): {
             'path': path,
             'type': _get_repo_type(path, repo_type, root),
             'flags': '',

@@ -55,15 +55,13 @@ class TestAdd:
         __main__.main(['add', '-m', '.'])
 
         utils.get_repos.cache_clear()
-        r = utils.get_repos()
-        print(r, '===========')
 
         def desc(repos, **_):
-            print(repos, len(repos))
+            print(len(repos), repos.keys())
             assert len(repos) > 0
             for r, prop in repos.items():
                 if prop['type'] == 'm':
-                    assert r == 'gita'
+                    assert 'gita' in r
                     break
             else:
                 assert 0, 'no main repo found'
