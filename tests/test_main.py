@@ -427,6 +427,21 @@ class TestGroupCmd:
         mock_write.assert_called_once_with(
                 {'xx': ['b'], 'yy': ['a', 'c', 'd']}, 'w')
 
+    @patch('gita.common.get_config_fname')
+    def test_integration(self, mock_path_fname, tmp_path, capfd):
+        def side_effect(input, _=None):
+            return tmp_path / f'{input}.csv'
+        mock_path_fname.side_effect = side_effect
+
+        __main__.main('add .'.split())
+        utils.get_repos.cache_clear()
+        __main__.main('group add gita -n test'.split())
+        utils.get_groups.cache_clear()
+        __main__.main('ll test'.split())
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'gita' in out
+
 
 @patch('gita.utils.is_git', return_value=True)
 @patch('gita.common.get_config_fname', return_value=PATH_FNAME)
