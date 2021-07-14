@@ -6,8 +6,8 @@ import platform
 import subprocess
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Iterator
-from collections import Counter
+from typing import List, Dict, Coroutine, Union, Iterator, Tuple
+from collections import Counter, defaultdict
 
 from . import info
 from . import common
@@ -215,7 +215,7 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     @param repos: name -> path
     """
     existing_paths = {prop['path'] for prop in repos.values()}
-    new_paths = {os.path.abspath(p) for p in new_paths if is_git(p, is_bare)}
+    new_paths = {p for p in new_paths if is_git(p, is_bare)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
@@ -234,6 +234,42 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     else:
         print('No new repos found!')
     return new_repos
+
+
+def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[str, ...]:
+    """
+    Return relative parent strings
+
+    For example, if `repo_path` is /a/b/c/d/here, and one of `paths` is /a/b/
+    then return (b, c, d)
+    """
+    for p in paths:
+        if is_relative_to(repo_path, p):
+            break
+    else:
+        return ()
+    return (os.path.basename(p),
+            *os.path.normpath(os.path.relpath(repo_path, p)).split(os.sep)[:-1])
+
+
+def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]
+        ) -> Dict[str, List[str]]:
+    """
+
+    """
+    # FIXME: the upstream code should make sure that paths are all independent
+    #        i.e., each repo should be contained in one and only one path
+    new_groups = defaultdict(list)
+    for repo_name, prop in repos.items():
+        hash = _generate_dir_hash(prop['path'], paths)
+        if not hash:
+            continue
+        for i in range(1, len(hash)+1):
+            group_name = '-'.join(hash[:i])
+            new_groups[group_name].append(repo_name)
+    # FIXME: need to make sure the new group names don't clash with old ones
+    #        or repo names
+    return new_groups
 
 
 def parse_clone_config(fname: str) -> Iterator[List[str]]:

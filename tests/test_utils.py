@@ -10,6 +10,27 @@ from conftest import (
 )
 
 
+@pytest.mark.parametrize('repo_path, paths, expected', [
+    ('/a/b/c/repo', ['/a/b'], ('b', 'c')),
+    ])
+def test_generate_dir_hash(repo_path, paths, expected):
+    got = utils._generate_dir_hash(repo_path, paths)
+    assert got == expected
+
+
+@pytest.mark.parametrize('repos, paths, expected', [
+    ({'r1': {'path': '/a/b//repo1'}, 'r2': {'path': '/a/b/repo2'}},
+        ['/a/b'], {'b': ['r1', 'r2']}),
+    ({'r1': {'path': '/a/b//repo1'}, 'r2': {'path': '/a/b/c/repo2'}},
+        ['/a/b'], {'b': ['r1', 'r2'], 'b-c': ['r2']}),
+    ({'r1': {'path': '/a/b/c/repo1'}, 'r2': {'path': '/a/b/c/repo2'}},
+        ['/a/b'], {'b-c': ['r1', 'r2'], 'b': ['r1', 'r2']}),
+    ])
+def test_auto_group(repos, paths, expected):
+    got = utils.auto_group(repos, paths)
+    assert got == expected
+
+
 @pytest.mark.parametrize('test_input, diff_return, expected', [
     ([{'abc': {'path': '/root/repo/', 'type': '', 'flags': []}}, False],
         True, 'abc \x1b[31mrepo *+_  \x1b[0m msg xx'),

@@ -62,6 +62,8 @@ The additional status symbols denote
 The bookkeeping sub-commands are
 
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
+- `gita add -a <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
+  and automatically generated hierarchical groups. See the [customization section](#custom) for more details.
 - `gita add -b <bare-repo-path(s)>`: add bare repo(s) to `gita`. See the [customization section](#custom) for more details on setting custom worktree.
 - `gita add -m <main-repo-path(s)>`: add main repo(s) to `gita`. See the [customization section](#custom) for more details.
 - `gita add -r <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
