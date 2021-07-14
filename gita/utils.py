@@ -187,7 +187,7 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
     Given a new repo `path`, create a repo name. By default, basename is used.
     If name collision exists, further include parent path name.
 
-    @param path: It should not be in `repos`
+    @param path: It should not be in `repos` and is absolute
     """
     name = os.path.basename(os.path.normpath(path))
     if name in repos or name_counts[name] > 1:
@@ -202,7 +202,7 @@ def _get_repo_type(path, repo_type, root) -> str:
     """
     if repo_type != '':  # explicitly set
         return repo_type
-    if root == path:  # main repo
+    if root is not None and os.path.normpath(root) == os.path.normpath(path):
         return 'm'
     return ''
 

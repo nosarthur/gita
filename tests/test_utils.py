@@ -104,7 +104,7 @@ def test_custom_push_cmd(*_):
 @pytest.mark.parametrize(
     'path_input, expected',
     [
-        (['/home/some/repo/'], '/home/some/repo,some/repo,,\r\n'),  # add one new
+        (['/home/some/repo'], '/home/some/repo,some/repo,,\r\n'),  # add one new
         (['/home/some/repo1', '/repo2'],
             {'/repo2,repo2,,\r\n',  # add two new
             '/home/some/repo1,repo1,,\r\n'}),  # add two new

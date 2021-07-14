@@ -29,7 +29,7 @@ class TestAdd:
         (['add', '-m', '.'], 'm'),
         ])
     @patch('gita.common.get_config_fname')
-    def testAdd(self, mock_path_fname, tmp_path, input, expected):
+    def test_add(self, mock_path_fname, tmp_path, input, expected):
         def side_effect(input, _=None):
             return tmp_path / f'{input}.txt'
         mock_path_fname.side_effect = side_effect
@@ -88,7 +88,7 @@ def test_flags(mock_path_fname, _, __, path_fname, expected, capfd):
 
 class TestLsLl:
     @patch('gita.common.get_config_fname')
-    def testLl(self, mock_path_fname, capfd, tmp_path):
+    def test_ll(self, mock_path_fname, capfd, tmp_path):
         """
         functional test
         """
@@ -128,7 +128,7 @@ class TestLsLl:
         assert err == ''
         assert out.strip() == utils.get_repos()['gita']['path']
 
-    def testLs(self, monkeypatch, capfd):
+    def test_ls(self, monkeypatch, capfd):
         monkeypatch.setattr(utils, 'get_repos',
                 lambda: {'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}})
         monkeypatch.setattr(utils, 'describe', lambda x: x)
@@ -157,7 +157,7 @@ class TestLsLl:
     @patch('gita.info.get_commit_msg', return_value="msg")
     @patch('gita.info.get_commit_time', return_value="")
     @patch('gita.common.get_config_fname')
-    def testWithPathFiles(self, mock_path_fname, _0, _1, _2, _3, _4, path_fname,
+    def test_with_path_files(self, mock_path_fname, _0, _1, _2, _3, _4, path_fname,
                           expected, capfd):
         def side_effect(input, _=None):
             if input == 'repos.csv':
@@ -301,21 +301,21 @@ class TestContext:
 
     @patch('gita.utils.get_context', return_value=Path('gname.context'))
     @patch('gita.utils.get_groups', return_value={'gname': ['a', 'b']})
-    def testDisplayContext(self, _, __, capfd):
+    def test_display_context(self, _, __, capfd):
         __main__.main(['context'])
         out, err = capfd.readouterr()
         assert err == ''
         assert 'gname: a b\n' == out
 
     @patch('gita.utils.get_context')
-    def testReset(self, mock_ctx):
+    def test_reset(self, mock_ctx):
         __main__.main(['context', 'none'])
         mock_ctx.return_value.unlink.assert_called()
 
     @patch('gita.utils.get_context', return_value=None)
     @patch('gita.common.get_config_dir', return_value=TEST_DIR)
     @patch('gita.utils.get_groups', return_value={'lala': ['b'], 'kaka': []})
-    def testSetFirstTime(self, *_):
+    def test_set_first_time(self, *_):
         ctx = TEST_DIR / 'lala.context'
         assert not ctx.is_file()
         __main__.main(['context', 'lala'])
@@ -325,7 +325,7 @@ class TestContext:
     @patch('gita.common.get_config_dir', return_value=TEST_DIR)
     @patch('gita.utils.get_groups', return_value={'lala': ['b'], 'kaka': []})
     @patch('gita.utils.get_context')
-    def testSetSecondTime(self, mock_ctx, *_):
+    def test_set_second_time(self, mock_ctx, *_):
         __main__.main(['context', 'kaka'])
         mock_ctx.return_value.rename.assert_called()
 
@@ -333,7 +333,7 @@ class TestContext:
 class TestGroupCmd:
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
-    def testLs(self, _, capfd):
+    def test_ls(self, _, capfd):
         args = argparse.Namespace()
         args.to_group = None
         args.group_cmd = 'ls'
@@ -344,7 +344,7 @@ class TestGroupCmd:
         assert 'xx yy\n' == out
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
-    def testLl(self, _, capfd):
+    def test_ll(self, _, capfd):
         args = argparse.Namespace()
         args.to_group = None
         args.group_cmd = None
@@ -356,7 +356,7 @@ class TestGroupCmd:
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testRename(self, mock_write, _):
+    def test_rename(self, mock_write, _):
         args = argparse.Namespace()
         args.gname = 'xx'
         args.new_name = 'zz'
@@ -367,7 +367,7 @@ class TestGroupCmd:
         mock_write.assert_called_once_with(expected, 'w')
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
-    def testRenameError(self, *_):
+    def test_rename_error(self, *_):
         args = argparse.Namespace()
         args.gname = 'xx'
         args.new_name = 'yy'
@@ -383,7 +383,7 @@ class TestGroupCmd:
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testRm(self, mock_write, _, __, input, expected):
+    def test_rm(self, mock_write, _, __, input, expected):
         utils.get_groups.cache_clear()
         args = ['group', 'rm'] + shlex.split(input)
         __main__.main(args)
@@ -392,7 +392,7 @@ class TestGroupCmd:
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testAdd(self, mock_write, *_):
+    def test_add(self, mock_write, *_):
         args = argparse.Namespace()
         args.to_group =  ['a', 'c']
         args.group_cmd = 'add'
@@ -404,7 +404,7 @@ class TestGroupCmd:
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testAddToExisting(self, mock_write, *_):
+    def test_add_to_existing(self, mock_write, *_):
         args = argparse.Namespace()
         args.to_group =  ['a', 'c']
         args.group_cmd = 'add'
@@ -417,7 +417,7 @@ class TestGroupCmd:
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
-    def testRmRepo(self, mock_write, *_):
+    def test_rm_repo(self, mock_write, *_):
         args = argparse.Namespace()
         args.from_group = ['a', 'c']
         args.group_cmd = 'rmrepo'
