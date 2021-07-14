@@ -62,6 +62,8 @@ The additional status symbols denote
 The bookkeeping sub-commands are
 
 - `gita add <repo-path(s)>`: add repo(s) to `gita`
+- `gita add -a <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
+  and automatically generate hierarchical groups. See the [customization section](#custom) for more details.
 - `gita add -b <bare-repo-path(s)>`: add bare repo(s) to `gita`. See the [customization section](#custom) for more details on setting custom worktree.
 - `gita add -m <main-repo-path(s)>`: add main repo(s) to `gita`. See the [customization section](#custom) for more details.
 - `gita add -r <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
@@ -206,6 +208,32 @@ gita context my-group
 gita ll
 gita pull
 ```
+
+It is also possible to recursively add repos within a directory and
+generate hierarchical groups automatically. For example, running
+
+```
+gita add -a src
+```
+on the following folder structure
+```
+src
+├── project1
+│   ├── repo1
+│   └── repo2
+├── repo3
+├── project2
+│   ├── repo4
+│   └── repo5
+└── repo6
+```
+gives rise to
+```
+src:repo1,repo2,repo3,repo4,repo5,repo6
+src-project1:repo1,repo2
+src-project2:repo4,repo5
+```
+
 
 ### define main repos and shadow the global configuration setting with local setting
 

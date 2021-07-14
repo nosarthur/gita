@@ -52,11 +52,16 @@ def f_add(args: argparse.Namespace):
             sub_paths = glob.glob(os.path.join(main_path,'**/'), recursive=True)
             utils.add_repos({}, sub_paths, root=main_path)
     else:
-        if args.recursive:
+        if args.recursive or args.auto_group:
             paths = chain.from_iterable(
                     glob.glob(os.path.join(p, '**/'), recursive=True)
                     for p in args.paths)
-        utils.add_repos(repos, paths, is_bare=args.bare)
+        new_repos = utils.add_repos(repos, paths, is_bare=args.bare)
+        if args.auto_group:
+            new_groups = utils.auto_group(new_repos, args.paths)
+            if new_groups:
+                print(f'Created {len(new_groups)} new group(s).')
+                utils.write_to_groups_file(new_groups, 'a+')
 
 
 def f_rename(args: argparse.Namespace):
@@ -377,12 +382,15 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
-    p_add.add_argument('paths', nargs='+', help="repo(s) to add")
+    p_add.add_argument('paths', nargs='+', type=os.path.abspath, help="repo(s) to add")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
-            help="recursively add repo(s) in the given path.")
+            help="recursively add repo(s) in the given path(s).")
     xgroup.add_argument('-m', '--main', action='store_true',
             help="make main repo(s), sub-repos are recursively added.")
+    xgroup.add_argument('-a', '--auto-group', action='store_true',
+            help="recursively add repo(s) in the given path(s) "
+                "and create hierarchical groups based on folder structure.")
     xgroup.add_argument('-b', '--bare', action='store_true',
             help="add bare repo(s)")
     p_add.set_defaults(func=f_add)

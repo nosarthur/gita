@@ -46,6 +46,7 @@
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
+- `gita add -a <repo-parent-path(s)>`:
 - `gita add -b <bare-repo-path(s)>`:
 - `gita add -m <main-repo-path(s)>`:
 - `gita add -r <repo-parent-path(s)>`:
