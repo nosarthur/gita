@@ -182,6 +182,9 @@ def f_group(args: argparse.Namespace):
             print(f"{group}: {' '.join(repos)}")
     elif cmd == 'ls':
         print(' '.join(groups))
+    elif cmd == 'show':
+        gname = args.to_show
+        print(' '.join(groups[gname]))
     elif cmd == 'rename':
         new_name = args.new_name
         if new_name in groups:
@@ -528,6 +531,10 @@ def main(argv=None):
             help='additional help with sub-command -h')
     group_cmds.add_parser('ll', description='List all groups with repos.')
     group_cmds.add_parser('ls', description='List all group names.')
+    pg_show = group_cmds.add_parser('show', description='Show repos in a group.')
+    pg_show.add_argument('to_show',
+                         choices=utils.get_groups(),
+                         help="group to show")
     pg_add = group_cmds.add_parser('add', description='Add repo(s) to a group.')
     pg_add.add_argument('to_group',
                     nargs='+',
