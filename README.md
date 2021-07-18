@@ -41,11 +41,13 @@ To run arbitrary shell command, see the [shell mode section](#shell).
 
 The branch color distinguishes 5 situations between local and remote branches:
 
-- white: local has no remote
-- green: local is the same as remote
-- red: local has diverged from remote
-- purple: local is ahead of remote (good for push)
-- yellow: local is behind remote (good for merge)
+color | meaning
+---|---
+ white| local has no remote
+ green| local is the same as remote
+ red| local has diverged from remote
+ purple| local is ahead of remote (good for push)
+ yellow| local is behind remote (good for merge)
 
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
