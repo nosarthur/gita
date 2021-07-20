@@ -178,7 +178,7 @@ def f_group(args: argparse.Namespace):
     groups = utils.get_groups()
     cmd = args.group_cmd or 'll'
     if cmd == 'll':
-        if args.to_show:
+        if 'to_show' in args and args.to_show:
             gname = args.to_show
             print(' '.join(groups[gname]))
         else:
