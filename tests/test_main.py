@@ -348,11 +348,24 @@ class TestGroupCmd:
         args = argparse.Namespace()
         args.to_group = None
         args.group_cmd = None
+        args.to_show = None
         utils.get_groups.cache_clear()
         __main__.f_group(args)
         out, err = capfd.readouterr()
         assert err == ''
         assert 'xx: a b\nyy: a c d\n' == out
+
+    @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
+    def test_ll_with_group(self, _, capfd):
+        args = argparse.Namespace()
+        args.to_group = None
+        args.group_cmd = None
+        args.to_show = 'yy'
+        utils.get_groups.cache_clear()
+        __main__.f_group(args)
+        out, err = capfd.readouterr()
+        assert err == ''
+        assert 'a c d\n' == out
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     @patch('gita.utils.write_to_groups_file')
