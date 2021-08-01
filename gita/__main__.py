@@ -343,9 +343,10 @@ def f_shell(args):
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ' '.join(args.man[i:])  # join the shell command into a single string
+    #cmds = args.man[i:]
     for name, prop in repos.items():
         # TODO: pull this out as a function
-        got = subprocess.run(cmds, cwd=prop['path'], check=True, shell=True,
+        got = subprocess.run(cmds, cwd=prop['path'], shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
         print(utils.format_output(got.stdout.decode(), name))
