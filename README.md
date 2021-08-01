@@ -57,9 +57,11 @@ See the [customization section](#custom).
 
 The additional status symbols denote
 
-- `+`: staged changes
-- `*`: unstaged changes
-- `_`: untracked files/folders
+symbol | meaning
+---|---
+ `+`| staged changes
+ `*`| unstaged changes
+ `_`| untracked files/folders
 
 The bookkeeping sub-commands are
 
