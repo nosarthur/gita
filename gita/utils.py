@@ -18,7 +18,7 @@ def is_relative_to(kid: str, parent: str) -> bool:
     """
     Both the `kid` and `parent` should be absolute path
     """
-    return parent == os.path.commonpath((kid, parent))
+    return parent == os.path.abspath((kid, parent))
 
 
 @lru_cache()
