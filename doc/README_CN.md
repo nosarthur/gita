@@ -24,6 +24,8 @@
 - 并排显示多个库的状态信息，比如分支名，编辑状态，提交信息等
 - 在任何目录下（批处理）代理执行 git 指令
 
+如果多個存儲庫鏈接在一起，一起查看它們的狀態會很有幫助。 我也討厭更改目錄以運行 git 命令。
+
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
 本地和远程分支之间的关系有5种情况，在这里分别用5种颜色对应着：
