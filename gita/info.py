@@ -1,6 +1,5 @@
 import os
 import csv
-import yaml
 import subprocess
 from enum import Enum
 from pathlib import Path

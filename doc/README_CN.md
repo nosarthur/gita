@@ -26,7 +26,11 @@
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
-本地和远程分支之间的关系有5种情况，在这里分别用5种颜色对应着：
+在这个截屏里,`gita ll`显示所有库的状态信息,`gita remote dotfiles`等价于在
+`dotfiles`库里运行`git remote -v`,`gita fetch`对所有库做`fetch`操作,在这个例子
+里,两个库有更新.
+
+本地和远程分支之间的5种关系分别用5种颜色对应：
 
 颜色|含义
 ----|----
@@ -36,42 +40,44 @@
  白色|本地没有指定远程
  紫色|本地超前于远程（适合推送push）
 
-为什么选择了紫色作为超前以及黄色作为落后，绿色作为基准 的理由在这两篇文章中解释：
-[blueshift](https://en.wikipedia.org/wiki/Blueshift)、[redshift](https://en.wikipedia.org/wiki/Redshift)
+紫色作为超前,黄色作为落后，绿色作为基准的理由取自蓝移和红移：
+[blueshift](https://en.wikipedia.org/wiki/Blueshift)、[redshift](https://en.wikipedia.org/wiki/Redshift).
 
 额外的状态符号意义：
 
 - `+`: 暂存(staged)
-- `*`： 未暂存（unstaged）
-- `_`： 未追踪（untracked）
+- `*`: 未暂存（unstaged）
+- `_`: 未追踪（untracked）
 
 基础指令：
 
 - `gita add <repo-path(s)>`: 添加库
-- `gita add -a <repo-parent-path(s)>`:
-- `gita add -b <bare-repo-path(s)>`:
-- `gita add -m <main-repo-path(s)>`:
-- `gita add -r <repo-parent-path(s)>`:
-- `gita clone <config-file>`:
-- `gita clone -p <config-file>`:
+- `gita add -a <repo-parent-path(s)>`: 递归添加路径下的所有库并自动产生层级分组,见
+  [customization section](#custom)
+- `gita add -b <bare-repo-path(s)>`: 添加bare库
+- `gita add -m <main-repo-path(s)>`: 添加main库, main库的定义见
+  [customization section](#custom)
+- `gita add -r <repo-parent-path(s)>`: 递归添加路径下的所有库
+- `gita clone <config-file>`: 克隆`<config-file>` (由`gita freeze`生成)里的库
+- `gita clone -p <config-file>`: 克隆`<config-file>`里的库并放到指定路径
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
     - `gita context none`: 去除情境
     - `gita context <group-name>`: 把情境设置成`group-name`, 之后所有的操作只作用到这个组里的库
 - `gita color`:
-    - `gita color [ll]`:
-    - `gita color set <situation> <color>`:
+    - `gita color [ll]`:显示颜色设置
+    - `gita color set <situation> <color>`:给本地/远程关系设置颜色
 - `gita flags`:
-    - `gita flags set <repo-name> <flags>`:
-    - `gita flags [ll]`:
-- `gita freeze`:
+    - `gita flags set <repo-name> <flags>`:给库设置flags
+    - `gita flags [ll]`:显示已有的flags
+- `gita freeze`:显示URL, 路径之类的库信息(配合`gita clone`使用)
 - `gita group`: 组群命令
     - `gita group add <repo-name(s)>`: 把库加入新的或者已经存在的组
     - `gita group [ll]`: 显示已有的组和它们的库
     - `gita group ls`: 显示已有的组名
     - `gita group rename <group-name> <new-name>`: 改组名
     - `gita group rm group(s): 删除组
-    - `gita group rmrepo -n <group-name>:
+    - `gita group rmrepo -n <group-name>:删除组里的库
 - `gita info`: 显示已用的和未用的信息项
     - `gita info [ll]`
     - `gita info add <info-item>`
@@ -99,7 +105,7 @@
 
 ## 安装指南
 
-正常人类按装：
+正常人类安装：
 
 ```
 pip3 install -U gita

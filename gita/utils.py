@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 import csv
@@ -55,7 +56,9 @@ def get_context() -> Union[Path, None]:
     """
     config_dir = Path(common.get_config_dir())
     matches = list(config_dir.glob('*.context'))
-    assert len(matches) < 2, "Cannot have multiple .context file"
+    if len(matches) > 1:
+        print("Cannot have multiple .context file")
+        sys.exit(1)
     return matches[0] if matches else None
 
 
@@ -116,6 +119,7 @@ def is_git(path: str, is_bare=False) -> bool:
     if got.returncode == 0 and got.stdout == b'true\n':
         return True
     return False
+
 
 def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     """

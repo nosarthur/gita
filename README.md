@@ -83,7 +83,8 @@ The bookkeeping sub-commands are
 - `gita flags`: flags sub-command
     - `gita flags set <repo-name> <flags>`: add custom `flags` to repo
     - `gita flags [ll]`: display repos with custom flags
-- `gita freeze`: print information of all repos such as URL, name, and path.
+- `gita freeze`: print information of all repos such as URL, name, and path. Use with
+  `gita clone`.
 - `gita group`: group sub-command
     - `gita group add <repo-name(s)> -n <group-name>`: add repo(s) to a new or existing group
     - `gita group [ll]`: display existing groups with repos
