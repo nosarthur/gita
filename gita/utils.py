@@ -19,6 +19,7 @@ def is_relative_to(kid: str, parent: str) -> bool:
     """
     Both the `kid` and `parent` should be absolute path
     """
+    # Note that os.path.commonpath has no trailing /
     return parent == os.path.commonpath((kid, parent))
 
 
@@ -195,7 +196,8 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
     """
     name = os.path.basename(os.path.normpath(path))
     if name in repos or name_counts[name] > 1:
-        par_name = os.path.basename(os.path.dirname(os.path.dirname(path)))
+        # path has no trailing /
+        par_name = os.path.basename(os.path.dirname(path))
         return os.path.join(par_name, name)
     return name
 

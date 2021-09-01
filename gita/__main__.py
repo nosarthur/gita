@@ -29,13 +29,20 @@ from . import utils, info, common
 
 def _group_name(name: str) -> str:
     """
-
+    Return valid group name
     """
     repos = utils.get_repos()
     if name in repos:
         print(f"Cannot use group name {name} since it's a repo name.")
         sys.exit(1)
     return name
+
+
+def _path_name(name: str) -> str:
+    """
+    Return absolute path without trailing /
+    """
+    return os.path.abspath(name).rstrip(os.path.sep)
 
 
 def f_add(args: argparse.Namespace):
@@ -53,11 +60,11 @@ def f_add(args: argparse.Namespace):
             utils.add_repos({}, sub_paths, root=main_path)
     else:
         if args.recursive or args.auto_group:
-            paths = chain.from_iterable(
+            paths = (p.rstrip(os.path.sep) for p in chain.from_iterable(
                     glob.glob(os.path.join(p, '**/'), recursive=True)
-                    for p in args.paths)
+                    for p in args.paths))
         new_repos = utils.add_repos(repos, paths, is_bare=args.bare)
-        if args.auto_group:
+        if new_repos and args.auto_group:
             new_groups = utils.auto_group(new_repos, args.paths)
             if new_groups:
                 print(f'Created {len(new_groups)} new group(s).')
@@ -386,7 +393,7 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
-    p_add.add_argument('paths', nargs='+', type=os.path.abspath, help="repo(s) to add")
+    p_add.add_argument('paths', nargs='+', type=_path_name, help="repo(s) to add")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path(s).")
