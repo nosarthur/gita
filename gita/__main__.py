@@ -166,11 +166,24 @@ def f_ll(args: argparse.Namespace):
     ctx = utils.get_context()
     if args.group is None and ctx:
         args.group = ctx.stem
+    group_repos = None
     if args.group:  # only display repos in this group
         group_repos = utils.get_groups()[args.group]
         repos = {k: repos[k] for k in group_repos if k in repos}
-    for line in utils.describe(repos, no_colors=args.no_colors):
-        print(line)
+    if args.g:  # display by group
+        if group_repos:
+            print(f'{args.group}:')
+            for line in utils.describe(repos, no_colors=args.no_colors):
+                print('  ', line)
+        else:
+            for g, g_repos in utils.get_groups().items():
+                print(f'{g}:')
+                g_repos = {k: repos[k] for k in g_repos if k in repos}
+                for line in utils.describe(g_repos, no_colors=args.no_colors):
+                    print('  ', line)
+    else:
+        for line in utils.describe(repos, no_colors=args.no_colors):
+            print(line)
 
 
 def f_ls(args: argparse.Namespace):
@@ -510,6 +523,8 @@ def main(argv=None):
                       help="show repos in the chosen group")
     p_ll.add_argument('-C', '--no-colors', action='store_true',
             help='Disable coloring on the branch names.')
+    p_ll.add_argument('-g', action='store_true',
+            help='Show repo summaries by group.')
     p_ll.set_defaults(func=f_ll)
 
     p_context = subparsers.add_parser('context',
