@@ -353,7 +353,7 @@ class TestGroupCmd:
         __main__.f_group(args)
         out, err = capfd.readouterr()
         assert err == ''
-        assert 'xx: a b\nyy: a c d\n' == out
+        assert out == 'xx:\n   - a\n   - b\nyy:\n   - a\n   - c\n   - d\n'
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def test_ll_with_group(self, _, capfd):

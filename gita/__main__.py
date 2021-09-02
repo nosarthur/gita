@@ -206,7 +206,9 @@ def f_group(args: argparse.Namespace):
             print(' '.join(groups[gname]))
         else:
             for group, repos in groups.items():
-                print(f"{group}: {' '.join(repos)}")
+                print(f"{group}:")
+                for r in repos:
+                    print('   -', r)
     elif cmd == 'ls':
         print(' '.join(groups))
     elif cmd == 'rename':
