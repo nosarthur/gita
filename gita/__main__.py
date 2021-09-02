@@ -35,6 +35,9 @@ def _group_name(name: str) -> str:
     if name in repos:
         print(f"Cannot use group name {name} since it's a repo name.")
         sys.exit(1)
+    if name in {'none', 'auto'}:
+        print(f"Cannot use group name {name} since it's a reserved keyword.")
+        sys.exit(1)
     return name
 
 
@@ -238,24 +241,26 @@ def f_group(args: argparse.Namespace):
     elif cmd == 'rmrepo':
         gname = args.gname
         if gname in groups:
-            for repo in args.from_group:
-                try:
-                    groups[gname].remove(repo)
-                except ValueError as e:
-                    pass
+            group = {gname: groups[gname]}
+            for repo in args.to_rm:
+                utils.delete_repo_from_groups(repo, group)
+            groups[gname] = group[gname]
             utils.write_to_groups_file(groups, 'w')
 
 
 def f_context(args: argparse.Namespace):
     choice = args.choice
     ctx = utils.get_context()
-    if choice is None:
+    if choice is None:  # display current context
         if ctx:
             group = ctx.stem
             print(f"{group}: {' '.join(utils.get_groups()[group])}")
         else:
             print('Context is not set')
     elif choice == 'none':  # remove context
+        auto_ctx = Path(common.get_config_dir()) / 'auto.context'
+        if auto_ctx.exists():
+            ctx = auto_ctx
         ctx and ctx.unlink()
     else:  # set context
         fname = Path(common.get_config_dir()) / (choice + '.context')
@@ -275,8 +280,14 @@ def f_rm(args: argparse.Namespace):
         main_paths = [prop['path'] for prop in repos.values() if prop['type'] == 'm']
         # TODO: add test case to delete main repo from main repo
         #       only local setting should be affected instead of the global one
+        group_updated = False
         for repo in args.repo:
             del repos[repo]
+            groups = utils.get_groups()
+            group_updated = group_updated or utils.delete_repo_from_groups(repo, groups)
+        if group_updated:
+            utils.write_to_groups_file(groups, 'w')
+
         # If cwd is relative to any main repo, write to local config
         cwd = os.getcwd()
         for p in main_paths:
@@ -533,8 +544,12 @@ def main(argv=None):
                 ' When set, all operations apply only to repos in that group.')
     p_context.add_argument('choice',
                       nargs='?',
-                      choices=set().union(utils.get_groups(), {'none'}),
-                      help="Without argument, show current context. Otherwise choose a group as context. To remove context, use 'none'. ")
+                      choices=set().union(utils.get_groups(), {'none', 'auto'}),
+                      help="Without this argument, show current context. "
+                      "Otherwise choose a group as context, or use 'auto', "
+                      "which sets the context/group automatically based on "
+                      "the current working directory. "
+                      "To remove context, use 'none'. ")
     p_context.set_defaults(func=f_context)
 
     p_ls = subparsers.add_parser(
@@ -571,7 +586,7 @@ def main(argv=None):
                     required=True,
                     help="group name")
     pg_rmrepo = group_cmds.add_parser('rmrepo', description='remove repo(s) from a group.')
-    pg_rmrepo.add_argument('from_group',
+    pg_rmrepo.add_argument('to_rm',
                     nargs='+',
                     metavar='repo',
                     choices=utils.get_repos(),

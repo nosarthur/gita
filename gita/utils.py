@@ -17,7 +17,7 @@ from . import common
 # TODO: python3.9 pathlib has is_relative_to() function
 def is_relative_to(kid: str, parent: str) -> bool:
     """
-    Both the `kid` and `parent` should be absolute path
+    Both the `kid` and `parent` should be absolute paths without trailing /
     """
     # Note that os.path.commonpath has no trailing /
     return parent == os.path.commonpath((kid, parent))
@@ -53,14 +53,37 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
 @lru_cache()
 def get_context() -> Union[Path, None]:
     """
-    Return the context: either a group name or 'none'
+    Return context file path, or None if not set. Note that if in auto context
+    mode, the return value is not auto.context but the resolved context,
+    which could be None.
+
     """
     config_dir = Path(common.get_config_dir())
     matches = list(config_dir.glob('*.context'))
     if len(matches) > 1:
         print("Cannot have multiple .context file")
         sys.exit(1)
-    return matches[0] if matches else None
+    if not matches:
+        return None
+    ctx = matches[0]
+    if ctx.stem == 'auto':
+        cwd = str(Path.cwd())
+        repos = get_repos()
+        candidates = []
+        for gname, grepos in get_groups().items():
+            for name in grepos:
+                if is_relative_to(cwd, repos[name]['path']):
+                    candidates.append(gname)
+                    break
+        if len(candidates) == 0:
+            ctx = None
+        elif len(candidates) == 1:
+            ctx = config_dir / f'{candidates[0]}.context'
+        else:
+            print('Cannot set context automatically due to multiple matches: ',
+                  candidates)
+            ctx = None
+    return ctx
 
 
 @lru_cache()
@@ -70,12 +93,27 @@ def get_groups() -> Dict[str, List[str]]:
     """
     fname = common.get_config_fname('groups.csv')
     groups = {}
-    # Each line is a repo path and repo name separated by ,
+    # Each line is:  group-name:repo1 repo2 repo3
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
             rows = csv.reader(f, delimiter=':')
             groups = {r[0]: r[1].split() for r in rows}
     return groups
+
+
+def delete_repo_from_groups(repo: str, groups: Dict[str, List[str]]) -> bool:
+    """
+    Delete repo from groups
+    """
+    deleted = False
+    for name in groups:
+        try:
+            groups[name].remove(repo)
+        except ValueError as e:
+            pass
+        else:
+            deleted = True
+    return deleted
 
 
 def get_choices() -> List[Union[str, None]]:
