@@ -432,7 +432,7 @@ class TestGroupCmd:
     @patch('gita.utils.write_to_groups_file')
     def test_rm_repo(self, mock_write, *_):
         args = argparse.Namespace()
-        args.from_group = ['a', 'c']
+        args.to_rm = ['a', 'c']
         args.group_cmd = 'rmrepo'
         args.gname = 'xx'
         utils.get_groups.cache_clear()

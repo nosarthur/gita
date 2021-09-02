@@ -241,8 +241,10 @@ def f_group(args: argparse.Namespace):
     elif cmd == 'rmrepo':
         gname = args.gname
         if gname in groups:
-            for repo in args.from_group:
-                utils.delete_repo_from_groups(repo, groups)
+            group = {gname: groups[gname]}
+            for repo in args.to_rm:
+                utils.delete_repo_from_groups(repo, group)
+            groups[gname] = group[gname]
             utils.write_to_groups_file(groups, 'w')
 
 
@@ -256,11 +258,10 @@ def f_context(args: argparse.Namespace):
         else:
             print('Context is not set')
     elif choice == 'none':  # remove context
-        if ctx is None:
-            return
-        if not ctx.exists():  # auto context
-            ctx = Path(common.get_config_dir()) / 'auto.context'
-        ctx.unlink()
+        auto_ctx = Path(common.get_config_dir()) / 'auto.context'
+        if auto_ctx.exists():
+            ctx = auto_ctx
+        ctx and ctx.unlink()
     else:  # set context
         fname = Path(common.get_config_dir()) / (choice + '.context')
         if ctx:
@@ -585,7 +586,7 @@ def main(argv=None):
                     required=True,
                     help="group name")
     pg_rmrepo = group_cmds.add_parser('rmrepo', description='remove repo(s) from a group.')
-    pg_rmrepo.add_argument('from_group',
+    pg_rmrepo.add_argument('to_rm',
                     nargs='+',
                     metavar='repo',
                     choices=utils.get_repos(),

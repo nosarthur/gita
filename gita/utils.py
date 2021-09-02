@@ -17,7 +17,7 @@ from . import common
 # TODO: python3.9 pathlib has is_relative_to() function
 def is_relative_to(kid: str, parent: str) -> bool:
     """
-    Both the `kid` and `parent` should be absolute path without trailing /
+    Both the `kid` and `parent` should be absolute paths without trailing /
     """
     # Note that os.path.commonpath has no trailing /
     return parent == os.path.commonpath((kid, parent))
@@ -53,7 +53,9 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
 @lru_cache()
 def get_context() -> Union[Path, None]:
     """
-    Return the context file path
+    Return context file path, or None if not set. Note that if in auto context
+    mode, the return value is not auto.context but the resolved context,
+    which could be None.
 
     """
     config_dir = Path(common.get_config_dir())
@@ -91,7 +93,7 @@ def get_groups() -> Dict[str, List[str]]:
     """
     fname = common.get_config_fname('groups.csv')
     groups = {}
-    # Each line is a repo path and repo name separated by ,
+    # Each line is:  group-name:repo1 repo2 repo3
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
             rows = csv.reader(f, delimiter=':')

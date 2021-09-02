@@ -75,8 +75,9 @@ The bookkeeping sub-commands are
 - `gita clone -p <config-file>`: clone repos in `config-file` to prescribed paths.
 - `gita context`: context sub-command
     - `gita context`: show current context
-    - `gita context none`: remove context
     - `gita context <group-name>`: set context to `group-name`, all operations then only apply to repos in this group
+    - `gita context auto`: set context automatically according to the current working directory
+    - `gita context none`: remove context
 - `gita color`: color sub-command
     - `gita color [ll]`: Show available colors and the current coloring scheme
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
@@ -98,6 +99,7 @@ The bookkeeping sub-commands are
     - `gita info rm <info-item>`: disable information item
 - `gita ll`: display the status of all repos
 - `gita ll <group-name>`: display the status of repos in a group
+- `gita ll -g`: display the repo summaries by groups
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
@@ -214,6 +216,20 @@ gita ll
 gita pull
 ```
 
+The most useful context  maybe `auto`.
+In this mode, the context is automatically determined from the
+current working directory (CWD): the context is the group whose member repo's
+path contains CWD. To set it, run
+
+```
+gita context auto
+```
+
+To remove the context, run
+```
+gita context none
+```
+
 It is also possible to recursively add repos within a directory and
 generate hierarchical groups automatically. For example, running
 
@@ -232,7 +248,7 @@ src
 │   └── repo5
 └── repo6
 ```
-gives rise to
+gives rise to 3 groups:
 ```
 src:repo1,repo2,repo3,repo4,repo5,repo6
 src-project1:repo1,repo2
