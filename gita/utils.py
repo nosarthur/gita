@@ -27,7 +27,10 @@ def get_relative_path(kid: str, parent: str) -> Union[List[str], None]:
     # TODO: python3.9 pathlib has is_relative_to() function
     # TODO: Maybe use os.path.commonprefix? since it's faster?
     if parent == os.path.commonpath((kid, parent)):
-        return os.path.normpath(os.path.relpath(kid, parent)).split(os.sep)[:-1]
+        rel = os.path.normpath(os.path.relpath(kid, parent)).split(os.sep)
+        if rel == ['.']:
+            rel = []
+        return rel
     else:
         return None
 
@@ -76,55 +79,79 @@ def get_context() -> Union[Path, None]:
         return None
     ctx = matches[0]
     if ctx.stem == 'auto':
-        print(ctx)
         cwd = str(Path.cwd())
         repos = get_repos()
         # The context is set to be the group with minimal distance to cwd
         candidate = None
         min_dist = MAX_INT
-        for gname, grepos in get_groups().items():
-            for name in grepos:
-                d = get_relative_path(repos[name]['path'], cwd)
-                print(d, repos[name]['path'], cwd)
-                if d < min_dist:
-                    candidate = gname
-                    min_dist = d
-        print(candidate)
+        for gname, prop in get_groups().items():
+            gpath = prop['path']
+            rel = get_relative_path(cwd, gpath)
+            if rel is None:
+                continue
+            d = len(rel)
+            if d < min_dist:
+                candidate = gname
+                min_dist = d
         if not candidate:
             ctx = None
         else:
-            ctx = config_dir / f'{candidate}.context'
+            ctx = ctx.with_name(f'{candidate}.context')
     return ctx
 
 
 @lru_cache()
-def get_groups() -> Dict[str, List[str]]:
+def get_groups() -> Dict[str, Dict]:
     """
-    Return a `dict` of group name to repo names.
+    Return a `dict` of group name to group properties such as repo names and
+    group path.
     """
     fname = common.get_config_fname('groups.csv')
     groups = {}
-    # Each line is:  group-name:repo1 repo2 repo3
+    # Each line is:  group-name:repo1 repo2 repo3:group-path
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, 'r') as f:
-            rows = csv.reader(f, delimiter=':')
-            groups = {r[0]: r[1].split() for r in rows}
+            rows = csv.DictReader(f, ['name', 'repos', 'path'],
+                                  restval='', delimiter=':')
+            groups = {
+                    r['name']: {
+                        'repos': r['repos'].split(),
+                        'path': r['path']
+                        }
+                    for r in rows}
     return groups
 
 
-def delete_repo_from_groups(repo: str, groups: Dict[str, List[str]]) -> bool:
+def delete_repo_from_groups(repo: str, groups: Dict[str, Dict]) -> bool:
     """
     Delete repo from groups
     """
     deleted = False
     for name in groups:
         try:
-            groups[name].remove(repo)
+            groups[name]['repos'].remove(repo)
         except ValueError as e:
             pass
         else:
             deleted = True
     return deleted
+
+
+def replace_context(old: Union[Path, None], new: str):
+    """
+
+    """
+    auto = Path(common.get_config_dir()) / 'auto.context'
+    if auto.exists():
+        old = auto
+
+    if new == 'none':  # delete
+        old and old.unlink()
+    elif old:
+        # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
+        old.rename(old.with_name(f'{new}.context'))
+    else:
+        open(auto.with_name(f'{new}.context'), 'w').close()
 
 
 def get_choices() -> List[Union[str, None]]:
@@ -185,6 +212,7 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     main_paths = (prop['path'] for prop in repos.values() if prop['type'] == 'm')
     cwd = os.getcwd()
     is_local_config = True
+    # TODO: delete
     for p in main_paths:
         if get_relative_path(cwd, p) != MAX_INT:
             write_to_repo_file(repos, 'w', p)
@@ -217,7 +245,8 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str, root=None):
         writer.writerows(data)
 
 
-def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
+# TODO: combine with the repo writer
+def write_to_groups_file(groups: Dict[str, Dict], mode: str):
     """
 
     """
@@ -228,8 +257,8 @@ def write_to_groups_file(groups: Dict[str, List[str]], mode: str):
     else:
         with open(fname, mode, newline='') as f:
             data = [
-                    (group, ' '.join(repos))
-                    for group, repos in groups.items()
+                    (group, ' '.join(prop['repos']), prop['path'])
+                    for group, prop in groups.items()
                     ]
             writer = csv.writer(f, delimiter=':', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerows(data)
@@ -251,6 +280,7 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
     return name
 
 
+# TODO: delete
 def _get_repo_type(path, repo_type, root) -> str:
     """
 
@@ -291,40 +321,46 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     return new_repos
 
 
-def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[str, ...]:
+def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[
+        Tuple[str, ...], str]:
     """
-    Return relative parent strings
+    Return relative parent strings, and the parent head string
 
     For example, if `repo_path` is /a/b/c/d/here, and one of `paths` is /a/b/
     then return (b, c, d)
     """
+    print(paths, repo_path, '*'*5)
     for p in paths:
-        rel = get_relative_path(repo_path, p)
+        rel = get_relative_path(repo_path, p)[:-1]
         if rel is not None:
             break
     else:
-        return ()
-    return (os.path.basename(p), *rel)
+        return (), ''
+    head, tail = os.path.split(p)
+    return (tail, *rel), head
 
 
 def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]
-        ) -> Dict[str, List[str]]:
+        ) -> Dict[str, Dict]:
     """
 
     @params repos: repos to be grouped
     """
     # FIXME: the upstream code should make sure that paths are all independent
     #        i.e., each repo should be contained in one and only one path
-    new_groups = defaultdict(list)
-    print(paths)
+    new_groups = defaultdict(dict)
     for repo_name, prop in repos.items():
-        hash = _generate_dir_hash(prop['path'], paths)
-        print(prop['path'], hash)
+        hash, head = _generate_dir_hash(prop['path'], paths)
         if not hash:
             continue
         for i in range(1, len(hash)+1):
             group_name = '-'.join(hash[:i])
-            new_groups[group_name].append(repo_name)
+            prop = new_groups[group_name]
+            prop['path'] = os.path.join(head, *hash[:i])
+            if 'repos' not in prop:
+                prop['repos'] = [repo_name]
+            else:
+                prop['repos'].append(repo_name)
     # FIXME: need to make sure the new group names don't clash with old ones
     #        or repo names
     return new_groups

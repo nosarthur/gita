@@ -35,6 +35,10 @@ def _group_name(name: str) -> str:
     if name in repos:
         print(f"Cannot use group name {name} since it's a repo name.")
         sys.exit(1)
+    groups = utils.get_groups()
+    if name in groups:
+        print(f"Cannot use group name {name} since it's already in use.")
+        sys.exit(1)
     if name in {'none', 'auto'}:
         print(f"Cannot use group name {name} since it's a reserved keyword.")
         sys.exit(1)
@@ -51,7 +55,7 @@ def _path_name(name: str) -> str:
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
-    if args.main:
+    if 0:
         # add to global and tag as main
         main_repos = utils.add_repos(repos, paths, repo_type='m')
         # add sub-repo recursively and save to local config
@@ -167,12 +171,11 @@ def f_ll(args: argparse.Namespace):
     """
     repos = utils.get_repos()
     ctx = utils.get_context()
-    print(ctx, '='*10)
     if args.group is None and ctx:
         args.group = ctx.stem
     group_repos = None
     if args.group:  # only display repos in this group
-        group_repos = utils.get_groups()[args.group]
+        group_repos = utils.get_groups()[args.group]['repos']
         repos = {k: repos[k] for k in group_repos if k in repos}
     if args.g:  # display by group
         if group_repos:
@@ -204,47 +207,48 @@ def f_group(args: argparse.Namespace):
     if cmd == 'll':
         if 'to_show' in args and args.to_show:
             gname = args.to_show
-            print(' '.join(groups[gname]))
+            print(' '.join(groups[gname]['repos']))
         else:
-            for group, repos in groups.items():
-                print(f"{group}:")
-                for r in repos:
-                    print('   -', r)
+            for group, prop in groups.items():
+                print(f"{info.Color.underline}{group}{info.Color.end}: {prop['path']}")
+                for r in prop['repos']:
+                    print('  -', r)
     elif cmd == 'ls':
         print(' '.join(groups))
     elif cmd == 'rename':
         new_name = args.new_name
-        if new_name in groups:
-            sys.exit(f'{new_name} already exists.')
         gname = args.gname
         groups[new_name] = groups[gname]
         del groups[gname]
         utils.write_to_groups_file(groups, 'w')
         # change context
         ctx = utils.get_context()
-        if ctx and str(ctx.stem) == gname:
-            # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
-            ctx.rename(ctx.with_name(f'{new_name}.context'))
+        if ctx and ctx.stem == gname:
+            utils.replace_context(ctx, new_name)
     elif cmd == 'rm':
         ctx = utils.get_context()
         for name in args.to_ungroup:
             del groups[name]
             if ctx and str(ctx.stem) == name:
-                ctx.unlink()
+                utils.replace_context(ctx, '')
         utils.write_to_groups_file(groups, 'w')
     elif cmd == 'add':
         gname = args.gname
         if gname in groups:
             gname_repos = set(groups[gname])
             gname_repos.update(args.to_group)
-            groups[gname] = sorted(gname_repos)
+            groups[gname] = {'repos': sorted(gname_repos)}
             utils.write_to_groups_file(groups, 'w')
         else:
-            utils.write_to_groups_file({gname: sorted(args.to_group)}, 'a+')
+            utils.write_to_groups_file(
+                    {gname: {'repos': sorted(args.to_group)}},
+                    'a+')
     elif cmd == 'rmrepo':
         gname = args.gname
         if gname in groups:
-            group = {gname: groups[gname]}
+            group = {gname: {'repos': groups[gname]['repos'],
+                              'path': groups[gname]['path']
+                }}
             for repo in args.to_rm:
                 utils.delete_repo_from_groups(repo, group)
             groups[gname] = group[gname]
@@ -257,20 +261,11 @@ def f_context(args: argparse.Namespace):
     if choice is None:  # display current context
         if ctx:
             group = ctx.stem
-            print(f"{group}: {' '.join(utils.get_groups()[group])}")
+            print(f"{group}: {' '.join(utils.get_groups()[group]['repos'])}")
         else:
             print('Context is not set')
-    elif choice == 'none':  # remove context
-        auto_ctx = Path(common.get_config_dir()) / 'auto.context'
-        if auto_ctx.exists():
-            ctx = auto_ctx
-        ctx and ctx.unlink()
     else:  # set context
-        fname = Path(common.get_config_dir()) / (choice + '.context')
-        if ctx:
-            ctx.rename(fname)
-        else:
-            open(fname, 'w').close()
+        utils.replace_context(ctx, choice)
 
 
 def f_rm(args: argparse.Namespace):
@@ -293,8 +288,9 @@ def f_rm(args: argparse.Namespace):
 
         # If cwd is relative to any main repo, write to local config
         cwd = os.getcwd()
+        # TODO: delete main path mechanism
         for p in main_paths:
-            if utils.is_relative_to(cwd, p):
+            if utils.get_relative_path(cwd, p) is not None:
                 utils.write_to_repo_file(repos, 'w', p)
                 break
         else:  # global config
@@ -424,8 +420,6 @@ def main(argv=None):
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path(s).")
-    xgroup.add_argument('-m', '--main', action='store_true',
-            help="make main repo(s), sub-repos are recursively added.")
     xgroup.add_argument('-a', '--auto-group', action='store_true',
             help="recursively add repo(s) in the given path(s) "
                 "and create hierarchical groups based on folder structure.")
