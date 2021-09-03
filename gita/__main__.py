@@ -19,6 +19,7 @@ import sys
 import csv
 import argparse
 import subprocess
+from functools import partial
 import pkg_resources
 from itertools import chain
 from pathlib import Path
@@ -27,7 +28,7 @@ import glob
 from . import utils, info, common
 
 
-def _group_name(name: str) -> str:
+def _group_name(name: str, exclude_old_names=True) -> str:
     """
     Return valid group name
     """
@@ -35,10 +36,10 @@ def _group_name(name: str) -> str:
     if name in repos:
         print(f"Cannot use group name {name} since it's a repo name.")
         sys.exit(1)
-    groups = utils.get_groups()
-    if name in groups:
-        print(f"Cannot use group name {name} since it's already in use.")
-        sys.exit(1)
+    if exclude_old_names:
+        if name in utils.get_groups():
+            print(f"Cannot use group name {name} since it's already in use.")
+            sys.exit(1)
     if name in {'none', 'auto'}:
         print(f"Cannot use group name {name} since it's a reserved keyword.")
         sys.exit(1)
@@ -235,13 +236,15 @@ def f_group(args: argparse.Namespace):
     elif cmd == 'add':
         gname = args.gname
         if gname in groups:
-            gname_repos = set(groups[gname])
+            # TODO: update group path as well
+            gname_repos = set(groups[gname]['repos'])
             gname_repos.update(args.to_group)
-            groups[gname] = {'repos': sorted(gname_repos)}
+            groups[gname]['repos'] = sorted(gname_repos)
             utils.write_to_groups_file(groups, 'w')
         else:
+            # TODO: update group path as well
             utils.write_to_groups_file(
-                    {gname: {'repos': sorted(args.to_group)}},
+                    {gname: {'repos': sorted(args.to_group), 'path': ''}},
                     'a+')
     elif cmd == 'rmrepo':
         gname = args.gname
@@ -578,7 +581,7 @@ def main(argv=None):
                     help="repo(s) to be grouped")
     pg_add.add_argument('-n', '--name',
                     dest='gname',
-                    type=_group_name,
+                    type=partial(_group_name, exclude_old_names=False),
                     metavar='group-name',
                     required=True,
                     help="group name")

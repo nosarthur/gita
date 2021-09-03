@@ -26,6 +26,8 @@ def get_relative_path(kid: str, parent: str) -> Union[List[str], None]:
     # Note that os.path.commonpath has no trailing /
     # TODO: python3.9 pathlib has is_relative_to() function
     # TODO: Maybe use os.path.commonprefix? since it's faster?
+    if parent == '':
+        return None
     if parent == os.path.commonpath((kid, parent)):
         rel = os.path.normpath(os.path.relpath(kid, parent)).split(os.sep)
         if rel == ['.']:
@@ -85,8 +87,7 @@ def get_context() -> Union[Path, None]:
         candidate = None
         min_dist = MAX_INT
         for gname, prop in get_groups().items():
-            gpath = prop['path']
-            rel = get_relative_path(cwd, gpath)
+            rel = get_relative_path(cwd, prop['path'])
             if rel is None:
                 continue
             d = len(rel)
