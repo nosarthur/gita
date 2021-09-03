@@ -14,13 +14,22 @@ from . import info
 from . import common
 
 
-# TODO: python3.9 pathlib has is_relative_to() function
-def is_relative_to(kid: str, parent: str) -> bool:
+MAX_INT = sys.maxsize
+
+
+def get_relative_path(kid: str, parent: str) -> Union[List[str], None]:
     """
+    Return the relative path depth if relative, otherwise MAX_INT.
+
     Both the `kid` and `parent` should be absolute paths without trailing /
     """
     # Note that os.path.commonpath has no trailing /
-    return parent == os.path.commonpath((kid, parent))
+    # TODO: python3.9 pathlib has is_relative_to() function
+    # TODO: Maybe use os.path.commonprefix? since it's faster?
+    if parent == os.path.commonpath((kid, parent)):
+        return os.path.normpath(os.path.relpath(kid, parent)).split(os.sep)[:-1]
+    else:
+        return None
 
 
 @lru_cache()
@@ -45,7 +54,7 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
         cwd = os.getcwd()
         for prop in repos.values():
             path = prop['path']
-            if prop['type'] == 'm' and is_relative_to(cwd, path):
+            if prop['type'] == 'm' and get_relative_path(cwd, path) != MAX_INT:
                 return get_repos(path)
     return repos
 
@@ -67,22 +76,24 @@ def get_context() -> Union[Path, None]:
         return None
     ctx = matches[0]
     if ctx.stem == 'auto':
+        print(ctx)
         cwd = str(Path.cwd())
         repos = get_repos()
-        candidates = []
+        # The context is set to be the group with minimal distance to cwd
+        candidate = None
+        min_dist = MAX_INT
         for gname, grepos in get_groups().items():
             for name in grepos:
-                if is_relative_to(cwd, repos[name]['path']):
-                    candidates.append(gname)
-                    break
-        if len(candidates) == 0:
+                d = get_relative_path(repos[name]['path'], cwd)
+                print(d, repos[name]['path'], cwd)
+                if d < min_dist:
+                    candidate = gname
+                    min_dist = d
+        print(candidate)
+        if not candidate:
             ctx = None
-        elif len(candidates) == 1:
-            ctx = config_dir / f'{candidates[0]}.context'
         else:
-            print('Cannot set context automatically due to multiple matches: ',
-                  candidates)
-            ctx = None
+            ctx = config_dir / f'{candidate}.context'
     return ctx
 
 
@@ -175,7 +186,7 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     cwd = os.getcwd()
     is_local_config = True
     for p in main_paths:
-        if is_relative_to(cwd, p):
+        if get_relative_path(cwd, p) != MAX_INT:
             write_to_repo_file(repos, 'w', p)
             break
     else:  # global config
@@ -288,24 +299,27 @@ def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[str, ...]:
     then return (b, c, d)
     """
     for p in paths:
-        if is_relative_to(repo_path, p):
+        rel = get_relative_path(repo_path, p)
+        if rel is not None:
             break
     else:
         return ()
-    return (os.path.basename(p),
-            *os.path.normpath(os.path.relpath(repo_path, p)).split(os.sep)[:-1])
+    return (os.path.basename(p), *rel)
 
 
 def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]
         ) -> Dict[str, List[str]]:
     """
 
+    @params repos: repos to be grouped
     """
     # FIXME: the upstream code should make sure that paths are all independent
     #        i.e., each repo should be contained in one and only one path
     new_groups = defaultdict(list)
+    print(paths)
     for repo_name, prop in repos.items():
         hash = _generate_dir_hash(prop['path'], paths)
+        print(prop['path'], hash)
         if not hash:
             continue
         for i in range(1, len(hash)+1):

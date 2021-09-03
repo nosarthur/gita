@@ -167,6 +167,7 @@ def f_ll(args: argparse.Namespace):
     """
     repos = utils.get_repos()
     ctx = utils.get_context()
+    print(ctx, '='*10)
     if args.group is None and ctx:
         args.group = ctx.stem
     group_repos = None
