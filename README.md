@@ -360,21 +360,24 @@ branch,commit_msg,commit_time
 
 ### customize git command flags
 
-One can set custom flags to run `git` commands. For example
+One can set custom flags to run `git` commands. For example, with
 
 ```
-gita flags set my-repo --git-dir=$HOME/somefolder --work-tree=$HOME
+gita flags set dotfiles --git-dir=$HOME/somefolder --work-tree=$HOME
 ```
 
-Then any `git` command/alias triggered from `gita` on `my-repo` will use these flags.
+any `git` command/alias triggered from `gita` on `dotfiles` will use these flags.
 Note that the flags are applied immediately after `git`. For example,
-`gita st my-repo` translates to
+`gita st dotfiles` translates to
 
 ```
 git --git-dir=$HOME/somefolder --work-tree=$HOME status
 ```
 
-running from the `my-repo` directory.
+running from the `dotfiles` directory.
+
+This feature was originally added to deal with
+[bare repo dotfiles](https://www.atlassian.com/git/tutorials/dotfiles).
 
 ## Requirements
 
