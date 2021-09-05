@@ -265,6 +265,8 @@ def f_context(args: argparse.Namespace):
         if ctx:
             group = ctx.stem
             print(f"{group}: {' '.join(utils.get_groups()[group]['repos'])}")
+        elif (Path(common.get_config_dir()) / 'auto.context').exists():
+            print('auto: none detected!')
         else:
             print('Context is not set')
     else:  # set context
