@@ -493,3 +493,4 @@ def test_set_color(mock_get_fname, tmpdir):
         assert items == {'no-remote': 'white', 'in-sync': 'redrum',
                 'diverged': 'red', 'local-ahead': 'purple',
                 'remote-ahead': 'yellow'}
+        info.get_color_encoding.cache_clear()  # avoid side effect

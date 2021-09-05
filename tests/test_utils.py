@@ -48,8 +48,6 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, 'get_commit_time', lambda *_: "xx")
     monkeypatch.setattr(info, 'has_untracked', lambda *_: True)
     monkeypatch.setattr('os.chdir', lambda x: None)
-    print('expected: ', repr(expected))
-    print('got:      ', repr(next(utils.describe(*test_input))))
     assert expected == next(utils.describe(*test_input))
 
 
