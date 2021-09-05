@@ -487,10 +487,10 @@ def test_set_color(mock_get_fname, tmpdir):
             csv_config = Path.cwd() / 'colors.csv'
             mock_get_fname.return_value = csv_config
             __main__.f_color(args)
+
             info.get_color_encoding.cache_clear()  # avoid side effect
             items = info.get_color_encoding()
         info.get_color_encoding.cache_clear()  # avoid side effect
         assert items == {'no-remote': 'white', 'in-sync': 'redrum',
                 'diverged': 'red', 'local-ahead': 'purple',
                 'remote-ahead': 'yellow'}
-        info.get_color_encoding.cache_clear()  # avoid side effect
