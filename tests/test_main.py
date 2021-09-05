@@ -481,7 +481,7 @@ class TestInfo:
 def test_set_color(mock_get_fname, tmpdir):
         args = argparse.Namespace()
         args.color_cmd = 'set'
-        args.color = 'redrum'  # this color doesn't exist
+        args.color = 'b_white'
         args.situation = 'no-remote'
         with tmpdir.as_cwd():
             csv_config = Path.cwd() / 'colors.csv'
@@ -491,6 +491,6 @@ def test_set_color(mock_get_fname, tmpdir):
             info.get_color_encoding.cache_clear()  # avoid side effect
             items = info.get_color_encoding()
         info.get_color_encoding.cache_clear()  # avoid side effect
-        assert items == {'no-remote': 'redrum', 'in-sync': 'green',
+        assert items == {'no-remote': 'b_white', 'in-sync': 'green',
                 'diverged': 'red', 'local-ahead': 'purple',
                 'remote-ahead': 'yellow'}
