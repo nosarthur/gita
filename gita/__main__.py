@@ -316,7 +316,7 @@ def f_git_cmd(args: argparse.Namespace):
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
-                for r in groups[k]:
+                for r in groups[k]['repos']:
                     chosen[r] = repos[r]
         repos = chosen
     per_repo_cmds = []

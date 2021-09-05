@@ -26,7 +26,6 @@ class TestAdd:
 
     @pytest.mark.parametrize('input, expected', [
         (['add', '.'], ''),
-        (['add', '-m', '.'], 'm'),
         ])
     @patch('gita.common.get_config_fname')
     def test_add(self, mock_path_fname, tmp_path, input, expected):
@@ -39,35 +38,6 @@ class TestAdd:
         got = utils.get_repos()
         assert len(got) == 1
         assert got['gita']['type'] == expected
-
-    @patch('gita.utils.is_git', return_value=True)
-    def test_add_main(self, _, tmp_path, monkeypatch, tmpdir):
-        def side_effect(root=None):
-            if root is None:
-                return os.path.join(tmp_path, "gita")
-            else:
-                return os.path.join(root, ".gita")
-
-        def desc(repos, **_):
-            print(len(repos), repos.keys())
-            assert len(repos) > 0
-            for r, prop in repos.items():
-                if prop['type'] == 'm':
-                    assert 'test_add_main' in r
-                    break
-            else:
-                assert 0, 'no main repo found'
-            return ''
-
-        monkeypatch.setattr(common, 'get_config_dir', side_effect)
-        monkeypatch.setattr(utils, 'describe', desc)
-
-        utils.get_repos.cache_clear()
-
-        with tmpdir.as_cwd():
-            __main__.main(['add', '-m', '.'])
-            utils.get_repos.cache_clear()
-            __main__.main(['ll'])
 
 
 @pytest.mark.parametrize('path_fname, expected', [
@@ -293,14 +263,14 @@ def test_shell(mock_run, _, input):
 class TestContext:
 
     @patch('gita.utils.get_context', return_value=None)
-    def testDisplayNoContext(self, _, capfd):
+    def test_display_no_context(self, _, capfd):
         __main__.main(['context'])
         out, err = capfd.readouterr()
         assert err == ''
         assert 'Context is not set\n' == out
 
     @patch('gita.utils.get_context', return_value=Path('gname.context'))
-    @patch('gita.utils.get_groups', return_value={'gname': ['a', 'b']})
+    @patch('gita.utils.get_groups', return_value={'gname': {'repos': ['a', 'b']}})
     def test_display_context(self, _, __, capfd):
         __main__.main(['context'])
         out, err = capfd.readouterr()
@@ -353,7 +323,7 @@ class TestGroupCmd:
         __main__.f_group(args)
         out, err = capfd.readouterr()
         assert err == ''
-        assert out == 'xx:\n   - a\n   - b\nyy:\n   - a\n   - c\n   - d\n'
+        assert out == '\x1b[4mxx\x1b[0m: \n  - a\n  - b\n\x1b[4myy\x1b[0m: \n  - a\n  - c\n  - d\n'
 
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def test_ll_with_group(self, _, capfd):
@@ -376,21 +346,19 @@ class TestGroupCmd:
         args.group_cmd = 'rename'
         utils.get_groups.cache_clear()
         __main__.f_group(args)
-        expected = {'yy': ['a', 'c', 'd'], 'zz': ['a', 'b']}
+        expected = {'yy': {'repos': ['a', 'c', 'd'], 'path': ''},
+                    'zz': {'repos': ['a', 'b'], 'path': ''}}
         mock_write.assert_called_once_with(expected, 'w')
 
+    @patch('gita.info.get_color_encoding', return_value=info.default_colors)
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
     def test_rename_error(self, *_):
-        args = argparse.Namespace()
-        args.gname = 'xx'
-        args.new_name = 'yy'
-        args.group_cmd = 'rename'
         utils.get_groups.cache_clear()
-        with pytest.raises(SystemExit, match='yy already exists.'):
-            __main__.f_group(args)
+        with pytest.raises(SystemExit, match="1"):
+            __main__.main('group rename xx yy'.split())
 
     @pytest.mark.parametrize('input, expected', [
-        ('xx', {'yy': ['a', 'c', 'd']}),
+        ('xx', {'yy': {'repos': ['a', 'c', 'd'], 'path': ''}}),
         ("xx yy", {}),
     ])
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
@@ -412,7 +380,8 @@ class TestGroupCmd:
         args.gname = 'zz'
         utils.get_groups.cache_clear()
         __main__.f_group(args)
-        mock_write.assert_called_once_with({'zz': ['a', 'c']}, 'a+')
+        mock_write.assert_called_once_with(
+                {'zz': {'repos': ['a', 'c'], 'path': ''}}, 'a+')
 
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
@@ -425,7 +394,8 @@ class TestGroupCmd:
         utils.get_groups.cache_clear()
         __main__.f_group(args)
         mock_write.assert_called_once_with(
-                {'xx': ['a', 'b', 'c'], 'yy': ['a', 'c', 'd']}, 'w')
+                {'xx': {'repos': ['a', 'b', 'c'], 'path': ''},
+                 'yy': {'repos': ['a', 'c', 'd'], 'path': ''}}, 'w')
 
     @patch('gita.utils.get_repos', return_value={'a': '', 'b': '', 'c': '', 'd': ''})
     @patch('gita.common.get_config_fname', return_value=GROUP_FNAME)
@@ -438,7 +408,8 @@ class TestGroupCmd:
         utils.get_groups.cache_clear()
         __main__.f_group(args)
         mock_write.assert_called_once_with(
-                {'xx': ['b'], 'yy': ['a', 'c', 'd']}, 'w')
+                {'xx': {'repos': ['b'], 'path': ''},
+                 'yy': {'repos': ['a', 'c', 'd'], 'path': ''}}, 'w')
 
     @patch('gita.common.get_config_fname')
     def test_integration(self, mock_path_fname, tmp_path, capfd):

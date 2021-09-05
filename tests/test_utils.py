@@ -11,7 +11,7 @@ from conftest import (
 
 
 @pytest.mark.parametrize('repo_path, paths, expected', [
-    ('/a/b/c/repo', ['/a/b'], ('b', 'c')),
+    ('/a/b/c/repo', ['/a/b'], (('b', 'c'), '/a')),
     ])
 def test_generate_dir_hash(repo_path, paths, expected):
     got = utils._generate_dir_hash(repo_path, paths)
@@ -20,11 +20,13 @@ def test_generate_dir_hash(repo_path, paths, expected):
 
 @pytest.mark.parametrize('repos, paths, expected', [
     ({'r1': {'path': '/a/b//repo1'}, 'r2': {'path': '/a/b/repo2'}},
-        ['/a/b'], {'b': ['r1', 'r2']}),
+        ['/a/b'], {'b': {'repos': ['r1', 'r2'], 'path': '/a/b'}}),
     ({'r1': {'path': '/a/b//repo1'}, 'r2': {'path': '/a/b/c/repo2'}},
-        ['/a/b'], {'b': ['r1', 'r2'], 'b-c': ['r2']}),
+        ['/a/b'], {'b': {'repos': ['r1', 'r2'], 'path': '/a/b'},
+            'b-c': {'repos': ['r2'], 'path': "/a/b/c"}}),
     ({'r1': {'path': '/a/b/c/repo1'}, 'r2': {'path': '/a/b/c/repo2'}},
-        ['/a/b'], {'b-c': ['r1', 'r2'], 'b': ['r1', 'r2']}),
+        ['/a/b'], {'b-c': {'repos': ['r1', 'r2'], 'path': '/a/b/c'},
+            'b': {'path': '/a/b', 'repos': ['r1', 'r2']}}),
     ])
 def test_auto_group(repos, paths, expected):
     got = utils.auto_group(repos, paths)
@@ -83,7 +85,8 @@ def test_get_context(mock_config_dir):
 
 
 @pytest.mark.parametrize('group_fname, expected', [
-    (GROUP_FNAME, {'xx': ['a', 'b'], 'yy': ['a', 'c', 'd']}),
+    (GROUP_FNAME, {'xx': {'repos': ['a', 'b'], 'path': ''},
+        'yy': {'repos': ['a', 'c', 'd'], 'path': ''}}),
 ])
 @patch('gita.common.get_config_fname')
 def test_get_groups(mock_group_fname, group_fname, expected):
