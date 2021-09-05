@@ -33,6 +33,15 @@ class Color(str, Enum):
     underline = '\x1B[4m'
 
 
+default_colors = {
+            'no-remote': Color.white.name,
+            'in-sync': Color.green.name,
+            'diverged': Color.red.name,
+            'local-ahead': Color.purple.name,
+            'remote-ahead': Color.yellow.name,
+            }
+
+
 def show_colors():  # pragma: no cover
     """
 
@@ -60,13 +69,7 @@ def get_color_encoding() -> Dict[str, str]:
             reader = csv.DictReader(f)
             colors = next(reader)
     else:
-        colors = {
-            'no-remote': Color.white.name,
-            'in-sync': Color.green.name,
-            'diverged': Color.red.name,
-            'local-ahead': Color.purple.name,
-            'remote-ahead': Color.yellow.name,
-            }
+        colors = default_colors
     return colors
 
 
