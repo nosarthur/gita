@@ -186,9 +186,9 @@ def f_ll(args: argparse.Namespace):
             for line in utils.describe(repos, no_colors=args.no_colors):
                 print('  ', line)
         else:
-            for g, g_repos in utils.get_groups().items():
+            for g, prop in utils.get_groups().items():
                 print(f'{g}:')
-                g_repos = {k: repos[k] for k in g_repos if k in repos}
+                g_repos = {k: repos[k] for k in prop['repos'] if k in repos}
                 for line in utils.describe(g_repos, no_colors=args.no_colors):
                     print('  ', line)
     else:
