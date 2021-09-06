@@ -330,7 +330,6 @@ def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[
     For example, if `repo_path` is /a/b/c/d/here, and one of `paths` is /a/b/
     then return (b, c, d)
     """
-    print(paths, repo_path, '*'*5)
     for p in paths:
         rel = get_relative_path(repo_path, p)[:-1]
         if rel is not None:
