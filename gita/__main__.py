@@ -50,7 +50,9 @@ def _path_name(name: str) -> str:
     """
     Return absolute path without trailing /
     """
-    return os.path.abspath(name).rstrip(os.path.sep)
+    if name:
+        return os.path.abspath(name).rstrip(os.path.sep)
+    return ''
 
 
 def f_add(args: argparse.Namespace):
@@ -236,15 +238,19 @@ def f_group(args: argparse.Namespace):
     elif cmd == 'add':
         gname = args.gname
         if gname in groups:
-            # TODO: update group path as well
             gname_repos = set(groups[gname]['repos'])
             gname_repos.update(args.to_group)
             groups[gname]['repos'] = sorted(gname_repos)
+            if 'gpath' in args:
+                groups[gname]['path'] = args.gpath
             utils.write_to_groups_file(groups, 'w')
         else:
-            # TODO: update group path as well
+            gpath = ''
+            if 'gpath' in args:
+                gpath = args.gpath
             utils.write_to_groups_file(
-                    {gname: {'repos': sorted(args.to_group), 'path': ''}},
+                    {gname: {'repos': sorted(args.to_group),
+                             'path': gpath}},
                     'a+')
     elif cmd == 'rmrepo':
         gname = args.gname
@@ -585,8 +591,12 @@ def main(argv=None):
                     dest='gname',
                     type=partial(_group_name, exclude_old_names=False),
                     metavar='group-name',
-                    required=True,
-                    help="group name")
+                    required=True)
+    pg_add.add_argument('-p', '--path',
+                    dest='gpath',
+                    type=_path_name,
+                    metavar='group-path')
+
     pg_rmrepo = group_cmds.add_parser('rmrepo', description='remove repo(s) from a group.')
     pg_rmrepo.add_argument('to_rm',
                     nargs='+',
@@ -678,7 +688,6 @@ def main(argv=None):
         args.func(args)
     else:
         p.print_help()  # pragma: no cover
-
 
 if __name__ == '__main__':
     main()  # pragma: no cover
