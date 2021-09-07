@@ -361,6 +361,13 @@ Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
 their results agree.
 
+## tips
+
+function | shell command
+---|---
+enter `<repo>` directory|`` cd `gita ls <repo>` ``
+delete repos in `<group>` | `gita group ll <group> \| xargs gita rm`
+
 ## Contributing
 
 To contribute, you can
