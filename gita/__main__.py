@@ -286,26 +286,16 @@ def f_rm(args: argparse.Namespace):
     path_file = common.get_config_fname('repos.csv')
     if os.path.isfile(path_file):
         repos = utils.get_repos()
-        main_paths = [prop['path'] for prop in repos.values() if prop['type'] == 'm']
-        # TODO: add test case to delete main repo from main repo
-        #       only local setting should be affected instead of the global one
         group_updated = False
+        groups = utils.get_groups()
         for repo in args.repo:
             del repos[repo]
-            groups = utils.get_groups()
-            group_updated = group_updated or utils.delete_repo_from_groups(repo, groups)
+            up = utils.delete_repo_from_groups(repo, groups)
+            group_updated = group_updated or up
         if group_updated:
             utils.write_to_groups_file(groups, 'w')
 
-        # If cwd is relative to any main repo, write to local config
-        cwd = os.getcwd()
-        # TODO: delete main path mechanism
-        for p in main_paths:
-            if utils.get_relative_path(cwd, p) is not None:
-                utils.write_to_repo_file(repos, 'w', p)
-                break
-        else:  # global config
-            utils.write_to_repo_file(repos, 'w')
+        utils.write_to_repo_file(repos, 'w')
 
 
 def f_git_cmd(args: argparse.Namespace):

@@ -363,7 +363,7 @@ their results agree.
 
 ## tips
 
-function | shell command
+effect | shell command
 ---|---
 enter `<repo>` directory|`` cd `gita ls <repo>` ``
 delete repos in `<group>` | `gita group ll <group> \| xargs gita rm`

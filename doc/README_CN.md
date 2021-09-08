@@ -55,7 +55,6 @@
 - `gita add -a <repo-parent-path(s)>`: 递归添加路径下的所有库并自动产生层级分组,见
   [customization section](#custom)
 - `gita add -b <bare-repo-path(s)>`: 添加bare库
-- `gita add -m <main-repo-path(s)>`: 添加main库, main库的定义见
   [customization section](#custom)
 - `gita add -r <repo-parent-path(s)>`: 递归添加路径下的所有库
 - `gita clone <config-file>`: 克隆`<config-file>` (由`gita freeze`生成)里的库

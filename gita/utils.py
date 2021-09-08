@@ -256,6 +256,10 @@ def write_to_groups_file(groups: Dict[str, Dict], mode: str):
     if not groups:  # all groups are deleted
         open(fname, 'w').close()
     else:
+        # delete the group if there are no repos
+        for name in list(groups):
+            if not groups[name]['repos']:
+                del groups[name]
         with open(fname, mode, newline='') as f:
             data = [
                     (group, ' '.join(prop['repos']), prop['path'])
