@@ -370,7 +370,9 @@ def f_shell(args):
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
+                print("visiting group " + k)
                 for r in groups[k]:
+                    print("Adding " + r)
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ' '.join(args.man[i:])  # join the shell command into a single string
@@ -623,7 +625,7 @@ def main(argv=None):
         'man',
         nargs=argparse.REMAINDER,
         help="execute arbitrary git command/alias for specified repo(s), group(s), or all repos.\n"
-        "Example: gita super myrepo1 diff --name-only --staged "
+        "Example: gita super myrepo1 diff --name-only --staged\n"
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
 
@@ -639,7 +641,7 @@ def main(argv=None):
         'man',
         nargs=argparse.REMAINDER,
         help="execute arbitrary shell command for specified repo(s), group(s), or all repos.\n"
-        "Example: gita shell myrepo1 ls"
+        "Example: gita shell myrepo1 ls\n"
         "Another: gita shell git checkout master ")
     p_shell.set_defaults(func=f_shell)
 
