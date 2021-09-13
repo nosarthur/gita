@@ -370,9 +370,7 @@ def f_shell(args):
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
-                print("visiting group " + k)
                 for r in groups[k]:
-                    print("Adding " + r)
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ' '.join(args.man[i:])  # join the shell command into a single string
