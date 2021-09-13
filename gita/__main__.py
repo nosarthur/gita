@@ -615,7 +615,7 @@ def main(argv=None):
     p_super = subparsers.add_parser(
         'super',
         help='run any git command/alias',
-        description='Superman mode: delegate any git command/alias in specified or '
+        description='Superman mode: delegate any git command/alias in specified repo(s), group(s), or '
         'all repo(s).\n'
         'Examples:\n \t gita super myrepo1 commit -am "fix a bug"\n'
         '\t gita super repo1 repo2 repo3 checkout new-feature')
@@ -631,14 +631,14 @@ def main(argv=None):
     p_shell = subparsers.add_parser(
         'shell',
         help='run any shell command',
-        description='shell mode: delegate any shell command in specified or '
+        description='shell mode: delegate any shell command in specified repo(s), group(s), or '
         'all repo(s).\n'
         'Examples:\n \t gita shell pwd\n'
         '\t gita shell repo1 repo2 repo3 touch xx')
     p_shell.add_argument(
         'man',
         nargs=argparse.REMAINDER,
-        help="execute arbitrary shell command for specified or all repos "
+        help="execute arbitrary shell command for specified repo(s), group(s), or all repos "
         "Example: gita shell myrepo1 ls"
         "Another: gita shell git checkout master ")
     p_shell.set_defaults(func=f_shell)
