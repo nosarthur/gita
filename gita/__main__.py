@@ -622,7 +622,7 @@ def main(argv=None):
     p_super.add_argument(
         'man',
         nargs=argparse.REMAINDER,
-        help="execute arbitrary git command/alias for specified repo(s), group(s), or all repos\n"
+        help="execute arbitrary git command/alias for specified repo(s), group(s), or all repos.\n"
         "Example: gita super myrepo1 diff --name-only --staged "
         "Another: gita super checkout master ")
     p_super.set_defaults(func=f_super)
@@ -638,7 +638,7 @@ def main(argv=None):
     p_shell.add_argument(
         'man',
         nargs=argparse.REMAINDER,
-        help="execute arbitrary shell command for specified repo(s), group(s), or all repos "
+        help="execute arbitrary shell command for specified repo(s), group(s), or all repos.\n"
         "Example: gita shell myrepo1 ls"
         "Another: gita shell git checkout master ")
     p_shell.set_defaults(func=f_shell)
