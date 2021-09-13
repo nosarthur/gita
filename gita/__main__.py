@@ -370,7 +370,7 @@ def f_shell(args):
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
-                for r in groups[k]:
+                for r in groups[k]['repos']:
                     chosen[r] = repos[r]
         repos = chosen
     cmds = ' '.join(args.man[i:])  # join the shell command into a single string
@@ -633,7 +633,7 @@ def main(argv=None):
         help='run any shell command',
         description='shell mode: delegate any shell command in specified or '
         'all repo(s).\n'
-        'Examples:\n \t gita shell pwd\n'
+        'Examples:\n \t gita shell pwd; \n'
         '\t gita shell repo1 repo2 repo3 touch xx')
     p_shell.add_argument(
         'man',
