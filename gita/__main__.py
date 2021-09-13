@@ -303,20 +303,11 @@ def f_git_cmd(args: argparse.Namespace):
     Delegate git command/alias defined in `args.cmd`. Asynchronous execution is
     disabled for commands in the `args.async_blacklist`.
     """
-    repos = utils.get_repos()
-    groups = utils.get_groups()
-    ctx = utils.get_context()
-    if not args.repo and ctx:
-        args.repo = [ctx.stem]
-    if args.repo:  # with user specified repo(s) or group(s)
-        chosen = {}
-        for k in args.repo:
-            if k in repos:
-                chosen[k] = repos[k]
-            if k in groups:
-                for r in groups[k]['repos']:
-                    chosen[r] = repos[r]
-        repos = chosen
+    if '_parsed_repos' in args:
+        repos = args._parsed_repos
+    else:
+        repos, _ = utils.parse_repos_and_rest(args.repo)
+
     per_repo_cmds = []
     for prop in repos.values():
         cmds = args.cmd.copy()
@@ -351,29 +342,12 @@ def f_shell(args):
     Delegate shell command defined in `args.man`, which may or may not
     contain repo names.
     """
-    names = []
-    repos = utils.get_repos()
-    groups = utils.get_groups()
-    ctx = utils.get_context()
-    for i, word in enumerate(args.man):
-        if word in repos or word in groups:
-            names.append(word)
-        else:
-            break
-    args.repo = names
-    # TODO: redundant with f_git_cmd
-    if not args.repo and ctx:
-        args.repo = [ctx.stem]
-    if args.repo:  # with user specified repo(s) or group(s)
-        chosen = {}
-        for k in args.repo:
-            if k in repos:
-                chosen[k] = repos[k]
-            if k in groups:
-                for r in groups[k]['repos']:
-                    chosen[r] = repos[r]
-        repos = chosen
-    cmds = ' '.join(args.man[i:])  # join the shell command into a single string
+    repos, cmds = utils.parse_repos_and_rest(args.man)
+    if not cmds:
+        print('Missing commands')
+        sys.exit(2)
+
+    cmds = ' '.join(cmds)  # join the shell command into a single string
     for name, prop in repos.items():
         # TODO: pull this out as a function
         got = subprocess.run(cmds, cwd=prop['path'], shell=True,
@@ -387,16 +361,13 @@ def f_super(args):
     Delegate git command/alias defined in `args.man`, which may or may not
     contain repo names.
     """
-    names = []
-    repos = utils.get_repos()
-    groups = utils.get_groups()
-    for i, word in enumerate(args.man):
-        if word in repos or word in groups:
-            names.append(word)
-        else:
-            break
-    args.cmd = ['git'] + args.man[i:]
-    args.repo = names
+    repos, cmds = utils.parse_repos_and_rest(args.man)
+    if not cmds:
+        print('Missing commands')
+        sys.exit(2)
+
+    args.cmd = ['git'] + cmds
+    args._parsed_repos = repos
     args.shell = False
     f_git_cmd(args)
 
