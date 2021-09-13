@@ -10,6 +10,19 @@ from conftest import (
 )
 
 
+@pytest.mark.parametrize('input, expected', [
+    ([], ({'repo1': {'path': '/a/bcd/repo1', 'type': '', 'flags': []}, 'xxx': {'path': '/a/b/c/repo3', 'type': '', 'flags': []}, 'repo2': {'path': '/e/fgh/repo2', 'type': '', 'flags': []}}, [])),
+    (['st'], ({'repo1': {'path': '/a/bcd/repo1', 'type': '', 'flags': []}, 'xxx': {'path': '/a/b/c/repo3', 'type': '', 'flags': []}, 'repo2': {'path': '/e/fgh/repo2', 'type': '', 'flags': []}}, ['st'])),
+    (['repo1', 'st'], ({'repo1': {'flags': [], 'path': '/a/bcd/repo1', 'type': ''}}, ['st'])),
+    (['repo1'], ({'repo1': {'flags': [], 'path': '/a/bcd/repo1', 'type': ''}}, [])),
+    ])
+@patch('gita.utils.is_git', return_value=True)
+@patch('gita.common.get_config_fname', return_value=PATH_FNAME)
+def test_parse_repos_and_rest(mock_path_fname, _, input, expected):
+    got = utils.parse_repos_and_rest(input)
+    assert got == expected
+
+
 @pytest.mark.parametrize('repo_path, paths, expected', [
     ('/a/b/c/repo', ['/a/b'], (('b', 'c'), '/a')),
     ])

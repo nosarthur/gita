@@ -479,3 +479,38 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     # custom commands shadow default ones
     cmds.update(custom_cmds)
     return cmds
+
+
+def parse_repos_and_rest(input: List[str]
+        ) -> Tuple[Dict[str, Dict[str, str]], List[str]]:
+    """
+    Parse gita input arguments
+
+    @return: repos and the rest (e.g., gita shell and super commands)
+    """
+    i = None
+    names = []
+    repos = get_repos()
+    groups = get_groups()
+    ctx = get_context()
+    for i, word in enumerate(input):
+        if word in repos or word in groups:
+            names.append(word)
+        else:
+            break
+    else:  # all input is repos and groups, shift the index once more
+        if i is not None:
+            i += 1
+    if not names and ctx:
+        names = [ctx.stem]
+    if names:
+        chosen = {}
+        for k in names:
+            if k in repos:
+                chosen[k] = repos[k]
+            if k in groups:
+                for r in groups[k]['repos']:
+                    chosen[r] = repos[r]
+        # if not set here, all repos are chosen
+        repos = chosen
+    return repos, input[i:]
