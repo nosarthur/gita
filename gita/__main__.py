@@ -58,6 +58,7 @@ def _path_name(name: str) -> str:
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
+    groups = utils.get_groups()
     if 0:
         # add to global and tag as main
         main_repos = utils.add_repos(repos, paths, repo_type='m')
@@ -79,6 +80,13 @@ def f_add(args: argparse.Namespace):
             if new_groups:
                 print(f'Created {len(new_groups)} new group(s).')
                 utils.write_to_groups_file(new_groups, 'a+')
+        if new_repos and args.group:      
+            gname = args.group
+            gname_repos = set(groups[gname]['repos'])
+            gname_repos.update(repos)
+            groups[gname]['repos'] = sorted(gname_repos)
+            print(f'Added {len(repos)} repos to the {gname} group')
+            utils.write_to_groups_file(groups, 'w')
 
 
 def f_rename(args: argparse.Namespace):
@@ -389,6 +397,9 @@ def main(argv=None):
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
     p_add.add_argument('paths', nargs='+', type=_path_name, help="repo(s) to add")
+    p_add.add_argument('-g','--group',
+                    choices=utils.get_groups(), 
+                    help="add repo(s) to the specified group")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path(s).")
