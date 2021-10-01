@@ -80,12 +80,12 @@ def f_add(args: argparse.Namespace):
             if new_groups:
                 print(f'Created {len(new_groups)} new group(s).')
                 utils.write_to_groups_file(new_groups, 'a+')
-        if new_repos and args.group:      
+        if new_repos and args.group:
             gname = args.group
             gname_repos = set(groups[gname]['repos'])
-            gname_repos.update(repos)
+            gname_repos.update(new_repos)
             groups[gname]['repos'] = sorted(gname_repos)
-            print(f'Added {len(repos)} repos to the {gname} group')
+            print(f'Added {len(new_repos)} repos to the {gname} group')
             utils.write_to_groups_file(groups, 'w')
 
 
@@ -398,7 +398,7 @@ def main(argv=None):
             help='add repo(s)')
     p_add.add_argument('paths', nargs='+', type=_path_name, help="repo(s) to add")
     p_add.add_argument('-g','--group',
-                    choices=utils.get_groups(), 
+                    choices=utils.get_groups(),
                     help="add repo(s) to the specified group")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
@@ -605,8 +605,8 @@ def main(argv=None):
         'man',
         nargs=argparse.REMAINDER,
         help="execute arbitrary git command/alias for specified repo(s), group(s), or all repos.\n"
-        "Example: gita super myrepo1 diff --name-only --staged\n"
-        "Another: gita super checkout master ")
+        "Example: gita super repo1 diff --name-only --staged;\n"
+        "gita super checkout master ")
     p_super.set_defaults(func=f_super)
 
     # shell mode

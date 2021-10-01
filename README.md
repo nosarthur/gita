@@ -361,7 +361,7 @@ Thus the installed git version may matter.
 I have git `1.8.3.1`, `2.17.2`, and `2.20.1` on my machines, and
 their results agree.
 
-## tips
+## Tips
 
 effect | shell command
 ---|---
