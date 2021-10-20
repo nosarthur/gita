@@ -23,3 +23,5 @@ jobs:
     - name: Pytest
       run: |
           pytest tests --cov=./gita
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
