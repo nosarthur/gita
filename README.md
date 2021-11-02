@@ -65,7 +65,7 @@ symbol | meaning
 
 The bookkeeping sub-commands are
 
-- `gita add <repo-path(s)>`: add repo(s) to `gita`
+- `gita add <repo-path(s)> [-g <groupname>]`: add repo(s) to `gita`, optionally into an existing group
 - `gita add -a <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
   and automatically generate hierarchical groups. See the [customization section](#custom) for more details.
 - `gita add -b <bare-repo-path(s)>`: add bare repo(s) to `gita`. See the [customization section](#custom) for more details on setting custom worktree.
@@ -79,6 +79,7 @@ The bookkeeping sub-commands are
     - `gita context none`: remove context
 - `gita color`: color sub-command
     - `gita color [ll]`: Show available colors and the current coloring scheme
+    - `gita color reset`: Reset to the default coloring scheme
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
 - `gita flags`: flags sub-command
     - `gita flags set <repo-name> <flags>`: add custom `flags` to repo
