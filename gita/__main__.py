@@ -120,6 +120,8 @@ def f_color(args: argparse.Namespace):
             writer = csv.DictWriter(f, fieldnames=colors)
             writer.writeheader()
             writer.writerow(colors)
+    elif cmd == 'reset':
+        Path(common.get_config_fname('color.csv')).unlink(missing_ok=True)
 
 
 def f_info(args: argparse.Namespace):
@@ -466,6 +468,8 @@ def main(argv=None):
             help='additional help with sub-command -h')
     color_cmds.add_parser('ll',
             description='display available colors and the current branch coloring in the ll sub-command')
+    color_cmds.add_parser('reset',
+            description='reset color scheme.')
     pc_set = color_cmds.add_parser('set',
                 description='Set color for local/remote situation.')
     pc_set.add_argument('situation',
