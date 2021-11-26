@@ -39,6 +39,9 @@ To add your own commands, see the [customization section](#custom).
 To run arbitrary `git` command, see the [superman mode section](#superman).
 To run arbitrary shell command, see the [shell mode section](#shell).
 
+I also made a youtube video to demonstrate the common usages
+[![Img alt text](https://github.com/nosarthur/gita/raw/master/doc/video-outline.png)](https://www.youtube.com/watch?v=ySWbwQcbhqI)
+
 The branch color distinguishes 5 situations between local and remote branches:
 
 color | meaning
