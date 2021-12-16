@@ -152,7 +152,7 @@ def replace_context(old: Union[Path, None], new: str):
         # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
         old.rename(old.with_name(f'{new}.context'))
     else:
-        open(auto.with_name(f'{new}.context'), 'w').close()
+        Path(auto.with_name(f'{new}.context')).write_text('')
 
 
 def get_choices() -> List[Union[str, None]]:
@@ -254,7 +254,7 @@ def write_to_groups_file(groups: Dict[str, Dict], mode: str):
     fname = common.get_config_fname('groups.csv')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     if not groups:  # all groups are deleted
-        open(fname, 'w').close()
+        Path(fname).write_text('')
     else:
         # delete the group if there are no repos
         for name in list(groups):
