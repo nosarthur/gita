@@ -290,7 +290,6 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-              repo_type='',
               include_bare=False,
               exclude_submodule=False,
               ) -> Dict[str, Dict[str, str]]:
@@ -300,7 +299,7 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     @param repos: name -> path
     """
     existing_paths = {prop['path'] for prop in repos.values()}
-    new_paths = {p for p in new_paths if is_git(p, include_bare)}
+    new_paths = {p for p in new_paths if is_git(p, include_bare, exclude_submodule)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
