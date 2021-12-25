@@ -54,7 +54,7 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
             repos = {r['name']:
                     {'path': r['path'], 'type': r['type'],
                         'flags': r['flags'].split()}
-                     for r in rows if is_git(r['path'], is_bare=True)}
+                     for r in rows if is_git(r['path'], include_bare=True)}
     if root is None:  # detect if inside a main path
         cwd = os.getcwd()
         for prop in repos.values():
@@ -170,7 +170,16 @@ def get_choices() -> List[Union[str, None]]:
     return choices
 
 
-def is_git(path: str, is_bare=False) -> bool:
+def is_submodule_repo(p: Path) -> bool:
+    """
+
+    """
+    if p.is_file() and '.git/worktrees' in p.read_text():
+        return True
+    return False
+
+
+def is_git(path: str, include_bare=False, exclude_submodule=False) -> bool:
     """
     Return True if the path is a git repo.
     """
@@ -178,16 +187,18 @@ def is_git(path: str, is_bare=False) -> bool:
         return False
     # An alternative is to call `git rev-parse --is-inside-work-tree`
     # I don't see why that one is better yet.
-    # For a regular git repo, .git is a folder, for a worktree repo, .git is a file.
-    # However, git submodule repo also has .git as a file.
+    # For a regular git repo, .git is a folder. For a worktree repo and
+    # submodule repo, .git is a file.
     # A more reliable way to differentiable regular and worktree repos is to
     # compare the result of `git rev-parse --git-dir` and
     # `git rev-parse --git-common-dir`
     loc = os.path.join(path, '.git')
     # TODO: we can display the worktree repos in a different font.
     if os.path.exists(loc):
+        if exclude_submodule and is_submodule_repo(Path(loc)):
+            return False
         return True
-    if not is_bare:
+    if not include_bare:
         return False
     # detect bare repo
     got = subprocess.run('git rev-parse --is-bare-repository'.split(),
@@ -298,14 +309,17 @@ def _get_repo_type(path, repo_type, root) -> str:
 
 
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-              repo_type='', root=None, is_bare=False) -> Dict[str, Dict[str, str]]:
+              repo_type='',
+              include_bare=False,
+              exclude_submodule=False,
+              ) -> Dict[str, Dict[str, str]]:
     """
     Write new repo paths to file; return the added repos.
 
     @param repos: name -> path
     """
     existing_paths = {prop['path'] for prop in repos.values()}
-    new_paths = {p for p in new_paths if is_git(p, is_bare)}
+    new_paths = {p for p in new_paths if is_git(p, include_bare)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
