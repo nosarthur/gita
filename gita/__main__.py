@@ -59,34 +59,24 @@ def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
     groups = utils.get_groups()
-    if 0:
-        # add to global and tag as main
-        main_repos = utils.add_repos(repos, paths, repo_type='m')
-        # add sub-repo recursively and save to local config
-        for name, prop in main_repos.items():
-            main_path = prop['path']
-            print('Inside main repo:', name)
-            #sub_paths = Path(main_path).glob('**')
-            sub_paths = glob.glob(os.path.join(main_path,'**/'), recursive=True)
-            utils.add_repos({}, sub_paths, root=main_path)
-    else:
-        if args.recursive or args.auto_group:
-            paths = (p.rstrip(os.path.sep) for p in chain.from_iterable(
-                    glob.glob(os.path.join(p, '**/'), recursive=True)
-                    for p in args.paths))
-        new_repos = utils.add_repos(repos, paths, is_bare=args.bare)
-        if new_repos and args.auto_group:
-            new_groups = utils.auto_group(new_repos, args.paths)
-            if new_groups:
-                print(f'Created {len(new_groups)} new group(s).')
-                utils.write_to_groups_file(new_groups, 'a+')
-        if new_repos and args.group:
-            gname = args.group
-            gname_repos = set(groups[gname]['repos'])
-            gname_repos.update(new_repos)
-            groups[gname]['repos'] = sorted(gname_repos)
-            print(f'Added {len(new_repos)} repos to the {gname} group')
-            utils.write_to_groups_file(groups, 'w')
+    if args.recursive or args.auto_group:
+        paths = (p.rstrip(os.path.sep) for p in chain.from_iterable(
+                glob.glob(os.path.join(p, '**/'), recursive=True)
+                for p in args.paths))
+    new_repos = utils.add_repos(repos, paths, include_bare=args.bare,
+                        exclude_submodule=args.skip_submodule)
+    if new_repos and args.auto_group:
+        new_groups = utils.auto_group(new_repos, args.paths)
+        if new_groups:
+            print(f'Created {len(new_groups)} new group(s).')
+            utils.write_to_groups_file(new_groups, 'a+')
+    if new_repos and args.group:
+        gname = args.group
+        gname_repos = set(groups[gname]['repos'])
+        gname_repos.update(new_repos)
+        groups[gname]['repos'] = sorted(gname_repos)
+        print(f'Added {len(new_repos)} repos to the {gname} group')
+        utils.write_to_groups_file(groups, 'w')
 
 
 def f_rename(args: argparse.Namespace):
@@ -167,8 +157,10 @@ def f_freeze(_):
         # TODO: What do we do with main repos? Maybe give an option to print
         #       their sub-repos too.
         url = ''
-        cp = subprocess.run(['git', 'remote', '-v'], cwd=path, capture_output=True)
-        lines = cp.stdout.decode('utf-8').split('\n')
+        # FIXME: capture_output is new in 3.7. Maybe drop support for 3.6
+        cp = subprocess.run(['git', 'remote', '-v'], cwd=path,
+                universal_newlines=True, capture_output=True)
+        lines = cp.stdout.split('\n')
         if cp.returncode == 0 and len(lines) > 0:
             parts = lines[0].split()
             if len(parts)>1:
@@ -402,6 +394,8 @@ def main(argv=None):
     p_add.add_argument('-g','--group',
                     choices=utils.get_groups(),
                     help="add repo(s) to the specified group")
+    p_add.add_argument('-s', '--skip-submodule', action='store_true',
+            help="skip submodule repo(s)")
     xgroup = p_add.add_mutually_exclusive_group()
     xgroup.add_argument('-r', '--recursive', action='store_true',
             help="recursively add repo(s) in the given path(s).")

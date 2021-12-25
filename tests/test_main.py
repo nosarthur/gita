@@ -115,8 +115,8 @@ class TestLsLl:
         (PATH_FNAME,
          "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \nxxx   cmaster dsu\x1b[0m msg \n"),
         (PATH_FNAME_EMPTY, ""),
-        (PATH_FNAME_MAIN,
-         '\x1b[4mmain1\x1b[0m cmaster dsu\x1b[0m msg \nxx    cmaster dsu\x1b[0m msg \n'),
+        #(PATH_FNAME_MAIN,
+        # '\x1b[4mmain1\x1b[0m cmaster dsu\x1b[0m msg \nxx    cmaster dsu\x1b[0m msg \n'),
         (PATH_FNAME_CLASH,
          "repo1 cmaster dsu\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \n"
          ),
