@@ -176,4 +176,4 @@ def test_is_git(tmpdir):
     with tmpdir.as_cwd():
         subprocess.run('git init --bare .'.split())
         assert utils.is_git(Path.cwd()) is False
-        assert utils.is_git(Path.cwd(), is_bare=True) is True
+        assert utils.is_git(Path.cwd(), include_bare=True) is True

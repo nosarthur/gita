@@ -56,7 +56,6 @@ def _path_name(name: str) -> str:
 
 
 def f_add(args: argparse.Namespace):
-    print(args)
     repos = utils.get_repos()
     paths = args.paths
     groups = utils.get_groups()

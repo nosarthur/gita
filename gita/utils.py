@@ -38,14 +38,12 @@ def get_relative_path(kid: str, parent: str) -> Union[List[str], None]:
 
 
 @lru_cache()
-def get_repos(root=None) -> Dict[str, Dict[str, str]]:
+def get_repos() -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
 
-    @param root: Use local config if set. If None, use either global or local
-                 config depending on cwd.
     """
-    path_file = common.get_config_fname('repos.csv', root)
+    path_file = common.get_config_fname('repos.csv')
     repos = {}
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
@@ -55,12 +53,6 @@ def get_repos(root=None) -> Dict[str, Dict[str, str]]:
                     {'path': r['path'], 'type': r['type'],
                         'flags': r['flags'].split()}
                      for r in rows if is_git(r['path'], include_bare=True)}
-    if root is None:  # detect if inside a main path
-        cwd = os.getcwd()
-        for prop in repos.values():
-            path = prop['path']
-            if prop['type'] == 'm' and get_relative_path(cwd, path) != MAX_INT:
-                return get_repos(path)
     return repos
 
 
@@ -174,7 +166,7 @@ def is_submodule_repo(p: Path) -> bool:
     """
 
     """
-    if p.is_file() and '.git/worktrees' in p.read_text():
+    if p.is_file() and '.git/modules' in p.read_text():
         return True
     return False
 
@@ -244,13 +236,14 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     write_to_groups_file(groups, 'w')
 
 
-def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str, root=None):
+def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     """
     @param repos: each repo is {name: {properties}}
     """
-    data = [(prop['path'], name, prop['type'], ' '.join(prop['flags']))
+    # The 3rd column is repo type; unused field
+    data = [(prop['path'], name, '', ' '.join(prop['flags']))
                 for name, prop in repos.items()]
-    fname = common.get_config_fname('repos.csv', root)
+    fname = common.get_config_fname('repos.csv')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, mode, newline='') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -296,18 +289,6 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
     return name
 
 
-# TODO: delete
-def _get_repo_type(path, repo_type, root) -> str:
-    """
-
-    """
-    if repo_type != '':  # explicitly set
-        return repo_type
-    if root is not None and os.path.normpath(root) == os.path.normpath(path):
-        return 'm'
-    return ''
-
-
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
               repo_type='',
               include_bare=False,
@@ -329,12 +310,9 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
                 )
         new_repos = {_make_name(path, repos, name_counts): {
             'path': path,
-            'type': _get_repo_type(path, repo_type, root),
             'flags': '',
             } for path in new_paths}
-        # When root is not None, we could optionally set its type to 'm', i.e.,
-        # main repo.
-        write_to_repo_file(new_repos, 'a+', root)
+        write_to_repo_file(new_repos, 'a+')
     else:
         print('No new repos found!')
     return new_repos
@@ -456,13 +434,7 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
 
     for name in sorted(repos):
         info_items = ' '.join(f(repos[name]) for f in funcs)
-        if repos[name]['type'] == 'm':
-            # ANSI color code also takes length in Python
-            name = f'{info.Color.underline}{name}{info.Color.end}'
-            width = name_width + 8
-            yield f'{name:<{width}}{info_items}'
-        else:
-            yield f'{name:<{name_width}}{info_items}'
+        yield f'{name:<{name_width}}{info_items}'
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
