@@ -74,7 +74,6 @@ def get_context() -> Union[Path, None]:
     ctx = matches[0]
     if ctx.stem == 'auto':
         cwd = str(Path.cwd())
-        repos = get_repos()
         # The context is set to be the group with minimal distance to cwd
         candidate = None
         min_dist = MAX_INT
