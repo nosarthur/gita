@@ -19,13 +19,10 @@
 
 # Gita: a command-line tool to manage multiple git repos
 
-This tool does two things
+This tool has two main features
 
 - display the status of multiple git repos such as branch, modification, commit message side by side
-- (batch) delegate git commands/aliases from any working directory
-
-If several repos are related, it helps to see their status together.
-I also hate to change directories to execute git commands.
+- (batch) delegate git commands/aliases and shell commands on repos from any working directory
 
 ![gita screenshot](https://github.com/nosarthur/gita/raw/master/doc/screenshot.png)
 
