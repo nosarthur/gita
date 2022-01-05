@@ -3,9 +3,11 @@ _gita_completions()
 {
 
   local cur commands repos cmd
+  local IFS=$'\n\t '
 
   cur=${COMP_WORDS[COMP_CWORD]}
   cmd=${COMP_WORDS[1]}
+
 
   # this doesn't work for two repos with the same basename
   #gita_path=${XDG_CONFIG_HOME:-$HOME/.config}/gita/repo_path
