@@ -93,7 +93,7 @@ def get_context() -> Union[Path, None]:
 
 
 @lru_cache()
-def get_groups() -> Dict[str, Dict]:
+def get_groups() -> Dict[str, Dict[str, Union[str, List]]]:
     """
     Return a `dict` of group name to group properties such as repo names and
     group path.
@@ -211,27 +211,15 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     prop = repos[repo]
     del repos[repo]
     repos[new_name] = prop
-    # write to local config if inside a main path
-    main_paths = (prop['path'] for prop in repos.values() if prop['type'] == 'm')
-    cwd = os.getcwd()
-    is_local_config = True
-    # TODO: delete
-    for p in main_paths:
-        if get_relative_path(cwd, p) != MAX_INT:
-            write_to_repo_file(repos, 'w', p)
-            break
-    else:  # global config
-        write_to_repo_file(repos, 'w')
-        is_local_config = False
-    # update groups only when outside any main repos
-    if is_local_config:
-        return
+    write_to_repo_file(repos, 'w')
+
     groups = get_groups()
-    for g, members in groups.items():
+    for g, values in groups.items():
+        members = values['repos']
         if repo in members:
             members.remove(repo)
             members.append(new_name)
-            groups[g] = sorted(members)
+            groups[g]['repos'] = sorted(members)
     write_to_groups_file(groups, 'w')
 
 

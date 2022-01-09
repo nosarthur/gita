@@ -9,7 +9,7 @@ import shlex
 from gita import __main__
 from gita import utils, info, common
 from conftest import (
-    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME, PATH_FNAME_MAIN,
+    PATH_FNAME, PATH_FNAME_EMPTY, PATH_FNAME_CLASH, GROUP_FNAME,
     async_mock, TEST_DIR,
 )
 

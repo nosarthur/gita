@@ -154,8 +154,6 @@ def f_freeze(_):
     seen = {''}
     for name, prop in repos.items():
         path = prop['path']
-        # TODO: What do we do with main repos? Maybe give an option to print
-        #       their sub-repos too.
         url = ''
         # FIXME: capture_output is new in 3.7. Maybe drop support for 3.6
         cp = subprocess.run(['git', 'remote', '-v'], cwd=path,
