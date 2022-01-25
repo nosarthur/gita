@@ -346,7 +346,7 @@ def f_shell(args):
     Delegate shell command defined in `args.man`, which may or may not
     contain repo names.
     """
-    repos, cmds = utils.parse_repos_and_rest(args.man)
+    repos, cmds = utils.parse_repos_and_rest(args.man, args.quote_mode)
     if not cmds:
         print('Missing commands')
         sys.exit(2)
@@ -365,7 +365,7 @@ def f_super(args):
     Delegate git command/alias defined in `args.man`, which may or may not
     contain repo names.
     """
-    repos, cmds = utils.parse_repos_and_rest(args.man)
+    repos, cmds = utils.parse_repos_and_rest(args.man, args.quote_mode)
     if not cmds:
         print('Missing commands')
         sys.exit(2)
@@ -608,6 +608,8 @@ def main(argv=None):
         help="execute arbitrary git command/alias for specified repo(s), group(s), or all repos.\n"
         "Example: gita super repo1 diff --name-only --staged;\n"
         "gita super checkout master ")
+    p_super.add_argument('-q','--quote-mode', action='store_true',
+            help='use quote mode')
     p_super.set_defaults(func=f_super)
 
     # shell mode
@@ -624,6 +626,8 @@ def main(argv=None):
         help="execute arbitrary shell command for specified repo(s), group(s), or all repos.\n"
         "Example: gita shell myrepo1 ls\n"
         "Another: gita shell git checkout master ")
+    p_shell.add_argument('-q','--quote-mode', action='store_true',
+            help='use quote mode')
     p_shell.set_defaults(func=f_shell)
 
     # sub-commands that fit boilerplate
