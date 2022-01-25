@@ -58,13 +58,17 @@ def _path_name(name: str) -> str:
 def f_add(args: argparse.Namespace):
     repos = utils.get_repos()
     paths = args.paths
+    dry_run = args.dry_run
     groups = utils.get_groups()
     if args.recursive or args.auto_group:
         paths = (p.rstrip(os.path.sep) for p in chain.from_iterable(
                 glob.glob(os.path.join(p, '**/'), recursive=True)
                 for p in args.paths))
     new_repos = utils.add_repos(repos, paths, include_bare=args.bare,
-                        exclude_submodule=args.skip_submodule)
+                        exclude_submodule=args.skip_submodule,
+                        dry_run=dry_run)
+    if dry_run:
+        return
     if new_repos and args.auto_group:
         new_groups = utils.auto_group(new_repos, args.paths)
         if new_groups:
@@ -389,6 +393,7 @@ def main(argv=None):
     p_add = subparsers.add_parser('add', description='add repo(s)',
             help='add repo(s)')
     p_add.add_argument('paths', nargs='+', type=_path_name, help="repo(s) to add")
+    p_add.add_argument('-n','--dry-run', action='store_true', help='dry run')
     p_add.add_argument('-g','--group',
                     choices=utils.get_groups(),
                     help="add repo(s) to the specified group")

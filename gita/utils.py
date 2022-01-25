@@ -279,6 +279,7 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
 def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
               include_bare=False,
               exclude_submodule=False,
+              dry_run=False,
               ) -> Dict[str, Dict[str, str]]:
     """
     Write new repo paths to file; return the added repos.
@@ -291,6 +292,10 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
     new_repos = {}
     if new_paths:
         print(f"Found {len(new_paths)} new repo(s).")
+        if dry_run:
+            for p in new_paths:
+                print(p)
+            return {}
         name_counts = Counter(
             os.path.basename(os.path.normpath(p)) for p in new_paths
                 )
