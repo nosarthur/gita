@@ -226,6 +226,19 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     write_to_groups_file(groups, "w")
 
 
+def write_to_folder_file(repos: Dict[str, Dict[str, str]], mode: str):
+    """
+    @param repos: each repo is {name: {properties}}
+    """
+    # The 3rd column is repo type; unused field
+    data = [(prop['path'], name, '', )
+                for name, prop in folders.items()]
+    fname = common.get_config_fname('repos.csv')
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    with open(fname, mode, newline='') as f:
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(data)
+
 def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     """
     @param repos: each repo is {name: {properties}}

@@ -56,6 +56,10 @@ def _path_name(name: str) -> str:
 
 
 def f_add(args: argparse.Namespace):
+    if args.non_repo:
+        folders = utils.get_folders()
+        return
+
     repos = utils.get_repos()
     paths = args.paths
     dry_run = args.dry_run
@@ -419,13 +423,16 @@ def main(argv=None):
 
     # bookkeeping sub-commands
     p_add = subparsers.add_parser("add", description="add repo(s)", help="add repo(s)")
-    p_add.add_argument("paths", nargs="+", type=_path_name, help="repo(s) to add")
+    p_add.add_argument("paths", nargs="+", type=_path_name, help="repo path(s) to add")
     p_add.add_argument("-n", "--dry-run", action="store_true", help="dry run")
     p_add.add_argument(
         "-g",
         "--group",
         choices=utils.get_groups(),
         help="add repo(s) to the specified group",
+    )
+    p_add.add_argument(
+        "-d", "--non-repo", action="store_true", help="add non-repo path(s)"
     )
     p_add.add_argument(
         "-s", "--skip-submodule", action="store_true", help="skip submodule repo(s)"

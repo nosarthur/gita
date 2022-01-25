@@ -65,10 +65,12 @@ symbol | meaning
 
 The bookkeeping sub-commands are
 
-- `gita add <repo-path(s)> [-g <groupname>]`: add repo(s) to `gita`, optionally into an existing group
+- `gita add <repo-path(s)> [-g <groupname>] [-s]`:
+  add repo(s) to `gita`, optionally into an existing group, optionally skip submodule repos
 - `gita add -a <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
   and automatically generate hierarchical groups. See the [customization section](#custom) for more details.
 - `gita add -b <bare-repo-path(s)>`: add bare repo(s) to `gita`. See the [customization section](#custom) for more details on setting custom worktree.
+- `gita add -d <non-repo-path(s)>`: add path(s) to `gita` only to execute shell commands.
 - `gita add -r <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
 - `gita clear`: remove all groups and repos
 - `gita clone <URL>`: clone repo from `URL` at current working directory
