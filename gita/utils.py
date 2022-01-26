@@ -458,14 +458,14 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     return cmds
 
 
-def parse_repos_and_rest(input: List[str]
+def parse_repos_and_rest(input: List[str], quote_mode=False,
         ) -> Tuple[Dict[str, Dict[str, str]], List[str]]:
     """
     Parse gita input arguments
 
     @return: repos and the rest (e.g., gita shell and super commands)
     """
-    i = None
+    i = 0
     names = []
     repos = get_repos()
     groups = get_groups()
@@ -480,6 +480,10 @@ def parse_repos_and_rest(input: List[str]
             i += 1
     if not names and ctx:
         names = [ctx.stem]
+    if quote_mode and i + 1 != len(input):
+        print(input[i], 'is not a repo or group' )
+        sys.exit(2)
+
     if names:
         chosen = {}
         for k in names:
