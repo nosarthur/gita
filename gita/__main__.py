@@ -354,10 +354,15 @@ def f_shell(args):
     cmds = ' '.join(cmds)  # join the shell command into a single string
     for name, prop in repos.items():
         # TODO: pull this out as a function
-        got = subprocess.run(cmds, cwd=prop['path'], shell=True,
+        p = subprocess.Popen(cmds, cwd=prop['path'], shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
-        print(utils.format_output(got.stdout.decode(), name))
+        with p.stdout:
+            for line in iter(p.stdout.readline, b''): 
+                print(utils.format_output(line.decode(), name), end='')
+        returncode = p.wait()
+        if returncode != 0:
+            raise subprocess.CalledProcessError(returncode, cmds)
 
 
 def f_super(args):
