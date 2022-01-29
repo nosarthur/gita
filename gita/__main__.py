@@ -376,6 +376,27 @@ def f_super(args):
     f_git_cmd(args)
 
 
+def f_reset(_):
+    repos = utils.get_repos()
+
+    if not repos:
+        return
+
+    groups_modified = False
+    groups = utils.get_groups()
+
+    for repo in repos:
+        del repos[repo]
+
+        modified = utils.delete_repo_from_groups(repo, groups)
+        groups_modified = groups_modified or modified
+
+    if groups_modified:
+        utils.write_to_groups_file(groups, 'w')
+
+    utils.write_to_repo_file(repos, 'w')
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog='gita',
                                 formatter_class=argparse.RawTextHelpFormatter,
@@ -629,6 +650,12 @@ def main(argv=None):
     p_shell.add_argument('-q','--quote-mode', action='store_true',
             help='use quote mode')
     p_shell.set_defaults(func=f_shell)
+
+    # reset
+    p_reset = subparsers.add_parser('reset',
+            description='reset all groups and repositories',
+            help='remove all groups and repositories')
+    p_reset.set_defaults(func=f_reset)
 
     # sub-commands that fit boilerplate
     cmds = utils.get_cmds_from_files()
