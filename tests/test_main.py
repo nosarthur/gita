@@ -493,3 +493,17 @@ def test_set_color(mock_get_fname, tmpdir):
         assert items == {'no-remote': 'b_white', 'in-sync': 'green',
                 'diverged': 'red', 'local-ahead': 'purple',
                 'remote-ahead': 'yellow'}
+
+
+@pytest.mark.parametrize('input, expected', [
+    ({'repo1': {'path': '/a/'}, 'repo2': {'path': '/b/'}}, ''),
+    ])
+@patch('gita.utils.write_to_repo_file')
+@patch('gita.utils.get_repos')
+def test_reset(mock_repos, mock_write_to_repo_file, input, expected, capfd):
+    mock_repos.return_value = input
+    __main__.main(['clear'])
+    assert mock_write_to_repo_file.call_count == 1
+    out, err = capfd.readouterr()
+    assert err == ''
+    assert out == expected
