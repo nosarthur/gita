@@ -47,6 +47,7 @@
   },
 "push":{
   "cmd": "git push",
+  "allow_all": true,
   "help": "push the local updates"
   },
 "rebase":{
