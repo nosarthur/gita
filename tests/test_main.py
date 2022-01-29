@@ -500,10 +500,11 @@ def test_set_color(mock_get_fname, tmpdir):
     ])
 @patch('gita.utils.write_to_repo_file')
 @patch('gita.utils.get_repos')
-def test_reset(mock_repos, mock_write_to_repo_file, input, expected, capfd):
+def test_clear(mock_repos, mock_write_to_repo_file, input, expected, capfd):
     mock_repos.return_value = input
     __main__.main(['clear'])
     assert mock_write_to_repo_file.call_count == 1
+    mock_write_to_repo_file.assert_called_once_with({}, 'w')
     out, err = capfd.readouterr()
     assert err == ''
     assert out == expected
