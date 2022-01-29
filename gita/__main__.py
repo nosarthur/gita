@@ -377,26 +377,8 @@ def f_super(args):
 
 
 def f_clear(_):
-    repos = utils.get_repos()
-
-    if not repos:
-        return
-
-    groups_modified = False
-    groups = utils.get_groups()
-
-    repos_list = list(repos)
-
-    for repo in repos_list:
-        del repos[repo]
-
-        modified = utils.delete_repo_from_groups(repo, groups)
-        groups_modified = groups_modified or modified
-
-    if groups_modified:
-        utils.write_to_groups_file(groups, 'w')
-
-    utils.write_to_repo_file(repos, 'w')
+    utils.write_to_groups_file({}, 'w')
+    utils.write_to_repo_file({}, 'w')
 
 
 def main(argv=None):
