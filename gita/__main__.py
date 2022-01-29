@@ -385,7 +385,9 @@ def f_clear(_):
     groups_modified = False
     groups = utils.get_groups()
 
-    for repo in repos:
+    repos_list = list(repos)
+
+    for repo in repos_list:
         del repos[repo]
 
         modified = utils.delete_repo_from_groups(repo, groups)
