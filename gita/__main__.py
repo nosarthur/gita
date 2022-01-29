@@ -376,7 +376,7 @@ def f_super(args):
     f_git_cmd(args)
 
 
-def f_reset(_):
+def f_clear(_):
     repos = utils.get_repos()
 
     if not repos:
@@ -651,11 +651,11 @@ def main(argv=None):
             help='use quote mode')
     p_shell.set_defaults(func=f_shell)
 
-    # reset
-    p_reset = subparsers.add_parser('reset',
-            description='reset all groups and repositories',
-            help='remove all groups and repositories')
-    p_reset.set_defaults(func=f_reset)
+    # clear
+    p_clear = subparsers.add_parser('clear',
+            description='removes all groups and repositories',
+            help='removes all groups and repositories')
+    p_clear.set_defaults(func=f_clear)
 
     # sub-commands that fit boilerplate
     cmds = utils.get_cmds_from_files()
