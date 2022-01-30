@@ -58,8 +58,10 @@
   [customization section](#custom)
 - `gita add -r <repo-parent-path(s)>`: 递归添加路径下的所有库
 - `gita clear`:
-- `gita clone <config-file>`: 克隆`<config-file>` (由`gita freeze`生成)里的库
-- `gita clone -p <config-file>`: 克隆`<config-file>`里的库并放到指定路径
+- `gita clone <URL>`:
+- `gita clone <URL> -C <directory>`:
+- `gita clone -f <config-file>`: 克隆`<config-file>` (由`gita freeze`生成)里的库
+- `gita clone -p -f <config-file>`: 克隆`<config-file>`里的库并放到指定路径
 - `gita context`: 情境命令
     - `gita context`: 显示当前的情境
     - `gita context none`: 去除情境

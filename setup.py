@@ -1,24 +1,24 @@
 from setuptools import setup
 
 long_description = None
-with open('README.md', encoding='utf-8') as f:
+with open("README.md", encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name='gita',
-    packages=['gita'],
-    version='0.16.1.2',
-    license='MIT',
-    description='Manage multiple git repos with sanity',
+    name="gita",
+    packages=["gita"],
+    version="0.16.2",
+    license="MIT",
+    description="Manage multiple git repos with sanity",
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/nosarthur/gita',
-    platforms=['linux', 'osx', 'win32'],
-    keywords=['git', 'manage multiple repositories', 'cui', 'command-line'],
-    author='Dong Zhou',
-    author_email='zhou.dong@gmail.com',
-    entry_points={'console_scripts': ['gita = gita.__main__:main']},
-    python_requires='~=3.6',
+    long_description_content_type="text/markdown",
+    url="https://github.com/nosarthur/gita",
+    platforms=["linux", "osx", "win32"],
+    keywords=["git", "manage multiple repositories", "cui", "command-line"],
+    author="Dong Zhou",
+    author_email="zhou.dong@gmail.com",
+    entry_points={"console_scripts": ["gita = gita.__main__:main"]},
+    python_requires="~=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
