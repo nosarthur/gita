@@ -57,6 +57,7 @@
 - `gita add -b <bare-repo-path(s)>`: 添加bare库
   [customization section](#custom)
 - `gita add -r <repo-parent-path(s)>`: 递归添加路径下的所有库
+- `gita clear`:
 - `gita clone <config-file>`: 克隆`<config-file>` (由`gita freeze`生成)里的库
 - `gita clone -p <config-file>`: 克隆`<config-file>`里的库并放到指定路径
 - `gita context`: 情境命令
