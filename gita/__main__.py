@@ -170,6 +170,7 @@ def f_clone(args: argparse.Namespace):
 
 
 def f_freeze(_):
+    # TODO: filter context
     repos = utils.get_repos()
     seen = {""}
     for name, prop in repos.items():
@@ -471,7 +472,7 @@ def main(argv=None):
     p_clone.add_argument(
         "-C",
         "--directory",
-        help="Change to directory before doing anything.",
+        help="Change to DIRECTORY before doing anything.",
     )
     p_clone.add_argument(
         "-f",
