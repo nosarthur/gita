@@ -17,24 +17,25 @@ from . import common
 MAX_INT = sys.maxsize
 
 
-def get_relative_path(kid: str, parent: str) -> Union[List[str], None]:
+def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
     """
-    Return the relative path depth if relative, otherwise MAX_INT.
+    Return the relative path depth if relative, otherwise None.
 
-    Both the `kid` and `parent` should be absolute paths without trailing /
+    Both the `kid` and `parent` should be absolute paths
     """
-    # Note that os.path.commonpath has no trailing /
-    # TODO: python3.9 pathlib has is_relative_to() function
-    # TODO: Maybe use os.path.commonprefix? since it's faster?
-    if parent == '':
+    if parent == "":
         return None
-    if parent == os.path.commonpath((kid, parent)):
-        rel = os.path.normpath(os.path.relpath(kid, parent)).split(os.sep)
-        if rel == ['.']:
-            rel = []
-        return rel
-    else:
+
+    p_kid = Path(kid)
+    # p_kid = Path(kid).resolve()
+    try:
+        p_rel = p_kid.relative_to(parent)
+    except ValueError:
         return None
+    rel = str(p_rel).split(os.sep)
+    if rel == ["."]:
+        rel = []
+    return rel
 
 
 @lru_cache()
@@ -43,16 +44,22 @@ def get_repos() -> Dict[str, Dict[str, str]]:
     Return a `dict` of repo name to repo absolute path and repo type
 
     """
-    path_file = common.get_config_fname('repos.csv')
+    path_file = common.get_config_fname("repos.csv")
     repos = {}
     if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
         with open(path_file) as f:
-            rows = csv.DictReader(f, ['path', 'name', 'type', 'flags'],
-                                  restval='')  # it's actually a reader
-            repos = {r['name']:
-                    {'path': r['path'], 'type': r['type'],
-                        'flags': r['flags'].split()}
-                     for r in rows if is_git(r['path'], include_bare=True)}
+            rows = csv.DictReader(
+                f, ["path", "name", "type", "flags"], restval=""
+            )  # it's actually a reader
+            repos = {
+                r["name"]: {
+                    "path": r["path"],
+                    "type": r["type"],
+                    "flags": r["flags"].split(),
+                }
+                for r in rows
+                if is_git(r["path"], include_bare=True)
+            }
     return repos
 
 
@@ -65,20 +72,19 @@ def get_context() -> Union[Path, None]:
 
     """
     config_dir = Path(common.get_config_dir())
-    matches = list(config_dir.glob('*.context'))
+    matches = list(config_dir.glob("*.context"))
     if len(matches) > 1:
         print("Cannot have multiple .context file")
         sys.exit(1)
     if not matches:
         return None
     ctx = matches[0]
-    if ctx.stem == 'auto':
-        cwd = str(Path.cwd())
+    if ctx.stem == "auto":
         # The context is set to be the group with minimal distance to cwd
         candidate = None
         min_dist = MAX_INT
         for gname, prop in get_groups().items():
-            rel = get_relative_path(cwd, prop['path'])
+            rel = get_relative_path(Path.cwd(), prop["path"])
             if rel is None:
                 continue
             d = len(rel)
@@ -88,7 +94,7 @@ def get_context() -> Union[Path, None]:
         if not candidate:
             ctx = None
         else:
-            ctx = ctx.with_name(f'{candidate}.context')
+            ctx = ctx.with_name(f"{candidate}.context")
     return ctx
 
 
@@ -98,19 +104,18 @@ def get_groups() -> Dict[str, Dict[str, Union[str, List]]]:
     Return a `dict` of group name to group properties such as repo names and
     group path.
     """
-    fname = common.get_config_fname('groups.csv')
+    fname = common.get_config_fname("groups.csv")
     groups = {}
     # Each line is:  group-name:repo1 repo2 repo3:group-path
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
-        with open(fname, 'r') as f:
-            rows = csv.DictReader(f, ['name', 'repos', 'path'],
-                                  restval='', delimiter=':')
+        with open(fname, "r") as f:
+            rows = csv.DictReader(
+                f, ["name", "repos", "path"], restval="", delimiter=":"
+            )
             groups = {
-                    r['name']: {
-                        'repos': r['repos'].split(),
-                        'path': r['path']
-                        }
-                    for r in rows}
+                r["name"]: {"repos": r["repos"].split(), "path": r["path"]}
+                for r in rows
+            }
     return groups
 
 
@@ -121,7 +126,7 @@ def delete_repo_from_groups(repo: str, groups: Dict[str, Dict]) -> bool:
     deleted = False
     for name in groups:
         try:
-            groups[name]['repos'].remove(repo)
+            groups[name]["repos"].remove(repo)
         except ValueError as e:
             pass
         else:
@@ -130,20 +135,18 @@ def delete_repo_from_groups(repo: str, groups: Dict[str, Dict]) -> bool:
 
 
 def replace_context(old: Union[Path, None], new: str):
-    """
-
-    """
-    auto = Path(common.get_config_dir()) / 'auto.context'
+    """ """
+    auto = Path(common.get_config_dir()) / "auto.context"
     if auto.exists():
         old = auto
 
-    if new == 'none':  # delete
+    if new == "none":  # delete
         old and old.unlink()
     elif old:
         # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
-        old.rename(old.with_name(f'{new}.context'))
+        old.rename(old.with_name(f"{new}.context"))
     else:
-        Path(auto.with_name(f'{new}.context')).write_text('')
+        Path(auto.with_name(f"{new}.context")).write_text("")
 
 
 def get_choices() -> List[Union[str, None]]:
@@ -162,10 +165,8 @@ def get_choices() -> List[Union[str, None]]:
 
 
 def is_submodule_repo(p: Path) -> bool:
-    """
-
-    """
-    if p.is_file() and '.git/modules' in p.read_text():
+    """ """
+    if p.is_file() and ".git/modules" in p.read_text():
         return True
     return False
 
@@ -183,7 +184,7 @@ def is_git(path: str, include_bare=False, exclude_submodule=False) -> bool:
     # A more reliable way to differentiable regular and worktree repos is to
     # compare the result of `git rev-parse --git-dir` and
     # `git rev-parse --git-common-dir`
-    loc = os.path.join(path, '.git')
+    loc = os.path.join(path, ".git")
     # TODO: we can display the worktree repos in a different font.
     if os.path.exists(loc):
         if exclude_submodule and is_submodule_repo(Path(loc)):
@@ -192,11 +193,13 @@ def is_git(path: str, include_bare=False, exclude_submodule=False) -> bool:
     if not include_bare:
         return False
     # detect bare repo
-    got = subprocess.run('git rev-parse --is-bare-repository'.split(),
-                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                            cwd=path
-                            )
-    if got.returncode == 0 and got.stdout == b'true\n':
+    got = subprocess.run(
+        "git rev-parse --is-bare-repository".split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        cwd=path,
+    )
+    if got.returncode == 0 and got.stdout == b"true\n":
         return True
     return False
 
@@ -211,16 +214,16 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     prop = repos[repo]
     del repos[repo]
     repos[new_name] = prop
-    write_to_repo_file(repos, 'w')
+    write_to_repo_file(repos, "w")
 
     groups = get_groups()
     for g, values in groups.items():
-        members = values['repos']
+        members = values["repos"]
         if repo in members:
             members.remove(repo)
             members.append(new_name)
-            groups[g]['repos'] = sorted(members)
-    write_to_groups_file(groups, 'w')
+            groups[g]["repos"] = sorted(members)
+    write_to_groups_file(groups, "w")
 
 
 def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
@@ -228,40 +231,43 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     @param repos: each repo is {name: {properties}}
     """
     # The 3rd column is repo type; unused field
-    data = [(prop['path'], name, '', ' '.join(prop['flags']))
-                for name, prop in repos.items()]
-    fname = common.get_config_fname('repos.csv')
+    data = [
+        (prop["path"], name, "", " ".join(prop["flags"]))
+        for name, prop in repos.items()
+    ]
+    fname = common.get_config_fname("repos.csv")
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, mode, newline='') as f:
-        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    with open(fname, mode, newline="") as f:
+        writer = csv.writer(f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerows(data)
 
 
 # TODO: combine with the repo writer
 def write_to_groups_file(groups: Dict[str, Dict], mode: str):
-    """
-
-    """
-    fname = common.get_config_fname('groups.csv')
+    """ """
+    fname = common.get_config_fname("groups.csv")
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     if not groups:  # all groups are deleted
-        Path(fname).write_text('')
+        Path(fname).write_text("")
     else:
         # delete the group if there are no repos
         for name in list(groups):
-            if not groups[name]['repos']:
+            if not groups[name]["repos"]:
                 del groups[name]
-        with open(fname, mode, newline='') as f:
+        with open(fname, mode, newline="") as f:
             data = [
-                    (group, ' '.join(prop['repos']), prop['path'])
-                    for group, prop in groups.items()
-                    ]
-            writer = csv.writer(f, delimiter=':', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                (group, " ".join(prop["repos"]), prop["path"])
+                for group, prop in groups.items()
+            ]
+            writer = csv.writer(
+                f, delimiter=":", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
             writer.writerows(data)
 
 
-def _make_name(path: str, repos: Dict[str, Dict[str, str]],
-                name_counts: Counter) -> str:
+def _make_name(
+    path: str, repos: Dict[str, Dict[str, str]], name_counts: Counter
+) -> str:
     """
     Given a new repo `path`, create a repo name. By default, basename is used.
     If name collision exists, further include parent path name.
@@ -276,17 +282,19 @@ def _make_name(path: str, repos: Dict[str, Dict[str, str]],
     return name
 
 
-def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
-              include_bare=False,
-              exclude_submodule=False,
-              dry_run=False,
-              ) -> Dict[str, Dict[str, str]]:
+def add_repos(
+    repos: Dict[str, Dict[str, str]],
+    new_paths: List[str],
+    include_bare=False,
+    exclude_submodule=False,
+    dry_run=False,
+) -> Dict[str, Dict[str, str]]:
     """
     Write new repo paths to file; return the added repos.
 
     @param repos: name -> path
     """
-    existing_paths = {prop['path'] for prop in repos.values()}
+    existing_paths = {prop["path"] for prop in repos.values()}
     new_paths = {p for p in new_paths if is_git(p, include_bare, exclude_submodule)}
     new_paths = new_paths - existing_paths
     new_repos = {}
@@ -296,21 +304,21 @@ def add_repos(repos: Dict[str, Dict[str, str]], new_paths: List[str],
             for p in new_paths:
                 print(p)
             return {}
-        name_counts = Counter(
-            os.path.basename(os.path.normpath(p)) for p in new_paths
-                )
-        new_repos = {_make_name(path, repos, name_counts): {
-            'path': path,
-            'flags': '',
-            } for path in new_paths}
-        write_to_repo_file(new_repos, 'a+')
+        name_counts = Counter(os.path.basename(os.path.normpath(p)) for p in new_paths)
+        new_repos = {
+            _make_name(path, repos, name_counts): {
+                "path": path,
+                "flags": "",
+            }
+            for path in new_paths
+        }
+        write_to_repo_file(new_repos, "a+")
     else:
-        print('No new repos found!')
+        print("No new repos found!")
     return new_repos
 
 
-def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[
-        Tuple[str, ...], str]:
+def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[Tuple[str, ...], str]:
     """
     Return relative parent strings, and the parent head string
 
@@ -322,13 +330,12 @@ def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[
         if rel is not None:
             break
     else:
-        return (), ''
+        return (), ""
     head, tail = os.path.split(p)
     return (tail, *rel), head
 
 
-def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]
-        ) -> Dict[str, Dict]:
+def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]) -> Dict[str, Dict]:
     """
 
     @params repos: repos to be grouped
@@ -337,17 +344,17 @@ def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]
     #        i.e., each repo should be contained in one and only one path
     new_groups = defaultdict(dict)
     for repo_name, prop in repos.items():
-        hash, head = _generate_dir_hash(prop['path'], paths)
+        hash, head = _generate_dir_hash(prop["path"], paths)
         if not hash:
             continue
-        for i in range(1, len(hash)+1):
-            group_name = '-'.join(hash[:i])
+        for i in range(1, len(hash) + 1):
+            group_name = "-".join(hash[:i])
             prop = new_groups[group_name]
-            prop['path'] = os.path.join(head, *hash[:i])
-            if 'repos' not in prop:
-                prop['repos'] = [repo_name]
+            prop["path"] = os.path.join(head, *hash[:i])
+            if "repos" not in prop:
+                prop["repos"] = [repo_name]
             else:
-                prop['repos'].append(repo_name)
+                prop["repos"].append(repo_name)
     # FIXME: need to make sure the new group names don't clash with old ones
     #        or repo names
     return new_groups
@@ -359,7 +366,7 @@ def parse_clone_config(fname: str) -> Iterator[List[str]]:
     """
     with open(fname) as f:
         for line in f:
-            yield line.strip().split(',')
+            yield line.strip().split(",")
 
 
 async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:
@@ -374,7 +381,8 @@ async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, s
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         start_new_session=True,
-        cwd=path)
+        cwd=path,
+    )
     stdout, stderr = await process.communicate()
     for pipe in (stdout, stderr):
         if pipe:
@@ -389,7 +397,7 @@ def format_output(s: str, prefix: str):
     """
     Prepends every line in given string with the given prefix.
     """
-    return ''.join([f'{prefix}: {line}' for line in s.splitlines(keepends=True)])
+    return "".join([f"{prefix}: {line}" for line in s.splitlines(keepends=True)])
 
 
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
@@ -397,7 +405,7 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     Execute tasks asynchronously
     """
     # TODO: asyncio API is nicer in python 3.7
-    if platform.system() == 'Windows':
+    if platform.system() == "Windows":
         loop = asyncio.ProactorEventLoop()
         asyncio.set_event_loop(loop)
     else:
@@ -424,8 +432,8 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
         funcs[idx] = partial(get_repo_status, no_colors=True)
 
     for name in sorted(repos):
-        info_items = ' '.join(f(repos[name]) for f in funcs)
-        yield f'{name:<{name_width}}{info_items}'
+        info_items = " ".join(f(repos[name]) for f in funcs)
+        yield f"{name:<{name_width}}{info_items}"
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
@@ -442,15 +450,15 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     """
     # default config file
     fname = os.path.join(os.path.dirname(__file__), "cmds.json")
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         cmds = json.load(f)
 
     # custom config file
     root = common.get_config_dir()
-    fname = os.path.join(root, 'cmds.json')
+    fname = os.path.join(root, "cmds.json")
     custom_cmds = {}
     if os.path.isfile(fname) and os.path.getsize(fname):
-        with open(fname, 'r') as f:
+        with open(fname, "r") as f:
             custom_cmds = json.load(f)
 
     # custom commands shadow default ones
@@ -458,8 +466,10 @@ def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
     return cmds
 
 
-def parse_repos_and_rest(input: List[str], quote_mode=False,
-        ) -> Tuple[Dict[str, Dict[str, str]], List[str]]:
+def parse_repos_and_rest(
+    input: List[str],
+    quote_mode=False,
+) -> Tuple[Dict[str, Dict[str, str]], List[str]]:
     """
     Parse gita input arguments
 
@@ -481,7 +491,7 @@ def parse_repos_and_rest(input: List[str], quote_mode=False,
     if not names and ctx:
         names = [ctx.stem]
     if quote_mode and i + 1 != len(input):
-        print(input[i], 'is not a repo or group' )
+        print(input[i], "is not a repo or group")
         sys.exit(2)
 
     if names:
@@ -490,7 +500,7 @@ def parse_repos_and_rest(input: List[str], quote_mode=False,
             if k in repos:
                 chosen[k] = repos[k]
             if k in groups:
-                for r in groups[k]['repos']:
+                for r in groups[k]["repos"]:
                     chosen[r] = repos[r]
         # if not set here, all repos are chosen
         repos = chosen
