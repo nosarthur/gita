@@ -48,10 +48,10 @@ def _group_name(name: str, exclude_old_names=True) -> str:
 
 def _path_name(name: str) -> str:
     """
-    Return absolute path without trailing /
+    Return absolute path
     """
     if name:
-        return os.path.abspath(name).rstrip(os.path.sep)
+        return os.path.abspath(name)
     return ""
 
 
