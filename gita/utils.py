@@ -113,7 +113,7 @@ def get_groups() -> Dict[str, Dict[str, Union[str, List]]]:
                 f, ["name", "repos", "path"], restval="", delimiter=":"
             )
             groups = {
-                r["name"]: {"repos": r["repos"].split(), "path": r["path"]}
+                r["name"]: {"repos": r["repos"].split(","), "path": r["path"]}
                 for r in rows
             }
     return groups
@@ -256,7 +256,7 @@ def write_to_groups_file(groups: Dict[str, Dict], mode: str):
                 del groups[name]
         with open(fname, mode, newline="") as f:
             data = [
-                (group, " ".join(prop["repos"]), prop["path"])
+                (group, ",".join(prop["repos"]), prop["path"])
                 for group, prop in groups.items()
             ]
             writer = csv.writer(
