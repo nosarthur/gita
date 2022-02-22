@@ -39,6 +39,24 @@ def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
 
 
 @lru_cache()
+def get_non_repo_paths() -> Dict[str, str]:
+    """
+    Return a `dict` of dir name to dir absolute path
+    """
+    path_file = common.get_config_fname("non-repos.csv")
+    dirs = {}
+    if os.path.isfile(path_file) and os.stat(path_file).st_size > 0:
+        with open(path_file) as f:
+            rows = csv.DictReader(
+                f,
+                ["path", "name"],
+                restval="",
+            )  # it's actually a reader
+            dirs = {r["name"]: r["path"] for r in rows}
+    return dirs
+
+
+@lru_cache()
 def get_repos() -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
@@ -226,18 +244,17 @@ def rename_repo(repos: Dict[str, Dict[str, str]], repo: str, new_name: str):
     write_to_groups_file(groups, "w")
 
 
-def write_to_folder_file(repos: Dict[str, Dict[str, str]], mode: str):
+def write_to_non_repo_file(dirs: Dict[str, str], mode: str):
     """
-    @param repos: each repo is {name: {properties}}
+    @param dirs: each dir is {name: path}
     """
-    # The 3rd column is repo type; unused field
-    data = [(prop['path'], name, '', )
-                for name, prop in folders.items()]
-    fname = common.get_config_fname('repos.csv')
+    data = [(path, name) for name, path in dirs.items()]
+    fname = common.get_config_fname("non-repos.csv")
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, mode, newline='') as f:
-        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    with open(fname, mode, newline="") as f:
+        writer = csv.writer(f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerows(data)
+
 
 def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     """
@@ -278,9 +295,7 @@ def write_to_groups_file(groups: Dict[str, Dict], mode: str):
             writer.writerows(data)
 
 
-def _make_name(
-    path: str, repos: Dict[str, Dict[str, str]], name_counts: Counter
-) -> str:
+def _make_name(path: str, repos: Dict, name_counts: Counter) -> str:
     """
     Given a new repo `path`, create a repo name. By default, basename is used.
     If name collision exists, further include parent path name.
@@ -297,7 +312,7 @@ def _make_name(
 
 def add_repos(
     repos: Dict[str, Dict[str, str]],
-    new_paths: List[str],
+    in_paths: List[str],
     include_bare=False,
     exclude_submodule=False,
     dry_run=False,
@@ -308,7 +323,7 @@ def add_repos(
     @param repos: name -> path
     """
     existing_paths = {prop["path"] for prop in repos.values()}
-    new_paths = {p for p in new_paths if is_git(p, include_bare, exclude_submodule)}
+    new_paths = {p for p in in_paths if is_git(p, include_bare, exclude_submodule)}
     new_paths = new_paths - existing_paths
     new_repos = {}
     if new_paths:
@@ -329,6 +344,27 @@ def add_repos(
     else:
         print("No new repos found!")
     return new_repos
+
+
+def add_non_repos(dirs: Dict[str, str], in_paths: List[str], dry_run=False):
+    """
+    Write non-repo paths to disk; return the added ones
+    """
+    existing_paths = set(dirs.values())
+    new_paths = set(in_paths) - existing_paths
+    new_dirs = {}
+    if new_paths:
+        print(f"Found {len(new_paths)} new folder(s).")
+        if dry_run:
+            for p in new_paths:
+                print(p)
+            return {}
+        name_counts = Counter(os.path.basename(os.path.normpath(p)) for p in new_paths)
+        new_dirs = {_make_name(p, dirs, name_counts): p for p in new_paths}
+        write_to_non_repo_file(new_dirs, "a+")
+    else:
+        print("No new folders found!")
+    return new_dirs
 
 
 def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[Tuple[str, ...], str]:

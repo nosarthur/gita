@@ -34,14 +34,14 @@ def _group_name(name: str, exclude_old_names=True) -> str:
     """
     repos = utils.get_repos()
     if name in repos:
-        print(f"Cannot use group name {name} since it's a repo name.")
+        print(f"Cannot use {name} since it's already a repo name.")
         sys.exit(1)
     if exclude_old_names:
         if name in utils.get_groups():
-            print(f"Cannot use group name {name} since it's already in use.")
+            print(f"Cannot use {name} since it's already a group name.")
             sys.exit(1)
     if name in {"none", "auto"}:
-        print(f"Cannot use group name {name} since it's a reserved keyword.")
+        print(f"Cannot use {name} since it's a reserved context keyword.")
         sys.exit(1)
     return name
 
@@ -56,13 +56,9 @@ def _path_name(name: str) -> str:
 
 
 def f_add(args: argparse.Namespace):
-    if args.non_repo:
-        folders = utils.get_folders()
-        return
-
-    repos = utils.get_repos()
     paths = args.paths
     dry_run = args.dry_run
+    repos = utils.get_repos()
     groups = utils.get_groups()
     if args.recursive or args.auto_group:
         paths = (
@@ -231,6 +227,28 @@ def f_ls(args: argparse.Namespace):
         print(repos[args.repo]["path"])
     else:  # show names of all repos
         print(" ".join(repos))
+
+
+def f_dir(args: argparse.Namespace):
+    dirs = utils.get_non_repo_paths()
+    cmd = args.dir_cmd or "ll"
+    if cmd == "ll":
+        for name, p in dirs.items():
+            print(name, p)
+    elif cmd == "ls":
+        print(" ".join(dirs))
+    elif cmd == "rename":
+        new_name = args.new_name
+        old_name = args.old_name
+        dirs[new_name] = dirs[old_name]
+        del dirs[old_name]
+        utils.write_to_non_repo_file(dirs, "w")
+    elif cmd == "rm":
+        for name in args.to_remove:
+            del dirs[name]
+        utils.write_to_non_repo_file(dirs, "w")
+    elif cmd == "add":
+        utils.add_non_repos(dirs, args.to_dir)
 
 
 def f_group(args: argparse.Namespace):
@@ -424,26 +442,7 @@ def main(argv=None):
     # bookkeeping sub-commands
     p_add = subparsers.add_parser("add", description="add repo(s)", help="add repo(s)")
     p_add.add_argument("paths", nargs="+", type=_path_name, help="repo path(s) to add")
-    p_add.add_argument("-n", "--dry-run", action="store_true", help="dry run")
-    p_add.add_argument(
-        "-g",
-        "--group",
-        choices=utils.get_groups(),
-        help="add repo(s) to the specified group",
-    )
-    p_add.add_argument(
-        "-d", "--non-repo", action="store_true", help="add non-repo path(s)"
-    )
-    p_add.add_argument(
-        "-s", "--skip-submodule", action="store_true", help="skip submodule repo(s)"
-    )
     xgroup = p_add.add_mutually_exclusive_group()
-    xgroup.add_argument(
-        "-r",
-        "--recursive",
-        action="store_true",
-        help="recursively add repo(s) in the given path(s).",
-    )
     xgroup.add_argument(
         "-a",
         "--auto-group",
@@ -452,6 +451,28 @@ def main(argv=None):
         "and create hierarchical groups based on folder structure.",
     )
     xgroup.add_argument("-b", "--bare", action="store_true", help="add bare repo(s)")
+    p_add.add_argument(
+        "-d",
+        "--non-repo",
+        action="store_true",
+        help="add non-repo path(s). They can be used for `gita shell` command",
+    )
+    p_add.add_argument(
+        "-g",
+        "--group",
+        choices=utils.get_groups(),
+        help="add repo(s) to the specified group",
+    )
+    p_add.add_argument("-n", "--dry-run", action="store_true", help="dry run")
+    xgroup.add_argument(
+        "-r",
+        "--recursive",
+        action="store_true",
+        help="recursively add repo(s) in the given path(s).",
+    )
+    p_add.add_argument(
+        "-s", "--skip-submodule", action="store_true", help="skip submodule repo(s)"
+    )
     p_add.set_defaults(func=f_add)
 
     p_rm = subparsers.add_parser(
@@ -628,6 +649,41 @@ def main(argv=None):
         help="show path of the chosen repo",
     )
     p_ls.set_defaults(func=f_ls)
+
+    p_dir = subparsers.add_parser(
+        "dir",
+        description="list, add, or remove non-repo dir(s)",
+        help="non-repo directories",
+    )
+    p_dir.set_defaults(func=f_dir)
+    dir_cmds = p_dir.add_subparsers(
+        dest="dir_cmd", help="additional help with sub-command -h"
+    )
+    dir_cmds.add_parser("ll", description="List all non-repo directories.")
+    dir_cmds.add_parser(
+        "ls",
+        description="List all non-repo dir names.",
+        help="add non-repo path(s). They can be used for `gita shell` command",
+    )
+    dir_cmds.add_parser(
+        "add",
+        description="Add non-repo dir(s).",
+    ).add_argument("to_dir", nargs="+", metavar="dirs", help="dir(s) to add")
+    dir_cmds.add_parser("rm", description="Remove dir(s).").add_argument(
+        "to_remove",
+        nargs="+",
+        choices=utils.get_non_repo_paths(),
+        help="dir(s) to delete",
+    )
+    pd_rename = dir_cmds.add_parser("rename", description="Change dir name.")
+    pd_rename.add_argument(
+        "old_name",
+        choices=utils.get_non_repo_paths(),
+        help="existing dir to rename",
+    )
+    pd_rename.add_argument(
+        "new_name", metavar="new-name", type=_group_name, help="new dir name"
+    )
 
     p_group = subparsers.add_parser(
         "group", description="list, add, or remove repo group(s)", help="group repos"
