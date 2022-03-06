@@ -198,7 +198,8 @@ def test_get_context(mock_config_dir):
     ],
 )
 @patch("gita.common.get_config_fname")
-def test_get_groups(mock_group_fname, group_fname, expected):
+@patch("gita.utils.get_repos", return_value={"a": "", "b": "", "c": "", "d": ""})
+def test_get_groups(_, mock_group_fname, group_fname, expected):
     mock_group_fname.return_value = group_fname
     utils.get_groups.cache_clear()
     assert utils.get_groups() == expected

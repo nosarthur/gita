@@ -367,8 +367,9 @@ class TestGroupCmd:
         assert err == ""
         assert "xx yy\n" == out
 
+    @patch("gita.utils.get_repos", return_value={"a": "", "b": "", "c": "", "d": ""})
     @patch("gita.common.get_config_fname", return_value=GROUP_FNAME)
-    def test_ll(self, _, capfd):
+    def test_ll(self, _, __, capfd):
         args = argparse.Namespace()
         args.to_group = None
         args.group_cmd = None
@@ -382,8 +383,9 @@ class TestGroupCmd:
             == "\x1b[4mxx\x1b[0m: \n  - a\n  - b\n\x1b[4myy\x1b[0m: \n  - a\n  - c\n  - d\n"
         )
 
+    @patch("gita.utils.get_repos", return_value={"a": "", "b": "", "c": "", "d": ""})
     @patch("gita.common.get_config_fname", return_value=GROUP_FNAME)
-    def test_ll_with_group(self, _, capfd):
+    def test_ll_with_group(self, _, __, capfd):
         args = argparse.Namespace()
         args.to_group = None
         args.group_cmd = None
@@ -394,9 +396,10 @@ class TestGroupCmd:
         assert err == ""
         assert "a c d\n" == out
 
+    @patch("gita.utils.get_repos", return_value={"a": "", "b": "", "c": "", "d": ""})
     @patch("gita.common.get_config_fname", return_value=GROUP_FNAME)
     @patch("gita.utils.write_to_groups_file")
-    def test_rename(self, mock_write, _):
+    def test_rename(self, mock_write, *_):
         args = argparse.Namespace()
         args.gname = "xx"
         args.new_name = "zz"
