@@ -106,14 +106,19 @@ def get_groups() -> Dict[str, Dict[str, Union[str, List]]]:
     """
     fname = common.get_config_fname("groups.csv")
     groups = {}
+    repos = get_repos()
     # Each line is:  group-name:repo1 repo2 repo3:group-path
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname, "r") as f:
             rows = csv.DictReader(
                 f, ["name", "repos", "path"], restval="", delimiter=":"
             )
+            # filter out invalid repos
             groups = {
-                r["name"]: {"repos": r["repos"].split(), "path": r["path"]}
+                r["name"]: {
+                    "repos": [repo for repo in r["repos"].split() if repo in repos],
+                    "path": r["path"],
+                }
                 for r in rows
             }
     return groups
