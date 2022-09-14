@@ -128,8 +128,8 @@ If more than one repos are specified, the `git` command runs asynchronously,
 with the exception of `log`, `difftool` and `mergetool`,
 which require non-trivial user input.
 
-Repo configuration is saved in `$XDG_CONFIG_HOME/gita/repos.csv`
-(most likely `~/.config/gita/repos.csv`).
+Repo configuration global is saved in `$XDG_CONFIG_HOME/gita/repos.csv`
+(most likely `~/.config/gita/repos.csv`) or if you prefered at project configuration add environment variable `GITA_PROJECT_HOME`.
 
 ## Installation
 
