@@ -19,7 +19,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip wheel
         pip install -r requirements.txt
-        pip install .
+        pip install -e .
     - name: Pytest
       run: |
           pytest tests --cov=./gita --cov-report=xml
