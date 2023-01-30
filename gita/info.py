@@ -9,7 +9,7 @@ from typing import Tuple, List, Callable, Dict
 from . import common
 
 
-class Color(str, Enum):
+class Color(Enum):
     """
     Terminal color
     """
@@ -31,6 +31,12 @@ class Color(str, Enum):
     b_cyan = '\x1b[36;1m'
     b_white = '\x1b[37;1m'
     underline = '\x1B[4m'
+
+    # Make f"{Color.foo}" expand to Color.foo.value .
+    #
+    # See https://stackoverflow.com/a/24487545
+    def __str__(self):
+        return f"{self.value}"
 
 
 default_colors = {
