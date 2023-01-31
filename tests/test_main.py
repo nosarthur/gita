@@ -94,14 +94,14 @@ class TestLsLl:
         out, err = capfd.readouterr()
         assert err == ""
         assert "gita" in out
-        assert info.Color.end in out
+        assert info.Color.end.value in out
 
         # no color on branch name
         __main__.main(["ll", "-C"])
         out, err = capfd.readouterr()
         assert err == ""
         assert "gita" in out
-        assert info.Color.end not in out
+        assert info.Color.end.value not in out
 
         __main__.main(["ls", "gita"])
         out, err = capfd.readouterr()
