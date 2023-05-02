@@ -65,7 +65,8 @@ symbol | meaning
 
 The bookkeeping sub-commands are
 
-- `gita add <repo-path(s)> [-g <groupname>]`: add repo(s) to `gita`, optionally into an existing group
+- `gita add <repo-path(s)> [-g <groupname>] [-s]`:
+  add repo(s) to `gita`, optionally into an existing group, optionally skip submodule repos
 - `gita add -a <repo-parent-path(s)>`: add repo(s) in <repo-parent-path(s)> recursively
   and automatically generate hierarchical groups. See the [customization section](#custom) for more details.
 - `gita add -b <bare-repo-path(s)>`: add bare repo(s) to `gita`. See the [customization section](#custom) for more details on setting custom worktree.
@@ -84,7 +85,13 @@ The bookkeeping sub-commands are
     - `gita color [ll]`: Show available colors and the current coloring scheme
     - `gita color reset`: Reset to the default coloring scheme
     - `gita color set <situation> <color>`: Use the specified color for the local-remote situation
-- `gita flags`: flags sub-command
+- `gita dir`: non-repo directory sub-command, good for shell commands
+    - `gita dir add <non-repo-path(s)>`: add non-repo path(s) to `gita`
+    - `gita dir [ll]`: display existing directories with paths
+    - `gita dir ls`: display existing directory names
+    - `gita dir rename <old-name> <new-name>`: change directory name
+    - `gita dir rm <dir-name(s)>`: delete directories
+ - `gita flags`: flags sub-command
     - `gita flags set <repo-name> <flags>`: add custom `flags` to repo
     - `gita flags [ll]`: display repos with custom flags
 - `gita freeze`: print information of all repos such as URL, name, and path. Use with
