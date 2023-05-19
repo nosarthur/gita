@@ -135,7 +135,7 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, "get_commit_msg", lambda *_: "msg")
     monkeypatch.setattr(info, "get_commit_time", lambda *_: "xx")
     monkeypatch.setattr(info, "has_untracked", lambda *_: True)
-    monkeypatch.setattr("os.chdir", lambda x: None)
+    monkeypatch.setattr(info, "get_common_commit", lambda x: "")
 
     info.get_color_encoding.cache_clear()  # avoid side effect
     assert expected == next(utils.describe(*test_input))
