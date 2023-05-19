@@ -71,6 +71,7 @@ class TestLsLl:
         """
         functional test
         """
+
         # avoid modifying the local configuration
         def side_effect(input, _=None):
             return tmp_path / f"{input}.txt"
