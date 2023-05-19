@@ -5,7 +5,7 @@ import csv
 import asyncio
 import platform
 import subprocess
-from functools import lru_cache, partial
+from functools import lru_cache
 from pathlib import Path
 from typing import List, Dict, Coroutine, Union, Iterator, Tuple
 from collections import Counter, defaultdict
@@ -431,18 +431,14 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
     """
     if repos:
         name_width = len(max(repos, key=len)) + 1
-        funcs = info.get_info_funcs()
-
-        get_repo_status = info.get_repo_status
-        if get_repo_status in funcs and no_colors:
-            idx = funcs.index(get_repo_status)
-            funcs[idx] = partial(get_repo_status, no_colors=True)
+        funcs = info.get_info_funcs(no_colors=no_colors)
 
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             for line in executor.map(
-                    lambda repo: f'{repo:<{name_width}}{" ".join(f(repos[repo]) for f in funcs)}',
-                    sorted(repos)):
+                lambda name: f'{name:<{name_width}}{" ".join(f(repos[name]) for f in funcs)}',
+                sorted(repos),
+            ):
                 yield line
 
 
