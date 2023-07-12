@@ -61,7 +61,7 @@ symbol | meaning
 ---|---
  `+`| staged changes
  `*`| unstaged changes
- `_`| untracked files/folders
+ `?`| untracked files/folders
 
 The bookkeeping sub-commands are
 

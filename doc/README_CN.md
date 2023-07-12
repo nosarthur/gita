@@ -47,7 +47,7 @@
 
 - `+`: 暂存(staged)
 - `*`: 未暂存（unstaged）
-- `_`: 未追踪（untracked）
+- `?`: 未追踪（untracked）
 
 基础指令：
 
