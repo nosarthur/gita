@@ -528,7 +528,9 @@ class TestInfo:
         args.info_cmd = None
         __main__.f_info(args)
         out, err = capfd.readouterr()
-        assert "In use: branch,commit_msg,commit_time\nUnused: path\n" == out
+        assert (
+            "In use: branch,commit_msg,commit_time\nUnused: branch_name,path\n" == out
+        )
         assert err == ""
 
     @patch("gita.common.get_config_fname")
