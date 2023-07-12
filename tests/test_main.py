@@ -130,12 +130,12 @@ class TestLsLl:
         [
             (
                 PATH_FNAME,
-                "repo1 cmaster [dsu]\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \nxxx   cmaster dsu\x1b[0m msg \n",
+                "repo1 cmaster [dsu] \x1b[0m msg \nrepo2 cmaster [dsu] \x1b[0m msg \nxxx   cmaster [dsu] \x1b[0m msg \n",
             ),
             (PATH_FNAME_EMPTY, ""),
             (
                 PATH_FNAME_CLASH,
-                "repo1 cmaster [dsu]\x1b[0m msg \nrepo2 cmaster dsu\x1b[0m msg \n",
+                "repo1 cmaster [dsu] \x1b[0m msg \nrepo2 cmaster [dsu] \x1b[0m msg \n",
             ),
         ],
     )

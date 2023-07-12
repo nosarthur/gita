@@ -199,8 +199,8 @@ def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     head = get_head(prop["path"])
     dirty, staged, untracked, color = _get_repo_status(prop, no_colors)
     if color:
-        return f"{color}{head+' ['+dirty+staged+untracked+']':<12}{Color.end}"
-    return f"{head+' ['+dirty+staged+untracked+']':<12}"
+        return f"{color}{head+' ['+dirty+staged+untracked+']':<13}{Color.end}"
+    return f"{head+' ['+dirty+staged+untracked+']':<13}"
 
 
 def get_repo_branch(prop: Dict[str, str]) -> str:
