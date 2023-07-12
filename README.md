@@ -333,6 +333,9 @@ For example, the default setting corresponds to
 branch,commit_msg,commit_time
 ```
 
+Here `branch` includes both branch name and status. To get the branch name alone, use `branch_name`.
+
+
 ### customize git command flags
 
 One can set custom flags to run `git` commands. For example, with

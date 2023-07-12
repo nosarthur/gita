@@ -88,6 +88,7 @@ def get_info_funcs(no_colors=False) -> List[Callable[[str], str]]:
     # This re-definition is to make unit test mocking to work
     all_info_items = {
         "branch": partial(get_repo_status, no_colors=no_colors),
+        "branch_name": get_repo_branch,
         "commit_msg": get_commit_msg,
         "commit_time": get_commit_time,
         "path": get_path,
@@ -202,6 +203,10 @@ def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     return f'{head+" "+dirty+staged+untracked:<10}'
 
 
+def get_repo_branch(prop: Dict[str, str]) -> str:
+    return get_head(prop["path"])
+
+
 def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
     """
     Return the status of one repo
@@ -235,8 +240,9 @@ def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
 
 
 ALL_INFO_ITEMS = {
-    "branch": get_repo_status,
-    "commit_msg": get_commit_msg,
-    "commit_time": get_commit_time,
-    "path": get_path,
+    "branch",
+    "branch_name",
+    "commit_msg",
+    "commit_time",
+    "path",
 }
