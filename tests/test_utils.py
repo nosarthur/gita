@@ -115,17 +115,17 @@ def test_auto_group(repos, paths, expected):
         (
             [{"abc": {"path": "/root/repo/", "type": "", "flags": []}}, False],
             True,
-            "abc \x1b[31mrepo [*+?]   \x1b[0m msg xx",
+            "abc \x1b[31mrepo       [*+?] \x1b[0m msg xx",
         ),
         (
             [{"abc": {"path": "/root/repo/", "type": "", "flags": []}}, True],
             True,
-            "abc repo [*+?]    msg xx",
+            "abc repo       [*+?]  msg xx",
         ),
         (
             [{"repo": {"path": "/root/repo2/", "type": "", "flags": []}}, False],
             False,
-            "repo \x1b[32mrepo [?]     \x1b[0m msg xx",
+            "repo \x1b[32mrepo       [?]   \x1b[0m msg xx",
         ),
     ],
 )
