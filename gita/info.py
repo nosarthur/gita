@@ -198,9 +198,10 @@ def get_commit_time(prop: Dict[str, str]) -> str:
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     head = get_head(prop["path"])
     dirty, staged, untracked, color = _get_repo_status(prop, no_colors)
+    info = f"{head:<10} [{dirty+staged+untracked}]"
     if color:
-        return f"{color}{head+' ['+dirty+staged+untracked+']':<13}{Color.end}"
-    return f"{head+' ['+dirty+staged+untracked+']':<13}"
+        return f"{color}{info:<17}{Color.end}"
+    return f"{info:<17}"
 
 
 def get_repo_branch(prop: Dict[str, str]) -> str:
