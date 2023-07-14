@@ -149,10 +149,20 @@ def f_info(args: argparse.Namespace):
 
 
 def f_clone(args: argparse.Namespace):
+
+    if args.dry_run:
+        if args.from_file:
+            for url, repo_name, abs_path in utils.parse_clone_config(args.clonee):
+                print(f"git clone {url} {abs_path}")
+        else:
+            print(f"git clone {args.clonee}")
+        return
+
     if args.directory:
         path = args.directory
     else:
         path = Path.cwd()
+
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         return
@@ -498,6 +508,12 @@ def main(argv=None):
         dest="preserve_path",
         action="store_true",
         help="clone repo(s) in their original paths",
+    )
+    p_clone.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_true",
+        help="If set, show command without execution",
     )
     p_clone.set_defaults(func=f_clone)
 
