@@ -169,9 +169,15 @@ def f_clone(args: argparse.Namespace):
         )
 
 
-def f_freeze(_):
-    # TODO: filter context
+def f_freeze(args):
     repos = utils.get_repos()
+    ctx = utils.get_context()
+    if args.group is None and ctx:
+        args.group = ctx.stem
+    group_repos = None
+    if args.group:  # only display repos in this group
+        group_repos = utils.get_groups()[args.group]["repos"]
+        repos = {k: repos[k] for k in group_repos if k in repos}
     seen = {""}
     for name, prop in repos.items():
         path = prop["path"]
@@ -459,6 +465,12 @@ def main(argv=None):
         "freeze",
         description="print all repo information",
         help="print all repo information",
+    )
+    p_freeze.add_argument(
+        "-g",
+        "--group",
+        choices=utils.get_groups(),
+        help="freeze repos in the specified group",
     )
     p_freeze.set_defaults(func=f_freeze)
 
