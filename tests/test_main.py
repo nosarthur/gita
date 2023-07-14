@@ -186,6 +186,7 @@ def test_clone_with_url(mock_run):
     args.preserve_path = None
     args.directory = "/home/xxx"
     args.from_file = False
+    args.dry_run = False
     __main__.f_clone(args)
     cmds = ["git", "clone", args.clonee]
     mock_run.assert_called_once_with(cmds, cwd=args.directory)
@@ -204,6 +205,7 @@ def test_clone_with_config_file(*_):
     args.preserve_path = False
     args.directory = None
     args.from_file = True
+    args.dry_run = False
     __main__.f_clone(args)
     mock_run = utils.run_async.mock
     assert mock_run.call_count == 1
@@ -224,6 +226,7 @@ def test_clone_with_preserve_path(*_):
     args.directory = None
     args.from_file = True
     args.preserve_path = True
+    args.dry_run = False
     __main__.f_clone(args)
     mock_run = utils.run_async.mock
     assert mock_run.call_count == 1
