@@ -1,8 +1,8 @@
-import os
 import csv
 import subprocess
 from enum import Enum
 from pathlib import Path
+from collections import namedtuple
 from functools import lru_cache, partial
 from typing import Tuple, List, Callable, Dict
 
@@ -41,11 +41,11 @@ class Color(Enum):
 
 
 default_colors = {
-    "no-remote": Color.white.name,
-    "in-sync": Color.green.name,
+    "no_remote": Color.white.name,
+    "in_sync": Color.green.name,
     "diverged": Color.red.name,
-    "local-ahead": Color.purple.name,
-    "remote-ahead": Color.yellow.name,
+    "local_ahead": Color.purple.name,
+    "remote_ahead": Color.yellow.name,
 }
 
 
@@ -196,11 +196,39 @@ def get_commit_time(prop: Dict[str, str]) -> str:
     return f"({result.stdout.strip()})"
 
 
+# better solution exists for python3.7+
+# https://stackoverflow.com/questions/11351032/named-tuple-and-default-values-for-optional-keyword-arguments
+Symbols = namedtuple(
+    "Symbols",
+    "dirty staged untracked local_ahead remote_ahead diverged in_sync no_remote",
+)
+Symbols.__new__.__defaults__ = ("",) * len(Symbols._fields)
+default_symbols = Symbols("*", "+", "?")
+
+
+@lru_cache()
+def get_symbols(baseline: Symbols = default_symbols) -> Dict[str, str]:
+    """
+    return status symbols with customization
+    """
+    symbols = baseline._asdict()
+    symbols[""] = ""
+    custom = {}
+    csv_config = Path(common.get_config_fname("symbols.csv"))
+    if csv_config.is_file():
+        with open(csv_config, "r") as f:
+            reader = csv.DictReader(f)
+            custom = next(reader)
+    symbols.update(custom)
+    return symbols
+
+
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     head = get_head(prop["path"])
     colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
     dirty, staged, untracked, situ = _get_repo_status(prop, skip_situ=no_colors)
-    info = f"{head:<10} [{dirty+staged+untracked}]"
+    symbols = get_symbols(default_symbols)
+    info = f"{head:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]}]"
 
     if no_colors:
         return f"{info:<17}"
@@ -208,19 +236,14 @@ def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     return f"{color}{info:<17}{Color.end}"
 
 
-spaceship = {
-    "local-ahead": "⇡",
-    "remote-ahead": "⇣",
-    "diverged": "⇕",
-    "in-sync": "",
-    "no-remote": "∅",
-}
+spaceship = Symbols("!", "+", "?", "↑", "↓", "⇕", "", "∅")
 
 
 def get_spaceship_status(prop: Dict[str, str]) -> str:
     head = get_head(prop["path"])
     dirty, staged, untracked, situ = _get_repo_status(prop)
-    info = f"{head:<10} [{dirty+staged+untracked+spaceship[situ]}]"
+    symbols = get_symbols(spaceship)
+    info = f"{head:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]+symbols[situ]}]"
     return f"{info:<18}"
 
 
@@ -236,26 +259,26 @@ def _get_repo_status(
     """
     path = prop["path"]
     flags = prop["flags"]
-    dirty = "*" if run_quiet_diff(flags, [], path) else ""
-    staged = "+" if run_quiet_diff(flags, ["--cached"], path) else ""
-    untracked = "?" if has_untracked(flags, path) else ""
+    dirty = "dirty" if run_quiet_diff(flags, [], path) else ""
+    staged = "staged" if run_quiet_diff(flags, ["--cached"], path) else ""
+    untracked = "untracked" if has_untracked(flags, path) else ""
 
     if skip_situ:
         return dirty, staged, untracked, ""
 
     diff_returncode = run_quiet_diff(flags, ["@{u}", "@{0}"], path)
     if diff_returncode == 128:
-        situ = "no-remote"
+        situ = "no_remote"
     elif diff_returncode == 0:
-        situ = "in-sync"
+        situ = "in_sync"
     else:
         common_commit = get_common_commit(path)
         outdated = run_quiet_diff(flags, ["@{u}", common_commit], path)
         if outdated:
             diverged = run_quiet_diff(flags, ["@{0}", common_commit], path)
-            situ = "diverged" if diverged else "remote-ahead"
+            situ = "diverged" if diverged else "remote_ahead"
         else:  # local is ahead of remote
-            situ = "local-ahead"
+            situ = "local_ahead"
     return dirty, staged, untracked, situ
 
 
