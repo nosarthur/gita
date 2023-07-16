@@ -497,12 +497,6 @@ def main(argv=None):
         help="Change to DIRECTORY before doing anything.",
     )
     p_clone.add_argument(
-        "-f",
-        "--from-file",
-        action="store_true",
-        help="If set, clone repos in a config file rendered from `gita freeze`",
-    )
-    p_clone.add_argument(
         "-p",
         "--preserve-path",
         dest="preserve_path",
@@ -514,6 +508,19 @@ def main(argv=None):
         "--dry-run",
         action="store_true",
         help="If set, show command without execution",
+    )
+    xgroup = p_clone.add_mutually_exclusive_group()
+    xgroup.add_argument(
+        "-g",
+        "--group",
+        choices=utils.get_groups(),
+        help="If set, add repo to the specified group after cloning, otherwise add to gita without group.",
+    )
+    xgroup.add_argument(
+        "-f",
+        "--from-file",
+        action="store_true",
+        help="If set, clone repos in a config file rendered from `gita freeze`",
     )
     p_clone.set_defaults(func=f_clone)
 
