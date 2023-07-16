@@ -199,12 +199,13 @@ def get_commit_time(prop: Dict[str, str]) -> str:
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     head = get_head(prop["path"])
     colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
-    dirty, staged, untracked, situ = _get_repo_status(prop)
+    dirty, staged, untracked, situ = _get_repo_status(prop, skip_situ=no_colors)
     info = f"{head:<10} [{dirty+staged+untracked}]"
-    if not no_colors:
-        color = colors[situ]
-        return f"{color}{info:<17}{Color.end}"
-    return f"{info:<17}"
+
+    if no_colors:
+        return f"{info:<17}"
+    color = colors[situ]
+    return f"{color}{info:<17}{Color.end}"
 
 
 spaceship = {
@@ -227,7 +228,9 @@ def get_repo_branch(prop: Dict[str, str]) -> str:
     return get_head(prop["path"])
 
 
-def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
+def _get_repo_status(
+    prop: Dict[str, str], skip_situ=False
+) -> Tuple[str, str, str, str]:
     """
     Return the status of one repo
     """
@@ -236,6 +239,9 @@ def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
     dirty = "*" if run_quiet_diff(flags, [], path) else ""
     staged = "+" if run_quiet_diff(flags, ["--cached"], path) else ""
     untracked = "?" if has_untracked(flags, path) else ""
+
+    if skip_situ:
+        return dirty, staged, untracked, ""
 
     diff_returncode = run_quiet_diff(flags, ["@{u}", "@{0}"], path)
     if diff_returncode == 128:
