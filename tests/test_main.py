@@ -130,18 +130,18 @@ class TestLsLl:
         [
             (
                 PATH_FNAME,
-                "repo1 cmaster     [dsu] \x1b[0m msg \nrepo2 cmaster     [dsu] \x1b[0m msg \nxxx   cmaster     [dsu] \x1b[0m msg \n",
+                "repo1 \x1b[31mmaster     [dsu] \x1b[0m msg \nrepo2 \x1b[31mmaster     [dsu] \x1b[0m msg \nxxx   \x1b[31mmaster     [dsu] \x1b[0m msg \n",
             ),
             (PATH_FNAME_EMPTY, ""),
             (
                 PATH_FNAME_CLASH,
-                "repo1 cmaster     [dsu] \x1b[0m msg \nrepo2 cmaster     [dsu] \x1b[0m msg \n",
+                "repo1 \x1b[31mmaster     [dsu] \x1b[0m msg \nrepo2 \x1b[31mmaster     [dsu] \x1b[0m msg \n",
             ),
         ],
     )
     @patch("gita.utils.is_git", return_value=True)
     @patch("gita.info.get_head", return_value="master")
-    @patch("gita.info._get_repo_status", return_value=("d", "s", "u", "c"))
+    @patch("gita.info._get_repo_status", return_value=("d", "s", "u", "diverged"))
     @patch("gita.info.get_commit_msg", return_value="msg")
     @patch("gita.info.get_commit_time", return_value="")
     @patch("gita.common.get_config_fname")
@@ -532,7 +532,8 @@ class TestInfo:
         __main__.f_info(args)
         out, err = capfd.readouterr()
         assert (
-            "In use: branch,commit_msg,commit_time\nUnused: branch_name,path\n" == out
+            "In use: branch,commit_msg,commit_time\nUnused: branch_name,path,spaceship_status\n"
+            == out
         )
         assert err == ""
 
