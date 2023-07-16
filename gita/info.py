@@ -89,6 +89,7 @@ def get_info_funcs(no_colors=False) -> List[Callable[[str], str]]:
     all_info_items = {
         "branch": partial(get_repo_status, no_colors=no_colors),
         "branch_name": get_repo_branch,
+        "spaceship_status": get_spaceship_status,
         "commit_msg": get_commit_msg,
         "commit_time": get_commit_time,
         "path": get_path,
@@ -197,18 +198,36 @@ def get_commit_time(prop: Dict[str, str]) -> str:
 
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     head = get_head(prop["path"])
-    dirty, staged, untracked, color = _get_repo_status(prop, no_colors)
+    colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
+    dirty, staged, untracked, situ = _get_repo_status(prop)
     info = f"{head:<10} [{dirty+staged+untracked}]"
-    if color:
+    if not no_colors:
+        color = colors[situ]
         return f"{color}{info:<17}{Color.end}"
     return f"{info:<17}"
+
+
+spaceship = {
+    "local-ahead": "⇡",
+    "remote-ahead": "⇣",
+    "diverged": "⇕",
+    "in-sync": "",
+    "no-remote": "∅",
+}
+
+
+def get_spaceship_status(prop: Dict[str, str]) -> str:
+    head = get_head(prop["path"])
+    dirty, staged, untracked, situ = _get_repo_status(prop)
+    info = f"{head:<10} [{dirty+staged+untracked+spaceship[situ]}]"
+    return f"{info:<18}"
 
 
 def get_repo_branch(prop: Dict[str, str]) -> str:
     return get_head(prop["path"])
 
 
-def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
+def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
     """
     Return the status of one repo
     """
@@ -218,31 +237,26 @@ def _get_repo_status(prop: Dict[str, str], no_colors: bool) -> Tuple[str]:
     staged = "+" if run_quiet_diff(flags, ["--cached"], path) else ""
     untracked = "?" if has_untracked(flags, path) else ""
 
-    if no_colors:
-        return dirty, staged, untracked, ""
-
-    colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
     diff_returncode = run_quiet_diff(flags, ["@{u}", "@{0}"], path)
-    has_no_remote = diff_returncode == 128
-    has_no_diff = diff_returncode == 0
-    if has_no_remote:
-        color = colors["no-remote"]
-    elif has_no_diff:
-        color = colors["in-sync"]
+    if diff_returncode == 128:
+        situ = "no-remote"
+    elif diff_returncode == 0:
+        situ = "in-sync"
     else:
         common_commit = get_common_commit(path)
         outdated = run_quiet_diff(flags, ["@{u}", common_commit], path)
         if outdated:
             diverged = run_quiet_diff(flags, ["@{0}", common_commit], path)
-            color = colors["diverged"] if diverged else colors["remote-ahead"]
+            situ = "diverged" if diverged else "remote-ahead"
         else:  # local is ahead of remote
-            color = colors["local-ahead"]
-    return dirty, staged, untracked, color
+            situ = "local-ahead"
+    return dirty, staged, untracked, situ
 
 
 ALL_INFO_ITEMS = {
     "branch",
     "branch_name",
+    "spaceship_status",
     "commit_msg",
     "commit_time",
     "path",
