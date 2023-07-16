@@ -342,7 +342,7 @@ For example,
 symbol | meaning
 ---|---
  ∅| local has no remote
- | local is the same as remote
+(no string)  | local is the same as remote
 ⇕ | local has diverged from remote
  ⇡| local is ahead of remote (good for push)
  ⇣| local is behind remote (good for merge)
