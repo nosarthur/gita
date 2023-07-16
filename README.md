@@ -333,7 +333,19 @@ For example, the default setting corresponds to
 branch,commit_msg,commit_time
 ```
 
-Here `branch` includes both branch name and status. To get the branch name alone, use `branch_name`.
+Here `branch` includes both branch name and status.
+
+Another choice is to enable `spaceship_status`, which mimics
+the symbols used in [spaceship-prompt](https://spaceship-prompt.sh/sections/git/#Git-status-git_status).
+For example,
+
+symbol | meaning
+---|---
+ ∅| local has no remote
+ | local is the same as remote
+⇕ | local has diverged from remote
+ ⇡| local is ahead of remote (good for push)
+ ⇣| local is behind remote (good for merge)
 
 
 ### customize git command flags
