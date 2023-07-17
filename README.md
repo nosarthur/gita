@@ -334,19 +334,16 @@ branch,commit_msg,commit_time
 ```
 
 Here `branch` includes both branch name and status.
-
-Another choice is to enable `spaceship_status`, which mimics
-the symbols used in [spaceship-prompt](https://spaceship-prompt.sh/sections/git/#Git-status-git_status).
+The status symbols are similar to the ones used in [spaceship-prompt](https://spaceship-prompt.sh/sections/git/#Git-status-git_status).
 
 To customize these symbols, add a file in `$XDG_CONFIG_HOME/gita/symbols.csv`.
-The default `spaceship_status` settings corresponds to
+The default settings corresponds to
 
 ```csv
 dirty,staged,untracked,local_ahead,remote_ahead,diverged,in_sync,no_remote
-!,+,?,↑,↓,⇕,,∅
+*,+,?,↑,↓,⇕,,∅
 ```
 Only the symbols to be overridden need to be defined.
-
 You can search unicode symbols [here](https://www.compart.com/en/unicode/).
 
 ### customize git command flags
