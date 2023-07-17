@@ -89,7 +89,6 @@ def get_info_funcs(no_colors=False) -> List[Callable[[str], str]]:
     all_info_items = {
         "branch": partial(get_repo_status, no_colors=no_colors),
         "branch_name": get_repo_branch,
-        "spaceship_status": get_spaceship_status,
         "commit_msg": get_commit_msg,
         "commit_time": get_commit_time,
         "path": get_path,
@@ -203,15 +202,15 @@ Symbols = namedtuple(
     "dirty staged untracked local_ahead remote_ahead diverged in_sync no_remote",
 )
 Symbols.__new__.__defaults__ = ("",) * len(Symbols._fields)
-default_symbols = Symbols("*", "+", "?")
+default_symbols = Symbols("*", "+", "?", "↑", "↓", "⇕", "", "∅")
 
 
 @lru_cache()
-def get_symbols(baseline: Symbols = default_symbols) -> Dict[str, str]:
+def get_symbols() -> Dict[str, str]:
     """
     return status symbols with customization
     """
-    symbols = baseline._asdict()
+    symbols = default_symbols._asdict()
     symbols[""] = ""
     custom = {}
     csv_config = Path(common.get_config_fname("symbols.csv"))
@@ -224,36 +223,23 @@ def get_symbols(baseline: Symbols = default_symbols) -> Dict[str, str]:
 
 
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
-    head = get_head(prop["path"])
-    colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
-    dirty, staged, untracked, situ = _get_repo_status(prop, skip_situ=no_colors)
-    symbols = get_symbols(default_symbols)
-    info = f"{head:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]}]"
+    branch = get_head(prop["path"])
+    dirty, staged, untracked, situ = _get_repo_status(prop)
+    symbols = get_symbols()
+    info = f"{branch:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]+symbols[situ]}]"
 
     if no_colors:
-        return f"{info:<17}"
+        return f"{info:<18}"
+    colors = {situ: Color[name].value for situ, name in get_color_encoding().items()}
     color = colors[situ]
-    return f"{color}{info:<17}{Color.end}"
-
-
-spaceship = Symbols("!", "+", "?", "↑", "↓", "⇕", "", "∅")
-
-
-def get_spaceship_status(prop: Dict[str, str]) -> str:
-    head = get_head(prop["path"])
-    dirty, staged, untracked, situ = _get_repo_status(prop)
-    symbols = get_symbols(spaceship)
-    info = f"{head:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]+symbols[situ]}]"
-    return f"{info:<18}"
+    return f"{color}{info:<18}{Color.end}"
 
 
 def get_repo_branch(prop: Dict[str, str]) -> str:
     return get_head(prop["path"])
 
 
-def _get_repo_status(
-    prop: Dict[str, str], skip_situ=False
-) -> Tuple[str, str, str, str]:
+def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
     """
     Return the status of one repo
     """
@@ -262,9 +248,6 @@ def _get_repo_status(
     dirty = "dirty" if run_quiet_diff(flags, [], path) else ""
     staged = "staged" if run_quiet_diff(flags, ["--cached"], path) else ""
     untracked = "untracked" if has_untracked(flags, path) else ""
-
-    if skip_situ:
-        return dirty, staged, untracked, ""
 
     diff_returncode = run_quiet_diff(flags, ["@{u}", "@{0}"], path)
     if diff_returncode == 128:
@@ -285,7 +268,6 @@ def _get_repo_status(
 ALL_INFO_ITEMS = {
     "branch",
     "branch_name",
-    "spaceship_status",
     "commit_msg",
     "commit_time",
     "path",
