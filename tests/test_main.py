@@ -130,18 +130,21 @@ class TestLsLl:
         [
             (
                 PATH_FNAME,
-                "repo1 \x1b[31mmaster     [dsu] \x1b[0m msg \nrepo2 \x1b[31mmaster     [dsu] \x1b[0m msg \nxxx   \x1b[31mmaster     [dsu] \x1b[0m msg \n",
+                "repo1 \x1b[31mmaster     [*+?] \x1b[0m msg \nrepo2 \x1b[31mmaster     [*+?] \x1b[0m msg \nxxx   \x1b[31mmaster     [*+?] \x1b[0m msg \n",
             ),
             (PATH_FNAME_EMPTY, ""),
             (
                 PATH_FNAME_CLASH,
-                "repo1 \x1b[31mmaster     [dsu] \x1b[0m msg \nrepo2 \x1b[31mmaster     [dsu] \x1b[0m msg \n",
+                "repo1 \x1b[31mmaster     [*+?] \x1b[0m msg \nrepo2 \x1b[31mmaster     [*+?] \x1b[0m msg \n",
             ),
         ],
     )
     @patch("gita.utils.is_git", return_value=True)
     @patch("gita.info.get_head", return_value="master")
-    @patch("gita.info._get_repo_status", return_value=("d", "s", "u", "diverged"))
+    @patch(
+        "gita.info._get_repo_status",
+        return_value=("dirty", "staged", "untracked", "diverged"),
+    )
     @patch("gita.info.get_commit_msg", return_value="msg")
     @patch("gita.info.get_commit_time", return_value="")
     @patch("gita.common.get_config_fname")
@@ -567,7 +570,7 @@ def test_set_color(mock_get_fname, tmpdir):
     args = argparse.Namespace()
     args.color_cmd = "set"
     args.color = "b_white"
-    args.situation = "no-remote"
+    args.situation = "no_remote"
     with tmpdir.as_cwd():
         csv_config = Path.cwd() / "colors.csv"
         mock_get_fname.return_value = csv_config
@@ -577,11 +580,11 @@ def test_set_color(mock_get_fname, tmpdir):
         items = info.get_color_encoding()
     info.get_color_encoding.cache_clear()  # avoid side effect
     assert items == {
-        "no-remote": "b_white",
-        "in-sync": "green",
+        "no_remote": "b_white",
+        "in_sync": "green",
         "diverged": "red",
-        "local-ahead": "purple",
-        "remote-ahead": "yellow",
+        "local_ahead": "purple",
+        "remote_ahead": "yellow",
     }
 
 
