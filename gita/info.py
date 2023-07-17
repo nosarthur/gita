@@ -195,14 +195,17 @@ def get_commit_time(prop: Dict[str, str]) -> str:
     return f"({result.stdout.strip()})"
 
 
-# better solution exists for python3.7+
-# https://stackoverflow.com/questions/11351032/named-tuple-and-default-values-for-optional-keyword-arguments
-Symbols = namedtuple(
-    "Symbols",
-    "dirty staged untracked local_ahead remote_ahead diverged in_sync no_remote",
-)
-Symbols.__new__.__defaults__ = ("",) * len(Symbols._fields)
-default_symbols = Symbols("*", "+", "?", "↑", "↓", "⇕", "", "∅")
+default_symbols = {
+    "dirty": "*",
+    "staged": "+",
+    "untracked": "?",
+    "local_ahead": "↑",
+    "remote_ahead": "↓",
+    "diverged": "⇕",
+    "in_sync": "",
+    "no_remote": "∅",
+    "": "",
+}
 
 
 @lru_cache()
@@ -210,16 +213,14 @@ def get_symbols() -> Dict[str, str]:
     """
     return status symbols with customization
     """
-    symbols = default_symbols._asdict()
-    symbols[""] = ""
     custom = {}
     csv_config = Path(common.get_config_fname("symbols.csv"))
     if csv_config.is_file():
         with open(csv_config, "r") as f:
             reader = csv.DictReader(f)
             custom = next(reader)
-    symbols.update(custom)
-    return symbols
+    default_symbols.update(custom)
+    return default_symbols
 
 
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
