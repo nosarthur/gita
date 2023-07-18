@@ -165,6 +165,11 @@ def f_clone(args: argparse.Namespace):
 
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
+        # add the cloned repo to gita; group is also supported
+        cloned_path = os.path.join(path, args.clonee.split("/")[-1].split(".")[0])
+        args.paths = [cloned_path]
+        args.recursive = args.auto_group = args.bare = args.skip_submodule = False
+        f_add(args)
         return
 
     if args.preserve_path:
