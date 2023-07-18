@@ -22,8 +22,12 @@
   "cmd": "git log -1 HEAD",
   "help": "show log information of HEAD"
   },
-"log":
-  {"cmd": "git log",
+"lo":{
+  "cmd": "git log --oneline -7",
+  "help": "show one-line log for the latest 7 commits"
+  },
+"log":{
+  "cmd": "git log",
   "disable_async": true,
   "help": "show logs"
   },
