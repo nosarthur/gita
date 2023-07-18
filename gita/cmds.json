@@ -24,6 +24,7 @@
   },
 "lo":{
   "cmd": "git log --oneline -7",
+  "allow_all": true,
   "help": "show one-line log for the latest 7 commits"
   },
 "log":{
@@ -81,10 +82,12 @@
   },
 "stat":{
   "cmd": "git diff --stat",
+  "allow_all": true,
   "help": "show edit statistics"
   },
 "st":{
   "cmd": "git status",
+  "allow_all": true,
   "help": "show status"
   },
 "tag":{
