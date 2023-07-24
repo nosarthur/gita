@@ -170,7 +170,12 @@ def has_stashed(flags: List[str], path) -> bool:
     """
     # FIXME: this doesn't work for repos like worktrees, bare, etc
     p = Path(path) / ".git" / "logs" / "refs" / "stash"
-    return p.is_file()
+    got = False
+    try:
+        got = p.is_file()
+    except Exception:
+        pass
+    return got
 
 
 def get_commit_msg(prop: Dict[str, str]) -> str:
