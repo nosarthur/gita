@@ -164,6 +164,15 @@ def has_untracked(flags: List[str], path) -> bool:
     return bool(result.stdout)
 
 
+def has_stashed(flags: List[str], path) -> bool:
+    """
+    Return True if stashed content exists
+    """
+    # FIXME: this doesn't work for repos like worktrees, bare, etc
+    p = Path(path) / ".git" / "logs" / "refs" / "stash"
+    return p.is_file()
+
+
 def get_commit_msg(prop: Dict[str, str]) -> str:
     """
     Return the last commit message.
@@ -199,6 +208,7 @@ default_symbols = {
     "dirty": "*",
     "staged": "+",
     "untracked": "?",
+    "stashed": "$",
     "local_ahead": "↑",
     "remote_ahead": "↓",
     "diverged": "⇕",
@@ -225,9 +235,9 @@ def get_symbols() -> Dict[str, str]:
 
 def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     branch = get_head(prop["path"])
-    dirty, staged, untracked, situ = _get_repo_status(prop)
+    dirty, staged, untracked, stashed, situ = _get_repo_status(prop)
     symbols = get_symbols()
-    info = f"{branch:<10} [{symbols[dirty]+symbols[staged]+symbols[untracked]+symbols[situ]}]"
+    info = f"{branch:<10} [{symbols[dirty]}{symbols[staged]}{symbols[stashed]}{symbols[untracked]}{symbols[situ]}]"
 
     if no_colors:
         return f"{info:<18}"
@@ -240,7 +250,7 @@ def get_repo_branch(prop: Dict[str, str]) -> str:
     return get_head(prop["path"])
 
 
-def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
+def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str, str]:
     """
     Return the status of one repo
     """
@@ -249,6 +259,7 @@ def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
     dirty = "dirty" if run_quiet_diff(flags, [], path) else ""
     staged = "staged" if run_quiet_diff(flags, ["--cached"], path) else ""
     untracked = "untracked" if has_untracked(flags, path) else ""
+    stashed = "stashed" if has_stashed(flags, path) else ""
 
     diff_returncode = run_quiet_diff(flags, ["@{u}", "@{0}"], path)
     if diff_returncode == 128:
@@ -263,7 +274,7 @@ def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str]:
             situ = "diverged" if diverged else "remote_ahead"
         else:  # local is ahead of remote
             situ = "local_ahead"
-    return dirty, staged, untracked, situ
+    return dirty, staged, untracked, stashed, situ
 
 
 ALL_INFO_ITEMS = {
