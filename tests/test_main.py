@@ -143,7 +143,7 @@ class TestLsLl:
     @patch("gita.info.get_head", return_value="master")
     @patch(
         "gita.info._get_repo_status",
-        return_value=("dirty", "staged", "untracked", "diverged"),
+        return_value=("dirty", "staged", "untracked", "", "diverged"),
     )
     @patch("gita.info.get_commit_msg", return_value="msg")
     @patch("gita.info.get_commit_time", return_value="")
