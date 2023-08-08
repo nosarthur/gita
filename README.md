@@ -62,6 +62,7 @@ symbol | meaning
  `+`| staged changes
  `*`| unstaged changes
  `?`| untracked files/folders
+ `$`| stashed contents
 
 The bookkeeping sub-commands are
 
