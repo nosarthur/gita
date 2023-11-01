@@ -1,0 +1,473 @@
+#compdef gita
+
+__gita_get_repos() {
+    local -a repositories
+    repositories=($(_call_program commands gita ls))
+    _describe -t repositories 'gita repositories' repositories
+}
+
+__gita_get_context() {
+    local -a context
+    context=(
+        "auto"
+        "none"
+    )
+    _describe -t context 'gita context' context
+    __gita_get_groups
+}
+
+__gita_get_infos() {
+    local -a all_infos infos_in_used infos_unused
+    all_infos=($(_call_program commands gita info ll | cut -d ":" -f2))
+    infos_in_used=($(echo ${all_infos[1]} | tr ',' ' '))
+    infos_unused=($(echo ${all_infos[2]} | tr ',' ' '))
+    _describe -t infos_used 'gita infos in used' infos_in_used
+    _describe -t infos_unused 'gita infos unused' infos_unused
+}
+
+__gita_get_groups() {
+    local -a groups
+
+    groups=($(_call_program commands gita group ls))
+    _describe -t groups 'gita groups' groups
+}
+
+__gita_commands() {
+    local -a commands
+    commands=(
+        'add:Add repo(s)'
+        'rm:remove repo(s)'
+        'freeze:Print all repo information'
+        'clone:Clone repos'
+        'rename:Rename a repo'
+        'flags:Git flags configuration'
+        'color:Color configuration'
+        'info:Information setting'
+        'll:Display summary of all repos'
+        'context:Set context'
+        'ls:Show repo(s) or repo path'
+        'group:Group repos'
+        'super:Run any git command/alias'
+        'shell:Run any shell command'
+        'clear:Removes all groups and repositories'
+    )
+    _describe -t commands 'gita sub-commands' commands
+}
+
+# FUNCTION: _gita_add [[[
+_gita_add() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-n --dry-run)'{-n,--dry-run}'[dry run]' \
+        '(-g --group)'{-g=,--group=}'[add repo(s) to the specified group]:Gita groups:__gita_get_groups' \
+        '(-s --skip-modules)'{-s,--skip-modules}'[skip submodule repo(s)]' \
+        '(-r --recursive)'{-r,--recursive}'[recursively add repo(s) in the given path(s)]' \
+        '(-a --auto-group)'{-a,--auto-group}'[recursively add repo(s) in the given path(s) and create hierarchical groups based on folder structure]' \
+        '(-b --bare)'{-b,--bare}'[add bare repo(s)]' \
+        "(-h --help -)*:Directories:_directories"
+    ret=0
+}
+#]]]
+
+# FUNCTION: _gita_rm [[[
+_gita_rm() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -)*:gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_freeze [[[
+_gita_freeze() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-g --group)'{-g=,--group=}'[freeze repos in the specified group]:Gita groups:__gita_get_groups' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_clone [[[
+_gita_clone() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-C --directory)'{-C=,--directory=}'[ Change to DIRECTORY before doing anything]:Directories:_directories' \
+        '(-p --preserve-path)'{-p,--preserve-path}'[clone repo(s) in their original paths]' \
+        '(-n --dry-run)'{-n,--dry-run}'[dry run]' \
+        '(-g --group)'{-g=,--group=}'[If set, add repo to the specified group after cloning, otherwise add to gita without group]:Gita groups:__gita_get_groups' \
+        '(-f --from-file)'{-f=,--from-file=}'[ If set, clone repos in a config file rendered from `gita freeze`]:File:_path_files' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_rename [[[
+_gita_rename() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_flags_commands[[[
+_gita_flags_commands() {
+
+    local -a subcommands
+    subcommands=(
+        'll:Display repos with custom flags'
+        'set:Set flags for repo'
+    )
+    _describe -t subcommands 'gita flag sub-commands' subcommands
+}
+#]]]
+
+# FUNCTION: _gita_flags_ll [[[
+_gita_flags_ll() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_flags_set [[[
+_gita_flags_set() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_flags[[[
+_gita_flags() {
+    local curcontext="$curcontext" state state_descr line expl
+    local tmp ret=1
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]'
+
+    _arguments -C \
+        "1: :->cmds" \
+        "*::arg:->args"
+    case "$state" in
+    cmds)
+        _gita_flags_commands && return 0
+        ;;
+    args)
+        local cmd="${line[1]}"
+        curcontext="${curcontext%:*}-${cmd}:${curcontext##*:}"
+        local completion_func="_gita_flags_${cmd//-/_}"
+        _call_function ret "${completion_func}" && return ret
+        _message "a completion function is not defined for command or alias: ${cmd}"
+        return 1
+        ;;
+    esac
+}
+#]]]
+
+# FUNCTION: _gita_color_commands[[[
+_gita_color_commands() {
+
+    local -a subcommands
+    subcommands=(
+        'll:Display available colors and the current branch coloring in the ll sub-command'
+        'set:Set color for local/remote situation'
+        'reset:Reset color scheme'
+    )
+    _describe -t subcommands 'gita color sub-commands' subcommands
+}
+#]]]
+
+# FUNCTION: _gita_color_ll [[[
+_gita_color_ll() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_color_set [[[
+_gita_color_set() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_color_reset [[[
+_gita_color_reset() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_color[[[
+_gita_color() {
+    local curcontext="$curcontext" state state_descr line expl
+    local tmp ret=1
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]'
+
+    _arguments -C \
+        "1: :->cmds" \
+        "*::arg:->args"
+    case "$state" in
+    cmds)
+        _gita_color_commands && return 0
+        ;;
+    args)
+        local cmd="${line[1]}"
+        curcontext="${curcontext%:*}-${cmd}:${curcontext##*:}"
+        local completion_func="_gita_color_${cmd//-/_}"
+        _call_function ret "${completion_func}" && return ret
+        _message "a completion function is not defined for command or alias: ${cmd}"
+        return 1
+        ;;
+    esac
+}
+#]]]
+
+# FUNCTION: _gita_info_commands[[[
+_gita_info_commands() {
+
+    local -a subcommands
+    subcommands=(
+        'll:Show used and unused information items of the ll sub-command'
+        'add:Enable information item'
+        'rm:Disable information item'
+    )
+    _describe -t subcommands 'gita info sub-commands' subcommands
+}
+#]]]
+
+# FUNCTION: _gita_info_ll [[[
+_gita_info_ll() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_info_add [[[
+_gita_info_add() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita infos:__gita_get_infos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_info_rm [[[
+_gita_info_rm() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita infos:__gita_get_infos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_info[[[
+_gita_info() {
+    local curcontext="$curcontext" state state_descr line expl
+    local tmp ret=1
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]'
+
+    _arguments -C \
+        "1: :->cmds" \
+        "*::arg:->args"
+    case "$state" in
+    cmds)
+        _gita_info_commands && return 0
+        ;;
+    args)
+        local cmd="${line[1]}"
+        curcontext="${curcontext%:*}-${cmd}:${curcontext##*:}"
+        local completion_func="_gita_info_${cmd//-/_}"
+        _call_function ret "${completion_func}" && return ret
+        _message "a completion function is not defined for command or alias: ${cmd}"
+        return 1
+        ;;
+    esac
+}
+#]]]
+
+# FUNCTION: _gita_ll [[[
+_gita_ll() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-C --no-colors)'{-C,--no-colors}'[Disable coloring on the branch names]' \
+        '(-g)'-g'[Show repo summaries by group]' \
+        "(-h --help -):Groups name:__gita_get_groups" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_context [[[
+_gita_context() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita context:__gita_get_context" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_ls [[[
+_gita_ls() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_commands[[[
+_gita_group_commands() {
+
+    local -a subcommands
+    subcommands=(
+        'll:List all groups with repos.'
+        'ls:List all group names'
+        'add:Add repo(s) to a group'
+        'rmrepo:remove repo(s) from a group'
+        'rename:Change group name'
+        'rm:Remove group(s)'
+    )
+    _describe -t subcommands 'gita group sub-commands' subcommands
+}
+#]]]
+
+# FUNCTION: _gita_group_ll [[[
+_gita_group_ll() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -):Groups name:__gita_get_groups" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_ls [[[
+_gita_group_ls() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_add [[[
+_gita_group_add() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-n --name)'{-n=,--name=}'[group-name,]:Groups name:__gita_get_groups' \
+        '(-p --path)'{-p=,--path=}'[group-path]:Group path:_directories' \
+        "(-h --help -)*:Gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_rmrepo [[[
+_gita_group_rmrepo() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-n --name)'{-n=,--name=}'[group-name,]:Groups name:__gita_get_groups' \
+        "(-h --help -)*:Gita repositories:__gita_get_repos" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_rename [[[
+_gita_group_rename() {
+    _arguments -A \
+        '(-h --help -)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group_rm [[[
+_gita_group_rm() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        "(-h --help -)*:Groups name:__gita_get_groups" &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_group[[[
+_gita_group() {
+    local curcontext="$curcontext" state state_descr line expl
+    local tmp ret=1
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]'
+
+    _arguments -C \
+        "1: :->cmds" \
+        "*::arg:->args"
+    case "$state" in
+    cmds)
+        _gita_group_commands && return 0
+        ;;
+    args)
+        local cmd="${line[1]}"
+        curcontext="${curcontext%:*}-${cmd}:${curcontext##*:}"
+        local completion_func="_gita_group_${cmd//-/_}"
+        _call_function ret "${completion_func}" && return ret
+        _message "a completion function is not defined for command or alias: ${cmd}"
+        return 1
+        ;;
+    esac
+}
+#]]]
+
+# FUNCTION: _gita_super [[[
+_gita_super() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-q --quote-mode)'{-q,--quote-mode}'[use quote mode]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_shell [[[
+_gita_shell() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-q --quote-mode)'{-q,--quote-mode}'[use quote mode]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita_clear [[[
+_gita_clear() {
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' &&
+        ret=0
+}
+#]]]
+
+# FUNCTION: _gita [[[
+_gita() {
+    local curcontext="$curcontext" state state_descr line expl
+    local tmp ret=1
+    _arguments -A \
+        '(-h --help)'{-h,--help}'[show this help message and exit]' \
+        '(-v --version)'{-v,--version}'[show program'\''s version number and exit]'
+
+    _arguments -C \
+        "1: :->cmds" \
+        "*::arg:->args"
+    case "$state" in
+    cmds)
+        __gita_commands && return 0
+        ;;
+    args)
+        local cmd="${line[1]}"
+        curcontext="${curcontext%:*}-${cmd}:${curcontext##*:}"
+        local completion_func="_gita_${cmd//-/_}"
+        _call_function ret "${completion_func}" && return ret
+        _message "a completion function is not defined for command or alias: ${cmd}"
+        return 1
+        ;;
+    esac
+} # ]]]
+
+_gita "$@"
