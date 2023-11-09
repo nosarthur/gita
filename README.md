@@ -41,13 +41,13 @@ I also made a youtube video to demonstrate the common usages
 
 The branch color distinguishes 5 situations between local and remote branches:
 
-color | meaning
----|---
- white| local has no remote
- green| local is the same as remote
- red| local has diverged from remote
- purple| local is ahead of remote (good for push)
- yellow| local is behind remote (good for merge)
+| color  | meaning                                  |
+| ------ | ---------------------------------------- |
+| white  | local has no remote                      |
+| green  | local is the same as remote              |
+| red    | local has diverged from remote           |
+| purple | local is ahead of remote (good for push) |
+| yellow | local is behind remote (good for merge)  |
 
 The choice of purple for ahead and yellow for behind is motivated by
 [blueshift](https://en.wikipedia.org/wiki/Blueshift) and [redshift](https://en.wikipedia.org/wiki/Redshift),
@@ -57,12 +57,12 @@ See the [customization section](#custom).
 
 The additional status symbols denote
 
-symbol | meaning
----|---
- `+`| staged changes
- `*`| unstaged changes
- `?`| untracked files/folders
- `$`| stashed contents
+| symbol | meaning                 |
+| ------ | ----------------------- |
+| `+`    | staged changes          |
+| `*`    | unstaged changes        |
+| `?`    | untracked files/folders |
+| `$`    | stashed contents        |
 
 The bookkeeping sub-commands are
 
@@ -158,12 +158,16 @@ the branch color to work.
 See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
 
 ## Auto-completion
+### Bash
+Download [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash) and source it in shell.
 
-Download
-[.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash)
-or
-[.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/.gita-completion.zsh)
-and source it in shell.
+### Zsh
+There are 2 options :
+- [.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/contrib.completion/zsh/.gita-completion.zsh). Use the help of gita command to display options. It uses the bash completion system for zsh.
+Add `autoload -U +X bashcompinit && bashcompinit` in .zshrc and source the zsh file
+- [_gita](https://github.com/nosarthur/gita/blob/master/contrib.completion/zsh/_gita_).
+Completion more Zsh style. Copy it in a folder and add this folder path in `FPATH` variable. This completion file doesn't take account to command from cmds.json
+
 
 ## <a name='superman'></a> Superman mode
 
@@ -381,10 +385,10 @@ their results agree.
 
 ## Tips
 
-effect | shell command
----|---
-enter `<repo>` directory|`` cd `gita ls <repo>` ``
-delete repos in `<group>` | `gita group ll <group> \| xargs gita rm`
+| effect                    | shell command                            |
+| ------------------------- | ---------------------------------------- |
+| enter `<repo>` directory  | `` cd `gita ls <repo>` ``                |
+| delete repos in `<group>` | `gita group ll <group> \| xargs gita rm` |
 
 ## Contributing
 

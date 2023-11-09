@@ -780,17 +780,18 @@ def main(argv=None):
     cmds = utils.get_cmds_from_files()
     for name, data in cmds.items():
         help = data.get("help")
+        repo_help = help
         cmd = data["cmd"]
         if data.get("allow_all"):
             choices = utils.get_choices()
             nargs = "*"
-            help += " for all repos or"
+            repo_help += " for all repos or"
         else:
             choices = utils.get_repos().keys() | utils.get_groups().keys()
             nargs = "+"
-        help += " for the chosen repo(s) or group(s)"
-        sp = subparsers.add_parser(name, description=help)
-        sp.add_argument("repo", nargs=nargs, choices=choices, help=help)
+        repo_help += " for the chosen repo(s) or group(s)"
+        sp = subparsers.add_parser(name, description=help, help=help)
+        sp.add_argument("repo", nargs=nargs, choices=choices, help=repo_help)
         is_shell = bool(data.get("shell"))
         sp.add_argument(
             "-s",
