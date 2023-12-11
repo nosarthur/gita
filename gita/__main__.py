@@ -18,6 +18,7 @@ import os
 import sys
 import csv
 import argparse
+import argcomplete
 import subprocess
 from functools import partial
 import pkg_resources
@@ -807,6 +808,7 @@ def main(argv=None):
             cmd = cmd.split()
         sp.set_defaults(func=f_git_cmd, cmd=cmd)
 
+    argcomplete.autocomplete(p)
     args = p.parse_args(argv)
 
     args.async_blacklist = {
