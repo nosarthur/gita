@@ -1,4 +1,4 @@
-.PHONY: dist test install clean twine
+.PHONY: dist test install clean twine auto-completion
 
 install:
 	pip3 install -e .
@@ -10,3 +10,10 @@ twine:
 	twine upload dist/*
 clean:
 	git clean -fdx
+auto-completion:
+	@ mkdir -p auto-completion/bash
+	@ mkdir -p auto-completion/zsh
+	@ mkdir -p auto-completion/fish
+	register-python-argcomplete gita -s bash > auto-completion/bash/.gita-completion.bash
+	register-python-argcomplete gita -s zsh > auto-completion/zsh/_gita
+	register-python-argcomplete gita -s fish > auto-completion/fish/gita.fish

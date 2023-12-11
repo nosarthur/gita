@@ -158,6 +158,9 @@ the branch color to work.
 See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
 
 ## Auto-completion
+
+You can download the generated auto-completion file in the following locations for your specific shell. Alternatively, if you have installed `argcomplete` on your system, you can also directly run `eval "$(register-python-argcomplete gita -s SHELL)"` (e.g. `SHELL` as `bash`/`zsh`) in your dotfile.
+
 ### Bash
 Download [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash) and source it in shell.
 
@@ -167,6 +170,9 @@ There are 2 options :
 Add `autoload -U +X bashcompinit && bashcompinit` in .zshrc and source the zsh file
 - [_gita](https://github.com/nosarthur/gita/blob/master/contrib.completion/zsh/_gita_).
 Completion more Zsh style. Copy it in a folder and add this folder path in `FPATH` variable. This completion file doesn't take account to command from cmds.json
+
+### Fish
+Download [gita.fish](https://github.com/nosarthur/gita/tree/master/auto-completion/fish/gita.fish) and place it in `~/.config/fish/completions/`
 
 
 ## <a name='superman'></a> Superman mode
