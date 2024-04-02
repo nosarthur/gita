@@ -178,9 +178,7 @@ def f_clone(args: argparse.Namespace):
     repos, groups = io.parse_clone_config(args.clonee)
     if args.preserve_path:
         utils.exec_async_tasks(
-            utils.run_async(
-                repo_name, r["path"], ["git", "clone", r["url"], r["abs_path"]]
-            )
+            utils.run_async(repo_name, path, ["git", "clone", r["url"], r["path"]])
             for repo_name, r in repos.items()
         )
     else:

@@ -196,8 +196,11 @@ def test_clone_with_url(mock_run):
 
 
 @patch(
-    "gita.utils.parse_clone_config",
-    return_value=[["git@github.com:user/repo.git", "repo", "/a/repo"]],
+    "gita.io.parse_clone_config",
+    return_value=(
+        {"repo": {"url": "git@github.com:user/repo.git", "path": "/a/repo"}},
+        {},
+    ),
 )
 @patch("gita.utils.run_async", new=async_mock())
 @patch("subprocess.run")
@@ -217,8 +220,11 @@ def test_clone_with_config_file(*_):
 
 
 @patch(
-    "gita.utils.parse_clone_config",
-    return_value=[["git@github.com:user/repo.git", "repo", "/a/repo"]],
+    "gita.io.parse_clone_config",
+    return_value=(
+        {"repo": {"url": "git@github.com:user/repo.git", "path": "/a/repo"}},
+        {},
+    ),
 )
 @patch("gita.utils.run_async", new=async_mock())
 @patch("subprocess.run")
