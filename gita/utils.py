@@ -7,7 +7,7 @@ import platform
 import subprocess
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Iterator, Tuple
+from typing import List, Dict, Coroutine, Union, Tuple
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
@@ -365,15 +365,6 @@ def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]) -> Dict[str, 
     # FIXME: need to make sure the new group names don't clash with old ones
     #        or repo names
     return new_groups
-
-
-def parse_clone_config(fname: str) -> Iterator[List[str]]:
-    """
-    Return the url, name, and path of all repos in `fname`.
-    """
-    with open(fname) as f:
-        for line in f:
-            yield line.strip().split(",")
 
 
 async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:

@@ -25,8 +25,9 @@ import pkg_resources
 from itertools import chain
 from pathlib import Path
 import glob
+from typing import Dict, Optional
 
-from . import utils, info, common
+from . import utils, info, common, io
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
@@ -153,7 +154,7 @@ def f_clone(args: argparse.Namespace):
 
     if args.dry_run:
         if args.from_file:
-            for url, repo_name, abs_path in utils.parse_clone_config(args.clonee):
+            for url, repo_name, abs_path in io.parse_clone_config(args.clonee):
                 print(f"git clone {url} {abs_path}")
         else:
             print(f"git clone {args.clonee}")
@@ -173,28 +174,35 @@ def f_clone(args: argparse.Namespace):
         f_add(args)
         return
 
+    # TODO: add repos to group too
+    repos, groups = io.parse_clone_config(args.clonee)
     if args.preserve_path:
         utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", url, abs_path])
-            for url, repo_name, abs_path in utils.parse_clone_config(args.clonee)
+            utils.run_async(repo_name, path, ["git", "clone", r["url"], r["path"]])
+            for repo_name, r in repos.items()
         )
     else:
         utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", url])
-            for url, repo_name, _ in utils.parse_clone_config(args.clonee)
+            utils.run_async(repo_name, path, ["git", "clone", r["url"]])
+            for repo_name, r in repos.items()
         )
 
 
 def f_freeze(args):
-    repos = utils.get_repos()
+    """
+    print repo and group information for future cloning
+    """
     ctx = utils.get_context()
     if args.group is None and ctx:
         args.group = ctx.stem
+    repos = utils.get_repos()
+    group_name = args.group
     group_repos = None
-    if args.group:  # only display repos in this group
-        group_repos = utils.get_groups()[args.group]["repos"]
+    if group_name:  # only display repos in this group
+        group_repos = utils.get_groups()[group_name]["repos"]
         repos = {k: repos[k] for k in group_repos if k in repos}
     seen = {""}
+    # print(repos)
     for name, prop in repos.items():
         path = prop["path"]
         url = ""
@@ -212,7 +220,16 @@ def f_freeze(args):
                 url = parts[1]
         if url not in seen:
             seen.add(url)
-            print(f"{url},{name},{path}")
+            # TODO: add another field to distinguish regular repo or worktree or submodule
+            print(f"{url},{name},{path},")
+    # group information: these lines don't have URL
+    if group_name:
+        group_path = utils.get_groups()[group_name]["path"]
+        print(f",{group_name},{group_path},{'|'.join(group_repos)}")
+    else:  # show all groups
+        for gname, g in utils.get_groups().items():
+            group_repos = "|".join(g["repos"])
+            print(f",{gname},{g['path']},{group_repos}")
 
 
 def f_ll(args: argparse.Namespace):
