@@ -421,13 +421,14 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
     Return the status of all repos
     """
     if repos:
+        truncator = info.Truncate()
         name_width = len(max(repos, key=len)) + 1
         funcs = info.get_info_funcs(no_colors=no_colors)
 
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             for line in executor.map(
-                lambda name: f'{name:<{name_width}}{" ".join(f(repos[name]) for f in funcs)}',
+                lambda name: f'{name:<{name_width}}{" ".join(f(repos[name], truncator) for f in funcs)}',
                 sorted(repos),
             ):
                 yield line
