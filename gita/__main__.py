@@ -21,13 +21,12 @@ import argparse
 import argcomplete
 import subprocess
 from functools import partial
-import pkg_resources
 from itertools import chain
 from pathlib import Path
 import glob
 from typing import Dict, Optional
 
-from . import utils, info, common, io
+from . import utils, info, common, io, get_version
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
@@ -453,8 +452,9 @@ def main(argv=None):
         title="sub-commands", help="additional help with sub-command -h"
     )
 
-    version = pkg_resources.require("gita")[0].version
-    p.add_argument("-v", "--version", action="version", version=f"%(prog)s {version}")
+    p.add_argument(
+        "-v", "--version", action="version", version=f"%(prog)s {get_version()}"
+    )
 
     # bookkeeping sub-commands
     p_add = subparsers.add_parser("add", description="add repo(s)", help="add repo(s)")
