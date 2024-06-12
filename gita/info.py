@@ -9,7 +9,7 @@ from typing import Tuple, List, Callable, Dict
 from . import common
 
 
-class Truncate():
+class Truncate:
     """
     Reads in user layout.csv file and uses the values there
     to truncate the string passed in. If the file doesn't
