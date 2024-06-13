@@ -9,6 +9,35 @@ from typing import Tuple, List, Callable, Dict
 from . import common
 
 
+class Truncate:
+    """
+    Reads in user layout.csv file and uses the values there
+    to truncate the string passed in. If the file doesn't
+    exist or the requested field doesn't exist then don't
+    truncate
+    """
+    widths = {}
+
+    def __init__(self):
+        csv_config = Path(common.get_config_fname("layout.csv"))
+        if csv_config.is_file():
+            with open(csv_config, "r") as f:
+                reader = csv.DictReader(f)
+                self.widths = next(reader)
+
+            #Ensure the Dict type is Dict[str, int] to reduce casting elsewhere
+            for e in self.widths:
+                self.widths[e] = int(self.widths[e])
+
+    def truncate(self, field: str, message: str):
+        if field not in self.widths:
+            return message
+
+        length = 3 if self.widths[field] < 3 else self.widths[field]
+        return message[:length-3] + '...' if len(message) > length else message.ljust(length)
+
+
+
 class Color(Enum):
     """
     Terminal color
@@ -113,8 +142,8 @@ def get_info_items() -> List[str]:
     return display_items
 
 
-def get_path(prop: Dict[str, str]) -> str:
-    return f'{Color.cyan}{prop["path"]}{Color.end}'
+def get_path(prop: Dict[str, str], truncator: Truncate) -> str:
+    return f'{Color.cyan}{truncator.truncate("path", prop["path"])}{Color.end}'
 
 
 # TODO: do we need to add the flags here too?
@@ -178,7 +207,7 @@ def has_stashed(flags: List[str], path) -> bool:
     return got
 
 
-def get_commit_msg(prop: Dict[str, str]) -> str:
+def get_commit_msg(prop: Dict[str, str], truncator: Truncate) -> str:
     """
     Return the last commit message.
     """
@@ -191,10 +220,10 @@ def get_commit_msg(prop: Dict[str, str]) -> str:
         universal_newlines=True,
         cwd=prop["path"],
     )
-    return result.stdout.strip()
+    return truncator.truncate("commit_msg", result.stdout.strip())
 
 
-def get_commit_time(prop: Dict[str, str]) -> str:
+def get_commit_time(prop: Dict[str, str], truncator: Truncate) -> str:
     """
     Return the last commit time in parenthesis.
     """
@@ -206,7 +235,7 @@ def get_commit_time(prop: Dict[str, str]) -> str:
         universal_newlines=True,
         cwd=prop["path"],
     )
-    return f"({result.stdout.strip()})"
+    return truncator.truncate("commit_time", f"({result.stdout.strip()})")
 
 
 default_symbols = {
@@ -238,11 +267,11 @@ def get_symbols() -> Dict[str, str]:
     return default_symbols
 
 
-def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
-    branch = get_head(prop["path"])
+def get_repo_status(prop: Dict[str, str], truncator: Truncate, no_colors=False) -> str:
+    branch = truncator.truncate("branch", get_head(prop["path"]))
     dirty, staged, untracked, stashed, situ = _get_repo_status(prop)
     symbols = get_symbols()
-    info = f"{branch:<10} [{symbols[dirty]}{symbols[staged]}{symbols[stashed]}{symbols[untracked]}{symbols[situ]}]"
+    info = f"{branch:<10} {truncator.truncate('symbols', f'[{symbols[dirty]}{symbols[staged]}{symbols[stashed]}{symbols[untracked]}{symbols[situ]}]')}"
 
     if no_colors:
         return f"{info:<18}"
@@ -251,8 +280,8 @@ def get_repo_status(prop: Dict[str, str], no_colors=False) -> str:
     return f"{color}{info:<18}{Color.end}"
 
 
-def get_repo_branch(prop: Dict[str, str]) -> str:
-    return get_head(prop["path"])
+def get_repo_branch(prop: Dict[str, str], truncator: Truncate) -> str:
+    return truncator.truncate("branch_name", get_head(prop["path"]))
 
 
 def _get_repo_status(prop: Dict[str, str]) -> Tuple[str, str, str, str, str]:
