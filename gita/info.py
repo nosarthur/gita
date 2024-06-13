@@ -16,6 +16,7 @@ class Truncate:
     exist or the requested field doesn't exist then don't
     truncate
     """
+
     widths = {}
 
     def __init__(self):
@@ -25,17 +26,21 @@ class Truncate:
                 reader = csv.DictReader(f)
                 self.widths = next(reader)
 
-            #Ensure the Dict type is Dict[str, int] to reduce casting elsewhere
-            for e in self.widths:
-                self.widths[e] = int(self.widths[e])
+            # Ensure the Dict type is Dict[str, int] to reduce casting elsewhere
+            for e, width in self.widths.items():
+                self.widths[e] = int(width)
 
     def truncate(self, field: str, message: str):
-        if field not in self.widths:
+        # 0 means no width limit applied
+        if not self.widths.get(field):
             return message
 
         length = 3 if self.widths[field] < 3 else self.widths[field]
-        return message[:length-3] + '...' if len(message) > length else message.ljust(length)
-
+        return (
+            message[: length - 3] + "..."
+            if len(message) > length
+            else message.ljust(length)
+        )
 
 
 class Color(Enum):
