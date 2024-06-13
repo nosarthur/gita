@@ -147,6 +147,21 @@ def f_info(args: argparse.Namespace):
         with open(csv_config, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(to_display)
+    elif cmd == "set-length":
+        csv_config = common.get_config_fname("layout.csv")
+        print(f"Settings are in {csv_config}")
+        defaults = {
+            "branch": 19,
+            "symbols": 5,
+            "branch_name": 27,
+            "commit_msg": 0,
+            "commit_time": 0,  # 0 means no limit
+            "path": 30,
+        }
+        with open(csv_config, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=defaults)
+            writer.writeheader()
+            writer.writerow(defaults)
 
 
 def f_clone(args: argparse.Namespace):
@@ -615,6 +630,11 @@ def main(argv=None):
     )
     info_cmds.add_parser("rm", description="Disable information item.").add_argument(
         "info_item", choices=info.ALL_INFO_ITEMS, help="information item to delete"
+    )
+    info_cmds.add_parser(
+        "set-length",
+        description="Set default column widths for information items. "
+        "The settings are in layout.csv",
     )
 
     ll_doc = f"""  status symbols:
