@@ -14,19 +14,19 @@ For bash auto completion, download and source
 https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 """
 
-import os
-import sys
-import csv
 import argparse
-import argcomplete
+import csv
+import glob
+import os
 import subprocess
+import sys
 from functools import partial
 from itertools import chain
 from pathlib import Path
-import glob
-from typing import Dict, Optional
 
-from . import utils, info, common, io, get_version
+import argcomplete
+
+from . import common, get_version, info, io, utils
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
