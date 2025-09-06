@@ -2,6 +2,8 @@
 
 install:
 	pip3 install -e .
+uninstall:
+	pip3 uninstall -e .
 test:
 	pytest tests --cov=./gita $(TEST_ARGS) -n=auto -vv
 dist:
