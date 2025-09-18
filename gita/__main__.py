@@ -84,11 +84,22 @@ def f_add(args: argparse.Namespace):
             utils.write_to_groups_file(new_groups, "a+")
     if new_repos and args.group:
         gname = args.group
-        gname_repos = set(groups[gname]["repos"])
-        gname_repos.update(new_repos)
-        groups[gname]["repos"] = sorted(gname_repos)
+        if gname not in groups:
+            print(f"{gname} does not exists, creating it.")
+            gpath = ""
+            if "gpath" in args:
+                gpath = args.gpath
+            utils.write_to_groups_file(
+                {gname: {"repos": sorted(new_repos), "path": gpath}}, "a+"
+            )
+            groups = utils.get_groups()
+        else:
+            gname_repos = set(groups[gname]["repos"])
+            gname_repos.update(new_repos)
+            groups[gname]["repos"] = sorted(gname_repos)
+            utils.write_to_groups_file(groups, "w")
+
         print(f"Added {len(new_repos)} repos to the {gname} group")
-        utils.write_to_groups_file(groups, "w")
 
 
 def f_rename(args: argparse.Namespace):
@@ -165,7 +176,6 @@ def f_info(args: argparse.Namespace):
 
 
 def f_clone(args: argparse.Namespace):
-
     if args.dry_run:
         if args.from_file:
             for url, repo_name, abs_path in io.parse_clone_config(args.clonee):
@@ -547,12 +557,16 @@ def main(argv=None):
         action="store_true",
         help="If set, show command without execution",
     )
+    p_clone.add_argument(
+        "--path", dest="gpath", type=_path_name, metavar="group-path"
+    )
     xgroup = p_clone.add_mutually_exclusive_group()
     xgroup.add_argument(
         "-g",
         "--group",
-        choices=utils.get_groups(),
-        help="If set, add repo to the specified group after cloning, otherwise add to gita without group.",
+        # choices=utils.get_groups(),  # TODO remove this and create group if does not exists
+        help="If set, add repo to the specified group after cloning, otherwise add to gita without group. "
+        "If group does not exists, create it.",
     )
     xgroup.add_argument(
         "-f",
