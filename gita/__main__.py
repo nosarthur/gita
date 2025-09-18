@@ -23,10 +23,13 @@ import sys
 from functools import partial
 from itertools import chain
 from pathlib import Path
+from packaging.version import Version
 
 import argcomplete
 
 from . import common, get_version, info, io, utils
+
+GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING = Version("1.7.10")
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
@@ -200,20 +203,35 @@ def f_clone(args: argparse.Namespace):
 
     # TODO: add repos to group too
     repos, groups = io.parse_clone_config(args.clonee)
-    if args.preserve_path:
-        utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", r["url"], r["path"]])
-            for repo_name, r in repos.items()
-        )
-    else:
-        utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", r["url"]])
-            for repo_name, r in repos.items()
-        )
+
+    git_version = utils.get_git_version()
+    clone_branch = False
+    if not args.no_branch:
+        if git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING:
+            clone_branch = True
+        else:
+            print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
+
+    clone_tasks = []
+    for repo_name, r in repos.items():
+        git_cmd = ["git", "clone", r["url"]]
+
+        if clone_branch:
+            git_cmd.extend(["--branch", r["branch"], "--single-branch"])
+
+        if args.preserve_path:
+            git_cmd.append(r["path"])
+
+        clone_tasks.append(utils.run_async(repo_name, path, git_cmd))
+
+    utils.exec_async_tasks(clone_tasks)
 
     # add repo to gita
     for group_name, prop in groups.items():
-        args.paths = [os.path.join(path, repo.split("/")[-1].split(".")[0]) for repo in prop.get("repos", [])]
+        args.paths = [
+            os.path.join(path, repo.split("/")[-1].split(".")[0])
+            for repo in prop.get("repos", [])
+        ]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
         args.group = group_name
         args.group_path = prop.get("path", "")
@@ -255,7 +273,8 @@ def f_freeze(args):
         if url not in seen:
             seen.add(url)
             # TODO: add another field to distinguish regular repo or worktree or submodule
-            print(f"{url},{name},{path},")
+            branch = info.get_repo_branch(prop, info.Truncate())
+            print(f"{url},{name},{path},,,{branch}")
     # group information: these lines don't have URL
     if group_name:
         group_path = utils.get_groups()[group_name]["path"]
@@ -568,8 +587,11 @@ def main(argv=None):
         help="If set, show command without execution",
     )
     p_clone.add_argument(
-        "--path", dest="gpath", type=_path_name, metavar="group-path"
+        "--no-branch",
+        action="store_true",
+        help="If set, don't clone using branch from file.",
     )
+    p_clone.add_argument("--path", dest="gpath", type=_path_name, metavar="group-path",)
     xgroup = p_clone.add_mutually_exclusive_group()
     xgroup.add_argument(
         "-g",
