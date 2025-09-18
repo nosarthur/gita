@@ -574,7 +574,6 @@ def main(argv=None):
     xgroup.add_argument(
         "-g",
         "--group",
-        # choices=utils.get_groups(),  # TODO remove this and create group if does not exists
         help="If set, add repo to the specified group after cloning, otherwise add to gita without group. "
         "If group does not exists, create it.",
     )
