@@ -207,7 +207,7 @@ def f_clone(args: argparse.Namespace):
     git_version = utils.get_git_version()
     clone_branch = False
     if not args.no_branch:
-        if git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING:
+        if (git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING) or args.force_branch:
             clone_branch = True
         else:
             print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
@@ -586,12 +586,18 @@ def main(argv=None):
         action="store_true",
         help="If set, show command without execution",
     )
-    p_clone.add_argument(
+    p_clone.add_argument("--path", dest="gpath", type=_path_name, metavar="group-path",)
+    p_clone_branch_group = p_clone.add_mutually_exclusive_group()
+    p_clone_branch_group.add_argument(
         "--no-branch",
         action="store_true",
         help="If set, don't clone using branch from file.",
     )
-    p_clone.add_argument("--path", dest="gpath", type=_path_name, metavar="group-path",)
+    p_clone_branch_group.add_argument(
+        "--force-branch",
+        action="store_true",
+        help=f"If set, force cloning by branch even if git version is prior to {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}.",
+    )
     xgroup = p_clone.add_mutually_exclusive_group()
     xgroup.add_argument(
         "-g",
