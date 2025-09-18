@@ -211,6 +211,16 @@ def f_clone(args: argparse.Namespace):
             for repo_name, r in repos.items()
         )
 
+    # add repo to gita
+    for group_name, prop in groups.items():
+        args.paths = [os.path.join(path, repo.split("/")[-1].split(".")[0]) for repo in prop.get("repos", [])]
+        args.recursive = args.auto_group = args.bare = args.skip_submodule = False
+        args.group = group_name
+        args.group_path = prop.get("path", "")
+        f_add(args)
+
+    return
+
 
 def f_freeze(args):
     """
