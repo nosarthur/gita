@@ -89,13 +89,9 @@ def f_add(args: argparse.Namespace):
         gname = args.group
         if gname not in groups:
             print(f"{gname} does not exists, creating it.")
-            gpath = ""
-            if "gpath" in args:
-                gpath = args.gpath
             utils.write_to_groups_file(
-                {gname: {"repos": sorted(new_repos), "path": gpath}}, "a+"
+                {gname: {"repos": sorted(new_repos), "path": args.gpath}}, "a+"
             )
-            groups = utils.get_groups()
         else:
             gname_repos = set(groups[gname]["repos"])
             gname_repos.update(new_repos)
@@ -234,7 +230,8 @@ def f_clone(args: argparse.Namespace):
         ]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
         args.group = group_name
-        args.group_path = prop.get("path", "")
+        if "gpath" not in args:
+            args.gpath = ""
         f_add(args)
 
     return
