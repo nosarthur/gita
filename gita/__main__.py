@@ -197,7 +197,6 @@ def f_clone(args: argparse.Namespace):
         f_add(args)
         return
 
-    # TODO: add repos to group too
     repos, groups = io.parse_clone_config(args.clonee)
 
     git_version = utils.get_git_version()
@@ -223,15 +222,13 @@ def f_clone(args: argparse.Namespace):
     utils.exec_async_tasks(clone_tasks)
 
     # add repo to gita
-    for group_name, prop in groups.items():
+    for prop in groups.values():
         args.paths = [
             os.path.join(path, repo.split("/")[-1].split(".")[0])
             for repo in prop.get("repos", [])
         ]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
-        args.group = group_name
-        if "gpath" not in args:
-            args.gpath = ""
+        args.gpath = prop.get("path", "")
         f_add(args)
 
     return
@@ -514,9 +511,9 @@ def main(argv=None):
     p_add.add_argument(
         "-g",
         "--group",
-        choices=utils.get_groups(),
-        help="add repo(s) to the specified group",
+        help="add repo(s) to the specified group. If group does not exists, create it.",
     )
+    p_add.add_argument("--group-path", dest="gpath", type=_path_name)
     p_add.add_argument(
         "-s", "--skip-submodule", action="store_true", help="skip submodule repo(s)"
     )
@@ -583,7 +580,6 @@ def main(argv=None):
         action="store_true",
         help="If set, show command without execution",
     )
-    p_clone.add_argument("--path", dest="gpath", type=_path_name, metavar="group-path",)
     p_clone_branch_group = p_clone.add_mutually_exclusive_group()
     p_clone_branch_group.add_argument(
         "--no-branch",
