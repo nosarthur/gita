@@ -183,17 +183,19 @@ def f_clone(args: argparse.Namespace):
             print(f"git clone {args.clonee}")
         return
 
-    if args.directory:
-        path = args.directory
-    else:
-        path = Path.cwd()
+    path = args.directory or Path.cwd()
 
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
         cloned_path = os.path.join(path, args.clonee.split("/")[-1].split(".")[0])
+        repos_path = [r["path"] for r in utils.get_repos(file_only=True).values()]
+        if cloned_path in repos_path:
+            print(f"{args.clonee} already in gita.")
+            return
         args.paths = [cloned_path]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
+        args.gpath = ""
         f_add(args)
         return
 
@@ -201,7 +203,7 @@ def f_clone(args: argparse.Namespace):
 
     git_version = utils.get_git_version()
     clone_branch = False
-    if not args.no_branch:
+    if "no_branch" in args and not args.no_branch:
         if (git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING) or args.force_branch:
             clone_branch = True
         else:
@@ -222,13 +224,14 @@ def f_clone(args: argparse.Namespace):
     utils.exec_async_tasks(clone_tasks)
 
     # add repo to gita
-    for prop in groups.values():
+    for group_name, prop in groups.items():
         args.paths = [
             os.path.join(path, repo.split("/")[-1].split(".")[0])
             for repo in prop.get("repos", [])
         ]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
         args.gpath = prop.get("path", "")
+        args.group = group_name
         f_add(args)
 
     return
@@ -268,7 +271,8 @@ def f_freeze(args):
             seen.add(url)
             # TODO: add another field to distinguish regular repo or worktree or submodule
             branch = info.get_repo_branch(prop, info.Truncate())
-            print(f"{url},{name},{path},,,{branch}")
+            repo_flags = " ".join(prop["flags"])
+            print(f"{url},{name},{path},{prop['type']},{repo_flags},{branch}")
     # group information: these lines don't have URL
     if group_name:
         group_path = utils.get_groups()[group_name]["path"]
