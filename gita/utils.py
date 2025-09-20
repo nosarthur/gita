@@ -56,7 +56,6 @@ def get_repos(file_only: bool = False) -> Dict[str, Dict[str, str]]:
             rows = csv.DictReader(
                 f, ["path", "name", "type", "flags"], restval=""
             )  # it's actually a reader
-            repos = {}
             for r in rows:
                 if file_only or is_git(r["path"], include_bare=True):
                     repos[r["name"]] = {
@@ -64,7 +63,6 @@ def get_repos(file_only: bool = False) -> Dict[str, Dict[str, str]]:
                         "type": r["type"],
                         "flags": r["flags"].split(),
                     }
-                    continue
     return repos
 
 
@@ -242,7 +240,7 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     """
     # The 3rd column is repo type; unused field
     data = [
-        (prop["path"], name, "", " ".join(prop["flags"]))
+        (prop["path"], name, prop.get("type", ""), " ".join(prop["flags"]))
         for name, prop in repos.items()
     ]
     fname = common.get_config_fname("repos.csv")
