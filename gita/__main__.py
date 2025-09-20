@@ -185,12 +185,12 @@ def f_clone(args: argparse.Namespace):
 
     path = args.directory or Path.cwd()
 
+    current_repos_path = [r["path"] for r in utils.get_repos(file_only=True).values()]
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
         cloned_path = os.path.join(path, args.clonee.split("/")[-1].split(".")[0])
-        repos_path = [r["path"] for r in utils.get_repos(file_only=True).values()]
-        if cloned_path in repos_path:
+        if cloned_path in current_repos_path:
             print(f"{args.clonee} already in gita.")
             return
         args.paths = [cloned_path]
@@ -201,6 +201,7 @@ def f_clone(args: argparse.Namespace):
 
     repos, groups = io.parse_clone_config(args.clonee)
 
+    # Check git version for cloning with branch
     git_version = utils.get_git_version()
     clone_branch = False
     if "no_branch" in args and not args.no_branch:
@@ -210,29 +211,29 @@ def f_clone(args: argparse.Namespace):
             print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
 
     clone_tasks = []
-    for repo_name, r in repos.items():
-        git_cmd = ["git", "clone", r["url"]]
+    for repo_name, prop in repos.items():
+        git_cmd = ["git", "clone", prop["url"]]
 
         if clone_branch:
-            git_cmd.extend(["--branch", r["branch"], "--single-branch"])
+            git_cmd.extend(["--branch", prop["branch"], "--single-branch"])
 
         if args.preserve_path:
-            git_cmd.append(r["path"])
+            git_cmd.append(prop["path"])
 
         clone_tasks.append(utils.run_async(repo_name, path, git_cmd))
 
     utils.exec_async_tasks(clone_tasks)
 
-    # add repo to gita
-    for group_name, prop in groups.items():
-        args.paths = [
-            os.path.join(path, repo.split("/")[-1].split(".")[0])
-            for repo in prop.get("repos", [])
-        ]
-        args.recursive = args.auto_group = args.bare = args.skip_submodule = False
-        args.gpath = prop.get("path", "")
-        args.group = group_name
-        f_add(args)
+    # add repo to gita repos, not adding already existing paths
+    new_repos = {name: prop for name, prop in repos.items() if prop["path"] not in current_repos_path}
+    utils.write_to_repo_file(new_repos, "a+")
+
+    # add repo to gita groups, ig group already exists, add new repo to it if there is.
+    for gname, prop in groups.items():
+        args.group_cmd = "add"
+        args.gname = gname
+        args.to_group = prop["repos"]
+        f_group(args)
 
     return
 
