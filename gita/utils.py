@@ -19,6 +19,7 @@ from . import common
 
 MAX_INT = sys.maxsize
 
+
 def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
     """
     Return the relative path depth if relative, otherwise None.
@@ -41,10 +42,12 @@ def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
 
 
 @lru_cache()
-def get_repos() -> Dict[str, Dict[str, str]]:
+def get_repos(file_only: bool = False) -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
 
+    Parameters:
+    file_only (bool): Returns repo in config even if their path do not exists.
     """
     path_file = common.get_config_fname("repos.csv")
     repos = {}
@@ -53,15 +56,15 @@ def get_repos() -> Dict[str, Dict[str, str]]:
             rows = csv.DictReader(
                 f, ["path", "name", "type", "flags"], restval=""
             )  # it's actually a reader
-            repos = {
-                r["name"]: {
-                    "path": r["path"],
-                    "type": r["type"],
-                    "flags": r["flags"].split(),
-                }
-                for r in rows
-                if is_git(r["path"], include_bare=True)
-            }
+            repos = {}
+            for r in rows:
+                if file_only or is_git(r["path"], include_bare=True):
+                    repos[r["name"]] = {
+                        "path": r["path"],
+                        "type": r["type"],
+                        "flags": r["flags"].split(),
+                    }
+                    continue
     return repos
 
 
@@ -428,7 +431,7 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             for line in executor.map(
-                lambda name: f'{name:<{name_width}}{" ".join(f(repos[name], truncator) for f in funcs)}',
+                lambda name: f"{name:<{name_width}}{' '.join(f(repos[name], truncator) for f in funcs)}",
                 sorted(repos),
             ):
                 yield line
@@ -504,6 +507,7 @@ def parse_repos_and_rest(
         repos = chosen
     return repos, input[i:]
 
+
 def get_git_version() -> Version:
     """Get git version using subprocess and packaging.version.Version.
 
@@ -516,7 +520,9 @@ def get_git_version() -> Version:
     Out[14]: False
     """
     try:
-        return Version(subprocess.check_output("git --version", shell=True).split()[-1].decode())
+        return Version(
+            subprocess.check_output("git --version", shell=True).split()[-1].decode()
+        )
     except Exception:
         # NOTE Global exception handling is bad, but it may be worse to account for
         # every possible failure
