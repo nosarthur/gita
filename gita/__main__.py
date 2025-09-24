@@ -199,7 +199,7 @@ def f_clone(args: argparse.Namespace):
         f_add(args)
         return
 
-    repos, groups = io.parse_clone_config(args.clonee)
+    repos_to_clone, groups_to_clone = io.parse_clone_config(args.clonee)
 
     # Check git version for cloning with branch
     git_version = utils.get_git_version()
@@ -211,7 +211,7 @@ def f_clone(args: argparse.Namespace):
             print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
 
     clone_tasks = []
-    for repo_name, prop in repos.items():
+    for repo_name, prop in repos_to_clone.items():
         git_cmd = ["git", "clone", prop["url"]]
 
         if clone_branch:
@@ -225,11 +225,11 @@ def f_clone(args: argparse.Namespace):
     utils.exec_async_tasks(clone_tasks)
 
     # add repo to gita repos, not adding already existing paths
-    new_repos = {name: prop for name, prop in repos.items() if prop["path"] not in current_repos_path}
+    new_repos = {name: prop for name, prop in repos_to_clone.items() if prop["path"] not in current_repos_path}
     utils.write_to_repo_file(new_repos, "a+")
 
     # add repo to gita groups, ig group already exists, add new repo to it if there is.
-    for gname, prop in groups.items():
+    for gname, prop in groups_to_clone.items():
         args.group_cmd = "add"
         args.gname = gname
         args.to_group = prop["repos"]
