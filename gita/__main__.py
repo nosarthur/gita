@@ -185,7 +185,7 @@ def f_clone(args: argparse.Namespace):
 
     path = args.directory or Path.cwd()
 
-    current_repos_path = [r["path"] for r in utils.get_repos(file_only=True).values()]
+    current_repos_path = {r["path"] for r in utils.get_repos(file_only=True).values()}
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
