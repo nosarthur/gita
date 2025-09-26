@@ -42,12 +42,12 @@ def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
 
 
 @lru_cache()
-def get_repos(file_only: bool = False) -> Dict[str, Dict[str, str]]:
+def get_repos(skip_validation: bool = False) -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
 
     Parameters:
-    file_only (bool): Returns repo in config even if their path do not exists.
+    skip_validation (bool): Returns repos in config even if their path do not exists.
     """
     path_file = common.get_config_fname("repos.csv")
     repos = {}
@@ -57,7 +57,7 @@ def get_repos(file_only: bool = False) -> Dict[str, Dict[str, str]]:
                 f, ["path", "name", "type", "flags"], restval=""
             )  # it's actually a reader
             for r in rows:
-                if file_only or is_git(r["path"], include_bare=True):
+                if skip_validation or is_git(r["path"], include_bare=True):
                     repos[r["name"]] = {
                         "path": r["path"],
                         "type": r["type"],
