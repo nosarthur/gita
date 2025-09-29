@@ -23,10 +23,13 @@ import sys
 from functools import partial
 from itertools import chain
 from pathlib import Path
+from packaging.version import Version
 
 import argcomplete
 
 from . import common, get_version, info, io, utils
+
+GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING = Version("1.7.10")
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
@@ -84,11 +87,18 @@ def f_add(args: argparse.Namespace):
             utils.write_to_groups_file(new_groups, "a+")
     if new_repos and args.group:
         gname = args.group
-        gname_repos = set(groups[gname]["repos"])
-        gname_repos.update(new_repos)
-        groups[gname]["repos"] = sorted(gname_repos)
+        if gname not in groups:
+            print(f"{gname} does not exists, creating it.")
+            utils.write_to_groups_file(
+                {gname: {"repos": sorted(new_repos), "path": args.gpath}}, "a+"
+            )
+        else:
+            gname_repos = set(groups[gname]["repos"])
+            gname_repos.update(new_repos)
+            groups[gname]["repos"] = sorted(gname_repos)
+            utils.write_to_groups_file(groups, "w")
+
         print(f"Added {len(new_repos)} repos to the {gname} group")
-        utils.write_to_groups_file(groups, "w")
 
 
 def f_rename(args: argparse.Namespace):
@@ -165,7 +175,6 @@ def f_info(args: argparse.Namespace):
 
 
 def f_clone(args: argparse.Namespace):
-
     if args.dry_run:
         if args.from_file:
             for url, repo_name, abs_path in io.parse_clone_config(args.clonee):
@@ -174,32 +183,59 @@ def f_clone(args: argparse.Namespace):
             print(f"git clone {args.clonee}")
         return
 
-    if args.directory:
-        path = args.directory
-    else:
-        path = Path.cwd()
+    path = args.directory or Path.cwd()
 
+    current_repos_path = {r["path"] for r in utils.get_repos(skip_validation=True).values()}
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
         cloned_path = os.path.join(path, args.clonee.split("/")[-1].split(".")[0])
+        if cloned_path in current_repos_path:
+            print(f"{args.clonee} already in gita.")
+            return
         args.paths = [cloned_path]
         args.recursive = args.auto_group = args.bare = args.skip_submodule = False
+        args.gpath = ""
         f_add(args)
         return
 
-    # TODO: add repos to group too
-    repos, groups = io.parse_clone_config(args.clonee)
-    if args.preserve_path:
-        utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", r["url"], r["path"]])
-            for repo_name, r in repos.items()
-        )
-    else:
-        utils.exec_async_tasks(
-            utils.run_async(repo_name, path, ["git", "clone", r["url"]])
-            for repo_name, r in repos.items()
-        )
+    repos_to_clone, groups_to_clone = io.parse_clone_config(args.clonee)
+
+    # Check git version for cloning with branch
+    git_version = utils.get_git_version()
+    clone_branch = False
+    if "no_branch" in args and not args.no_branch:
+        if (git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING) or args.force_branch:
+            clone_branch = True
+        else:
+            print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
+
+    clone_tasks = []
+    for repo_name, prop in repos_to_clone.items():
+        git_cmd = ["git", "clone", prop["url"]]
+
+        if clone_branch:
+            git_cmd.extend(["--branch", prop["branch"], "--single-branch"])
+
+        if args.preserve_path:
+            git_cmd.append(prop["path"])
+
+        clone_tasks.append(utils.run_async(repo_name, path, git_cmd))
+
+    utils.exec_async_tasks(clone_tasks)
+
+    # add repo to gita repos, not adding already existing paths
+    new_repos = {name: prop for name, prop in repos_to_clone.items() if prop["path"] not in current_repos_path}
+    utils.write_to_repo_file(new_repos, "a+")
+
+    # add repo to gita groups, ig group already exists, add new repo to it if there is.
+    for gname, prop in groups_to_clone.items():
+        args.group_cmd = "add"
+        args.gname = gname
+        args.to_group = prop["repos"]
+        f_group(args)
+
+    return
 
 
 def f_freeze(args):
@@ -235,7 +271,9 @@ def f_freeze(args):
         if url not in seen:
             seen.add(url)
             # TODO: add another field to distinguish regular repo or worktree or submodule
-            print(f"{url},{name},{path},")
+            branch = info.get_repo_branch(prop, info.Truncate())
+            repo_flags = " ".join(prop["flags"])
+            print(f"{url},{name},{path},{prop['type']},{repo_flags},{branch}")
     # group information: these lines don't have URL
     if group_name:
         group_path = utils.get_groups()[group_name]["path"]
@@ -478,9 +516,9 @@ def main(argv=None):
     p_add.add_argument(
         "-g",
         "--group",
-        choices=utils.get_groups(),
-        help="add repo(s) to the specified group",
+        help="add repo(s) to the specified group. If group does not exists, create it.",
     )
+    p_add.add_argument("--group-path", dest="gpath", type=_path_name)
     p_add.add_argument(
         "-s", "--skip-submodule", action="store_true", help="skip submodule repo(s)"
     )
@@ -547,12 +585,23 @@ def main(argv=None):
         action="store_true",
         help="If set, show command without execution",
     )
+    p_clone_branch_group = p_clone.add_mutually_exclusive_group()
+    p_clone_branch_group.add_argument(
+        "--no-branch",
+        action="store_true",
+        help="If set, don't clone using branch from file.",
+    )
+    p_clone_branch_group.add_argument(
+        "--force-branch",
+        action="store_true",
+        help=f"If set, force cloning by branch even if git version is prior to {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}.",
+    )
     xgroup = p_clone.add_mutually_exclusive_group()
     xgroup.add_argument(
         "-g",
         "--group",
-        choices=utils.get_groups(),
-        help="If set, add repo to the specified group after cloning, otherwise add to gita without group.",
+        help="If set, add repo to the specified group after cloning, otherwise add to gita without group. "
+        "If group does not exists, create it.",
     )
     xgroup.add_argument(
         "-f",

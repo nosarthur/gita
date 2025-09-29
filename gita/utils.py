@@ -11,6 +11,7 @@ from typing import List, Dict, Coroutine, Union, Tuple
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
+from packaging.version import Version
 
 from . import info
 from . import common
@@ -41,10 +42,12 @@ def get_relative_path(kid: os.PathLike, parent: str) -> Union[List[str], None]:
 
 
 @lru_cache()
-def get_repos() -> Dict[str, Dict[str, str]]:
+def get_repos(skip_validation: bool = False) -> Dict[str, Dict[str, str]]:
     """
     Return a `dict` of repo name to repo absolute path and repo type
 
+    Parameters:
+    skip_validation (bool): Returns repos in config even if their path do not exists.
     """
     path_file = common.get_config_fname("repos.csv")
     repos = {}
@@ -53,15 +56,13 @@ def get_repos() -> Dict[str, Dict[str, str]]:
             rows = csv.DictReader(
                 f, ["path", "name", "type", "flags"], restval=""
             )  # it's actually a reader
-            repos = {
-                r["name"]: {
-                    "path": r["path"],
-                    "type": r["type"],
-                    "flags": r["flags"].split(),
-                }
-                for r in rows
-                if is_git(r["path"], include_bare=True)
-            }
+            for r in rows:
+                if skip_validation or is_git(r["path"], include_bare=True):
+                    repos[r["name"]] = {
+                        "path": r["path"],
+                        "type": r["type"],
+                        "flags": r["flags"].split(),
+                    }
     return repos
 
 
@@ -239,7 +240,7 @@ def write_to_repo_file(repos: Dict[str, Dict[str, str]], mode: str):
     """
     # The 3rd column is repo type; unused field
     data = [
-        (prop["path"], name, "", " ".join(prop["flags"]))
+        (prop["path"], name, prop.get("type", ""), " ".join(prop["flags"]))
         for name, prop in repos.items()
     ]
     fname = common.get_config_fname("repos.csv")
@@ -428,7 +429,7 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             for line in executor.map(
-                lambda name: f'{name:<{name_width}}{" ".join(f(repos[name], truncator) for f in funcs)}',
+                lambda name: f"{name:<{name_width}}{' '.join(f(repos[name], truncator) for f in funcs)}",
                 sorted(repos),
             ):
                 yield line
@@ -503,3 +504,24 @@ def parse_repos_and_rest(
         # if not set here, all repos are chosen
         repos = chosen
     return repos, input[i:]
+
+
+def get_git_version() -> Version:
+    """Get git version using subprocess and packaging.version.Version.
+
+    Using Version to avoid such issue:
+
+    In [13]: b"1.7.9" > b"1.7.10"
+    Out[13]: True
+
+    In [14]: Version(b"1.7.9".decode()) > Version("1.7.10")
+    Out[14]: False
+    """
+    try:
+        return Version(
+            subprocess.check_output("git --version", shell=True).split()[-1].decode()
+        )
+    except Exception:
+        # NOTE Global exception handling is bad, but it may be worse to account for
+        # every possible failure
+        return None

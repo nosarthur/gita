@@ -13,7 +13,7 @@ def parse_clone_config(fname: str) -> Tuple:
     if os.path.isfile(fname) and os.stat(fname).st_size > 0:
         with open(fname) as f:
             rows = csv.DictReader(
-                f, ["url", "name", "path", "type", "flags"], restval=""
+                f, ["url", "name", "path", "type", "flags", "branch"], restval=""
             )  # it's actually a reader
             for r in rows:
                 if r["url"]:
@@ -22,6 +22,7 @@ def parse_clone_config(fname: str) -> Tuple:
                         "type": r["type"],
                         "flags": r["flags"].split(),
                         "url": r["url"],
+                        "branch": r["branch"],
                     }
                 else:
                     groups[r["name"]] = {
