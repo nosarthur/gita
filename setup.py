@@ -18,7 +18,7 @@ setup(
     author="Dong Zhou",
     author_email="zhou.dong@gmail.com",
     entry_points={"console_scripts": ["gita = gita.__main__:main"]},
-    python_requires="~=3.6",
+    python_requires="~=3.7",
     install_requires=["argcomplete"],
     classifiers=[
         "Development Status :: 4 - Beta",
