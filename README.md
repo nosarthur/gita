@@ -181,7 +181,7 @@ There are 2 options :
 
 - [.gita-completion.zsh](https://github.com/nosarthur/gita/tree/master/auto-completion/zsh/.gita-completion.zsh). Use the help of gita command to display options. It uses the bash completion system for zsh.
   Add `autoload -U +X bashcompinit && bashcompinit` in .zshrc and source the zsh file
-- [\_gita](https://github.com/nosarthur/gita/blob/master/auto-completion/zsh/_gita_).
+- [\_gita](https://github.com/nosarthur/gita/blob/master/auto-completion/zsh/_gita).
   Completion more Zsh style. Copy it in a folder and add this folder path in `FPATH` variable. This completion file doesn't take account to command from cmds.json
 
 ### Fish
