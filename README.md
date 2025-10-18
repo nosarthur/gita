@@ -155,6 +155,12 @@ then put the following line in the `.bashrc` file.
 alias gita="python3 -m gita"
 ```
 
+Alternatively, you can install with [uv](https://github.com/astral-sh/uv)
+
+```
+uv tool install gita
+```
+
 Windows users may need to enable the ANSI escape sequence in terminal for
 the branch color to work.
 See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
@@ -167,20 +173,20 @@ You can download the generated auto-completion file in the following locations f
 
 ### Bash
 
-Download [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/.gita-completion.bash) and source it in shell.
+Download [.gita-completion.bash](https://github.com/nosarthur/gita/blob/master/auto-completion/bash/.gita-completion.bash) and source it in shell.
 
 ### Zsh
 
 There are 2 options :
 
-- [.gita-completion.zsh](https://github.com/nosarthur/gita/blob/master/contrib.completion/zsh/.gita-completion.zsh). Use the help of gita command to display options. It uses the bash completion system for zsh.
+- [.gita-completion.zsh](https://github.com/nosarthur/gita/tree/master/auto-completion/zsh/.gita-completion.zsh). Use the help of gita command to display options. It uses the bash completion system for zsh.
   Add `autoload -U +X bashcompinit && bashcompinit` in .zshrc and source the zsh file
-- [\_gita](https://github.com/nosarthur/gita/blob/master/contrib.completion/zsh/_gita_).
+- [\_gita](https://github.com/nosarthur/gita/blob/master/auto-completion/zsh/_gita_).
   Completion more Zsh style. Copy it in a folder and add this folder path in `FPATH` variable. This completion file doesn't take account to command from cmds.json
 
 ### Fish
 
-Download [gita.fish](https://github.com/nosarthur/gita/tree/master/auto-completion/fish/gita.fish) and place it in `~/.config/fish/completions/`
+Download [gita.fish](https://github.com/nosarthur/gita/blob/master/auto-completion/fish/gita.fish) and place it in `~/.config/fish/completions/`
 
 ## <a name='superman'></a> Superman mode
 
