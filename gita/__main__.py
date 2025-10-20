@@ -185,7 +185,9 @@ def f_clone(args: argparse.Namespace):
 
     path = args.directory or Path.cwd()
 
-    current_repos_path = {r["path"] for r in utils.get_repos(skip_validation=True).values()}
+    current_repos_path = {
+        r["path"] for r in utils.get_repos(skip_validation=True).values()
+    }
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
@@ -201,21 +203,9 @@ def f_clone(args: argparse.Namespace):
 
     repos_to_clone, groups_to_clone = io.parse_clone_config(args.clonee)
 
-    # Check git version for cloning with branch
-    git_version = utils.get_git_version()
-    clone_branch = False
-    if "no_branch" in args and not args.no_branch:
-        if (git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING) or args.force_branch:
-            clone_branch = True
-        else:
-            print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
-
     clone_tasks = []
     for repo_name, prop in repos_to_clone.items():
         git_cmd = ["git", "clone", prop["url"]]
-
-        if clone_branch:
-            git_cmd.extend(["--branch", prop["branch"], "--single-branch"])
 
         if args.preserve_path:
             git_cmd.append(prop["path"])
@@ -224,8 +214,28 @@ def f_clone(args: argparse.Namespace):
 
     utils.exec_async_tasks(clone_tasks)
 
+    # try to checkout if needed, only after cloning
+    checkout_tasks = []
+    for repo_name, prop in repos_to_clone.items():
+        if "branch" in prop:
+            git_path = prop["path"] if args.preserve_path else repo_name
+            checkout_cmd = [
+                "git",
+                f"--git-dir={git_path}/.git",
+                f"--work-tree={git_path}",
+                "checkout",
+                prop["branch"],
+            ]
+            checkout_tasks.append(utils.run_async(repo_name, path, checkout_cmd))
+
+    utils.exec_async_tasks(checkout_tasks)
+
     # add repo to gita repos, not adding already existing paths
-    new_repos = {name: prop for name, prop in repos_to_clone.items() if prop["path"] not in current_repos_path}
+    new_repos = {
+        name: prop
+        for name, prop in repos_to_clone.items()
+        if prop["path"] not in current_repos_path
+    }
     utils.write_to_repo_file(new_repos, "a+")
 
     # add repo to gita groups, ig group already exists, add new repo to it if there is.
@@ -584,17 +594,6 @@ def main(argv=None):
         "--dry-run",
         action="store_true",
         help="If set, show command without execution",
-    )
-    p_clone_branch_group = p_clone.add_mutually_exclusive_group()
-    p_clone_branch_group.add_argument(
-        "--no-branch",
-        action="store_true",
-        help="If set, don't clone using branch from file.",
-    )
-    p_clone_branch_group.add_argument(
-        "--force-branch",
-        action="store_true",
-        help=f"If set, force cloning by branch even if git version is prior to {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}.",
     )
     xgroup = p_clone.add_mutually_exclusive_group()
     xgroup.add_argument(
