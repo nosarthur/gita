@@ -399,22 +399,20 @@ def format_output(s: str, prefix: str):
     return "".join([f"{prefix}: {line}" for line in s.splitlines(keepends=True)])
 
 
+async def _gather_tasks(tasks_list):
+    """Helper to gather tasks"""
+    return await asyncio.gather(*tasks_list)
+
+
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     """
     Execute tasks asynchronously
     """
-    # TODO: asyncio API is nicer in python 3.7
     if platform.system() == "Windows":
-        loop = asyncio.ProactorEventLoop()
-        asyncio.set_event_loop(loop)
-    else:
-        loop = asyncio.get_event_loop()
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
-    try:
-        errors = loop.run_until_complete(asyncio.gather(*tasks))
-    finally:
-        loop.close()
-    return errors
+    tasks_list = list(tasks)
+    return asyncio.run(_gather_tasks(tasks_list))
 
 
 def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
