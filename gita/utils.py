@@ -1,21 +1,20 @@
-import sys
-import os
-import json
-import csv
 import asyncio
+import csv
+import json
+import multiprocessing
+import os
 import platform
 import subprocess
-from functools import lru_cache
-from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Tuple
+import sys
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
-import multiprocessing
+from functools import lru_cache
+from pathlib import Path
+from typing import Coroutine, Dict, List, Tuple, Union
+
 from packaging.version import Version
 
-from . import info
-from . import common
-
+from . import common, info
 
 MAX_INT = sys.maxsize
 
@@ -411,8 +410,7 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     if platform.system() == "Windows":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
-    tasks_list = list(tasks)
-    return asyncio.run(_gather_tasks(tasks_list))
+    return asyncio.run(_gather_tasks(tasks))
 
 
 def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:

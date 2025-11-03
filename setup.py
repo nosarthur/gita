@@ -18,7 +18,7 @@ setup(
     author="Dong Zhou",
     author_email="zhou.dong@gmail.com",
     entry_points={"console_scripts": ["gita = gita.__main__:main"]},
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=["argcomplete"],
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -30,7 +30,6 @@ setup(
         "Topic :: Software Development :: Version Control :: Git",
         "Topic :: Terminals",
         "Topic :: Utilities",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -41,4 +40,3 @@ setup(
     ],
     include_package_data=True,
 )
-

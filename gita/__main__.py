@@ -23,9 +23,9 @@ import sys
 from functools import partial
 from itertools import chain
 from pathlib import Path
-from packaging.version import Version
 
 import argcomplete
+from packaging.version import Version
 
 from . import common, get_version, info, io, utils
 
@@ -185,7 +185,9 @@ def f_clone(args: argparse.Namespace):
 
     path = args.directory or Path.cwd()
 
-    current_repos_path = {r["path"] for r in utils.get_repos(skip_validation=True).values()}
+    current_repos_path = {
+        r["path"] for r in utils.get_repos(skip_validation=True).values()
+    }
     if not args.from_file:
         subprocess.run(["git", "clone", args.clonee], cwd=path)
         # add the cloned repo to gita; group is also supported
@@ -205,10 +207,14 @@ def f_clone(args: argparse.Namespace):
     git_version = utils.get_git_version()
     clone_branch = False
     if "no_branch" in args and not args.no_branch:
-        if (git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING) or args.force_branch:
+        if (
+            git_version and git_version >= GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING
+        ) or args.force_branch:
             clone_branch = True
         else:
-            print(f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch.")
+            print(
+                f"Git version {git_version} < {GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING}, not cloning by branch."
+            )
 
     clone_tasks = []
     for repo_name, prop in repos_to_clone.items():
@@ -225,7 +231,11 @@ def f_clone(args: argparse.Namespace):
     utils.exec_async_tasks(clone_tasks)
 
     # add repo to gita repos, not adding already existing paths
-    new_repos = {name: prop for name, prop in repos_to_clone.items() if prop["path"] not in current_repos_path}
+    new_repos = {
+        name: prop
+        for name, prop in repos_to_clone.items()
+        if prop["path"] not in current_repos_path
+    }
     utils.write_to_repo_file(new_repos, "a+")
 
     # add repo to gita groups, ig group already exists, add new repo to it if there is.
@@ -442,8 +452,10 @@ def f_git_cmd(args: argparse.Namespace):
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, prop["path"], cmds)
-            for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items())
+            [
+                utils.run_async(repo_name, prop["path"], cmds)
+                for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items())
+            ]
         )
         for path in errors:
             if path:
