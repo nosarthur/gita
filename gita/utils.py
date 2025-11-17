@@ -12,8 +12,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Coroutine, Dict, List, Tuple, Union
 
-from packaging.version import Version
-
 from . import common, info
 
 MAX_INT = sys.maxsize
@@ -500,24 +498,3 @@ def parse_repos_and_rest(
         # if not set here, all repos are chosen
         repos = chosen
     return repos, input[i:]
-
-
-def get_git_version() -> Version:
-    """Get git version using subprocess and packaging.version.Version.
-
-    Using Version to avoid such issue:
-
-    In [13]: b"1.7.9" > b"1.7.10"
-    Out[13]: True
-
-    In [14]: Version(b"1.7.9".decode()) > Version("1.7.10")
-    Out[14]: False
-    """
-    try:
-        return Version(
-            subprocess.check_output("git --version", shell=True).split()[-1].decode()
-        )
-    except Exception:
-        # NOTE Global exception handling is bad, but it may be worse to account for
-        # every possible failure
-        return None
