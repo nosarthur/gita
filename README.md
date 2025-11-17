@@ -161,6 +161,12 @@ Alternatively, you can install with [uv](https://github.com/astral-sh/uv)
 uv tool install gita
 ```
 
+Or with `pipx`
+
+```
+pipx install gita
+```
+
 Windows users may need to enable the ANSI escape sequence in terminal for
 the branch color to work.
 See [this stackoverflow post](https://stackoverflow.com/questions/51680709/colored-text-output-in-powershell-console-using-ansi-vt100-codes) for details.
@@ -341,6 +347,26 @@ current branch from upstream.
   "allow_all": true,
   "shell": true,
   "help": "fetch current branch only"
+}
+```
+
+Git aliases can also be used in this json file to define custom commands. For example,
+this alias checks out the default branch (usually `main` or `master`)
+
+```
+[alias]
+    cod = "!f() { git checkout \"$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')\"; }; f"
+```
+
+Then we can turn it into a gita command as
+
+```
+{
+  "cod": {
+    "cmd": "git cod",
+    "allow_all": true,
+    "help": "check out default branch"
+  }
 }
 ```
 
