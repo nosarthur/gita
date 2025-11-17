@@ -1,20 +1,18 @@
-import sys
-import os
-import json
-import csv
 import asyncio
+import csv
+import json
+import multiprocessing
+import os
 import platform
 import subprocess
-from functools import lru_cache
-from pathlib import Path
-from typing import List, Dict, Coroutine, Union, Tuple
+import sys
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
-import multiprocessing
+from functools import lru_cache
+from pathlib import Path
+from typing import Coroutine, Dict, List, Tuple, Union
 
-from . import info
-from . import common
-
+from . import common, info
 
 MAX_INT = sys.maxsize
 
@@ -398,24 +396,19 @@ def format_output(s: str, prefix: str):
     return "".join([f"{prefix}: {line}" for line in s.splitlines(keepends=True)])
 
 
+async def _gather_tasks(tasks_list):
+    """Helper to gather tasks"""
+    return await asyncio.gather(*tasks_list)
+
+
 def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     """
     Execute tasks asynchronously
     """
-    # TODO: asyncio API is nicer in python 3.7
     if platform.system() == "Windows":
-        loop = asyncio.ProactorEventLoop()
-    elif asyncio.get_event_loop().is_closed():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    else:
-        loop = asyncio.get_event_loop()
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
-    try:
-        errors = loop.run_until_complete(asyncio.gather(*tasks))
-    finally:
-        loop.close()
-    return errors
+    return asyncio.run(_gather_tasks(tasks))
 
 
 def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:

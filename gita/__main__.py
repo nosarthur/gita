@@ -23,13 +23,10 @@ import sys
 from functools import partial
 from itertools import chain
 from pathlib import Path
-from packaging.version import Version
 
 import argcomplete
 
 from . import common, get_version, info, io, utils
-
-GIT_MIN_VERSION_FOR_SINGLE_BRANCH_CLONING = Version("1.7.10")
 
 
 def _group_name(name: str, exclude_old_names=True) -> str:
@@ -452,8 +449,10 @@ def f_git_cmd(args: argparse.Namespace):
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
-            utils.run_async(repo_name, prop["path"], cmds)
-            for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items())
+            [
+                utils.run_async(repo_name, prop["path"], cmds)
+                for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items())
+            ]
         )
         for path in errors:
             if path:
