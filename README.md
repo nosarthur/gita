@@ -395,8 +395,8 @@ To customize these symbols, add a file in `$XDG_CONFIG_HOME/gita/symbols.csv`.
 The default settings corresponds to
 
 ```csv
-dirty,staged,untracked,local_ahead,remote_ahead,diverged,in_sync,no_remote
-*,+,?,↑,↓,⇕,,∅
+dirty,staged,untracked,stashed,local_ahead,remote_ahead,diverged,in_sync,no_remote
+*,+,?,$,↑,↓,⇕,,∅
 ```
 
 Only the symbols to be overridden need to be defined.
