@@ -1,4 +1,4 @@
-.PHONY: dist test install clean twine auto-completion
+.PHONY: dist test install uninstall clean twine auto-completion
 
 install:
 	pip3 install -e .
