@@ -256,6 +256,18 @@ default_symbols = {
     "": "",
 }
 
+symbol_descriptions = {
+    "staged": "staged changes",
+    "dirty": "unstaged changes",
+    "untracked": "untracked files/folders",
+    "stashed": "stashed changes",
+    "local_ahead": "local is ahead of remote",
+    "remote_ahead": "local is behind remote",
+    "diverged": "local has diverged from remote",
+    "in_sync": "local is the same as remote",
+    "no_remote": "local has no remote",
+}
+
 
 @lru_cache()
 def get_symbols() -> Dict[str, str]:
@@ -270,6 +282,20 @@ def get_symbols() -> Dict[str, str]:
             custom = next(reader)
     default_symbols.update(custom)
     return default_symbols
+
+
+def get_symbols_help() -> str:
+    """
+    Return help text listing status symbols (including customizations).
+    """
+    symbols = get_symbols()
+    lines = []
+    for name, description in symbol_descriptions.items():
+        symbol = symbols.get(name, "")
+        if not symbol:
+            continue
+        lines.append(f"    {symbol}: {description}")
+    return "\n".join(lines)
 
 
 def get_repo_status(prop: Dict[str, str], truncator: Truncate, no_colors=False) -> str:
