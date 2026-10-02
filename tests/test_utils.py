@@ -71,11 +71,24 @@ def test_parse_repos_and_rest(mock_path_fname, _, input, expected):
     "repo_path, paths, expected",
     [
         ("/a/b/c/repo", ["/a/b"], (("b", "c"), "/a")),
+        ("/a/b/c/repo", ["/a/b/README.md", "/a/b"], (("b", "c"), "/a")),
+        ("/a/b/c/repo", ["/a/b/README.md"], ((), "")),
     ],
 )
 def test_generate_dir_hash(repo_path, paths, expected):
     got = utils._generate_dir_hash(repo_path, paths)
     assert got == expected
+
+
+def test_auto_group_non_git_object():
+    # Issue #291: when adding paths containing non-git files (e.g. README.md),
+    # auto_group should not crash with TypeError
+    repos = {"repo1": {"path": "/a/b/repo1"}}
+    paths = ["/a/b/README.md", "/a/b"]
+    groups = utils.auto_group(repos, paths)
+    assert "b" in groups
+    assert groups["b"]["repos"] == ["repo1"]
+
 
 
 @pytest.mark.parametrize(
