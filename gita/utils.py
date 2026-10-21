@@ -151,6 +151,7 @@ def replace_context(old: Union[Path, None], new: str):
         # ctx.rename(ctx.with_stem(new_name))  # only works in py3.9
         old.rename(old.with_name(f"{new}.context"))
     else:
+        os.makedirs(auto.parent, exist_ok=True)
         Path(auto.with_name(f"{new}.context")).write_text("")
 
 
