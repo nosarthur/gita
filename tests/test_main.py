@@ -360,6 +360,14 @@ class TestContext:
         assert ctx.is_file()
         ctx.unlink()
 
+    @patch("gita.utils.get_context", return_value=None)
+    @patch("gita.utils.get_groups", return_value={})
+    def test_set_without_config_dir(self, _, __, tmp_path):
+        config_dir = tmp_path / "gita"
+        with patch("gita.common.get_config_dir", return_value=str(config_dir)):
+            __main__.main(["context", "auto"])
+        assert (config_dir / "auto.context").is_file()
+
     @patch("gita.common.get_config_dir", return_value=TEST_DIR)
     @patch("gita.utils.get_groups", return_value={"lala": ["b"], "kaka": []})
     @patch("gita.utils.get_context")
