@@ -685,10 +685,7 @@ def main(argv=None):
     )
 
     ll_doc = f"""  status symbols:
-    +: staged changes
-    *: unstaged changes
-    ?: untracked files/folders
-    $: stashed changes
+{info.get_symbols_help()}
 
   branch colors:
     {info.Color.white}white{info.Color.end}: local has no remote
