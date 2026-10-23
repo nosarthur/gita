@@ -421,12 +421,16 @@ def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
         name_width = len(max(repos, key=len)) + 1
         funcs = info.get_info_funcs(no_colors=no_colors)
 
+        def describe_repo(name):
+            try:
+                details = " ".join(f(repos[name], truncator) for f in funcs)
+            except UnicodeError as error:
+                details = f"[ERROR] {error}"
+            return f"{name:<{name_width}}{details}"
+
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            for line in executor.map(
-                lambda name: f"{name:<{name_width}}{' '.join(f(repos[name], truncator) for f in funcs)}",
-                sorted(repos),
-            ):
+            for line in executor.map(describe_repo, sorted(repos)):
                 yield line
 
 
