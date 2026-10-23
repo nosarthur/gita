@@ -141,6 +141,21 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     assert expected == next(utils.describe(*test_input))
 
 
+def test_describe_continues_after_unicode_error(monkeypatch):
+    def describe_one(repo, truncator):
+        if repo["path"] == "bad":
+            raise UnicodeDecodeError("gbk", b"\xff", 0, 1, "invalid byte")
+        return "valid commit"
+
+    monkeypatch.setattr(info, "get_info_funcs", lambda **kwargs: [describe_one])
+    repos = {"bad": {"path": "bad"}, "good": {"path": "good"}}
+    lines = list(utils.describe(repos))
+    assert len(lines) == 2
+    assert lines[0].startswith("bad  [ERROR]")
+    assert "gbk" in lines[0]
+    assert lines[1] == "good valid commit"
+
+
 @pytest.mark.parametrize(
     "path_fname, expected",
     [

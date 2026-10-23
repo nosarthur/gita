@@ -217,12 +217,15 @@ def get_commit_msg(prop: Dict[str, str], truncator: Truncate) -> str:
     Return the last commit message.
     """
     # `git show-branch --no-name HEAD` is faster than `git show -s --format=%s`
-    cmd = ["git"] + prop["flags"] + "show-branch --no-name HEAD".split()
+    cmd = ["git"] + prop["flags"] + [
+        "-c", "i18n.logOutputEncoding=UTF-8", "show-branch", "--no-name", "HEAD"
+    ]
     result = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        universal_newlines=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=prop["path"],
     )
     return truncator.truncate("commit_msg", result.stdout.strip())
