@@ -439,22 +439,30 @@ def f_git_cmd(args: argparse.Namespace):
 
     # This async blacklist mechanism is broken if the git command name does
     # not match with the gita command name.
-    if len(repos) == 1 or args.cmd[1] in args.async_blacklist:
+    if (
+        len(repos) == 1
+        or getattr(args, "disable_async", False)
+        or (not args.shell and len(args.cmd) > 1 and args.cmd[1] in args.async_blacklist)
+    ):
         for prop, cmds in zip(repos.values(), per_repo_cmds):
             path = prop["path"]
             print(path)
-            subprocess.run(cmds, cwd=path, shell=args.shell)
+            command = " ".join(cmds) if args.shell else cmds
+            subprocess.run(command, cwd=path, shell=args.shell)
     else:  # run concurrent subprocesses
         # Async execution cannot deal with multiple repos' user name/password.
         # Here we shut off any user input in the async execution, and re-run
         # the failed ones synchronously.
         errors = utils.exec_async_tasks(
             [
-                utils.run_async(repo_name, prop["path"], cmds)
+                utils.run_async(repo_name, prop["path"], cmds, shell=True)
+                if args.shell
+                else utils.run_async(repo_name, prop["path"], cmds)
                 for cmds, (repo_name, prop) in zip(per_repo_cmds, repos.items())
             ]
         )
-        for path in errors:
+        # Shell commands may have side effects: never execute a failed one twice.
+        for path in ([] if args.shell else errors):
             if path:
                 print(path)
                 # FIXME: This is broken, flags are missing. But probably few
@@ -473,6 +481,14 @@ def f_shell(args):
         sys.exit(2)
 
     cmds = " ".join(cmds)  # join the shell command into a single string
+    if len(repos) > 1:
+        utils.exec_async_tasks(
+            [
+                utils.run_async(name, prop["path"], [cmds], shell=True)
+                for name, prop in repos.items()
+            ]
+        )
+        return
     for name, prop in repos.items():
         # TODO: pull this out as a function
         got = subprocess.run(
@@ -890,7 +906,9 @@ def main(argv=None):
             cmd = [cmd]
         else:
             cmd = cmd.split()
-        sp.set_defaults(func=f_git_cmd, cmd=cmd)
+        sp.set_defaults(
+            func=f_git_cmd, cmd=cmd, disable_async=bool(data.get("disable_async"))
+        )
 
     argcomplete.autocomplete(p)
     args = p.parse_args(argv)
