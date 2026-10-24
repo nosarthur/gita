@@ -106,6 +106,7 @@ The bookkeeping sub-commands are
 - `gita ll`: display the status of all repos
 - `gita ll <group-name>`: display the status of repos in a group
 - `gita ll -g`: display the repo summaries by groups
+- `gita ll --json`: output configured status fields as JSON for other tools
 - `gita ls`: display the names of all repos
 - `gita ls <repo-name>`: display the absolute path of one repo
 - `gita rename <repo-name> <new-name>`: rename a repo
@@ -390,6 +391,20 @@ branch,commit_msg,commit_time
 
 Here `branch` includes both branch name and status.
 The status symbols are similar to the ones used in [spaceship-prompt](https://spaceship-prompt.sh/sections/git/#Git-status-git_status).
+
+Use `gita ll --json` for machine-readable output. The JSON object is keyed by
+repository name; each value maps the configured information item names to their
+display strings, without terminal colors. Symbol and layout customizations still
+apply. For example, with the default information items:
+
+```json
+{"my-repo": {"branch": "main       [∅]    ", "commit_msg": "Update README", "commit_time": "(2 hours ago)"}}
+```
+
+`gita ll my-group --json` and the active context filter the repositories as usual.
+With `-g --json`, the outer object is keyed by group name, with a repository
+object inside each group. Empty selections produce `{}`; an empty group has an
+empty repository object. Ordinary `gita ll` output keeps its terminal layout.
 
 To customize these symbols, add a file in `$XDG_CONFIG_HOME/gita/symbols.csv`.
 The default settings corresponds to

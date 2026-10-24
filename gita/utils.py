@@ -412,22 +412,25 @@ def exec_async_tasks(tasks: List[Coroutine]) -> List[Union[None, str]]:
     return asyncio.run(_gather_tasks(tasks))
 
 
-def describe(repos: Dict[str, Dict[str, str]], no_colors: bool = False) -> str:
+def describe(
+    repos: Dict[str, Dict[str, str]], no_colors: bool = False
+) -> Dict[str, Dict[str, str]]:
     """
-    Return the status of all repos
+    Collect configured status fields, keyed by repository name.
     """
     if repos:
         truncator = info.Truncate()
-        name_width = len(max(repos, key=len)) + 1
+        items = info.get_info_items()
         funcs = info.get_info_funcs(no_colors=no_colors)
+
+        def describe_repo(name):
+            return dict(zip(items, (f(repos[name], truncator) for f in funcs)))
 
         num_threads = min(multiprocessing.cpu_count(), len(repos))
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            for line in executor.map(
-                lambda name: f"{name:<{name_width}}{' '.join(f(repos[name], truncator) for f in funcs)}",
-                sorted(repos),
-            ):
-                yield line
+            names = sorted(repos)
+            return dict(zip(names, executor.map(describe_repo, names)))
+    return {}
 
 
 def get_cmds_from_files() -> Dict[str, Dict[str, str]]:
