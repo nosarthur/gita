@@ -138,7 +138,13 @@ def test_describe(test_input, diff_return, expected, monkeypatch):
     monkeypatch.setattr(info, "get_common_commit", lambda x: "")
 
     info.get_color_encoding.cache_clear()  # avoid side effect
-    assert expected == next(utils.describe(*test_input))
+    description = utils.describe(*test_input)
+    name, fields = next(iter(description.items()))
+    assert expected == f"{name} {' '.join(fields.values())}"
+
+
+def test_describe_empty():
+    assert utils.describe({}) == {}
 
 
 @pytest.mark.parametrize(

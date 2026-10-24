@@ -297,6 +297,7 @@ _gita_ll() {
     _arguments -A \
         '(-h --help)'{-h,--help}'[show this help message and exit]' \
         '(-C --no-colors)'{-C,--no-colors}'[Disable coloring on the branch names]' \
+        '--json[Output configured status fields as JSON]' \
         '(-g)'-g'[Show repo summaries by group]' \
         "(-h --help -):Groups name:__gita_get_groups" &&
         ret=0

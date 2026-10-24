@@ -17,6 +17,7 @@ https://github.com/nosarthur/gita/blob/master/.gita-completion.bash
 import argparse
 import csv
 import glob
+import json
 import os
 import subprocess
 import sys
@@ -303,20 +304,37 @@ def f_ll(args: argparse.Namespace):
     if args.group:  # only display repos in this group
         group_repos = utils.get_groups()[args.group]["repos"]
         repos = {k: repos[k] for k in group_repos if k in repos}
+    no_colors = args.no_colors or args.json
     if args.g:  # display by group
-        if group_repos:
-            print(f"{args.group}:")
-            for line in utils.describe(repos, no_colors=args.no_colors):
-                print("  ", line)
+        groups = {args.group: {"repos": group_repos}} if args.group else utils.get_groups()
+        descriptions = {
+            name: utils.describe(
+                {k: repos[k] for k in prop["repos"] if k in repos},
+                no_colors=no_colors,
+            )
+            for name, prop in groups.items()
+        }
+        if args.json:
+            print(json.dumps(descriptions))
         else:
-            for g, prop in utils.get_groups().items():
-                print(f"{g}:")
-                g_repos = {k: repos[k] for k in prop["repos"] if k in repos}
-                for line in utils.describe(g_repos, no_colors=args.no_colors):
+            for name, description in descriptions.items():
+                print(f"{name}:")
+                for line in _format_description(description):
                     print("  ", line)
     else:
-        for line in utils.describe(repos, no_colors=args.no_colors):
-            print(line)
+        description = utils.describe(repos, no_colors=no_colors)
+        if args.json:
+            print(json.dumps(description))
+        else:
+            for line in _format_description(description):
+                print(line)
+
+
+def _format_description(description):
+    """Render collected fields with the existing terminal alignment."""
+    name_width = max(map(len, description), default=0) + 1
+    for name, fields in description.items():
+        yield f"{name:<{name_width}}{' '.join(fields.values())}"
 
 
 def f_ls(args: argparse.Namespace):
@@ -715,6 +733,9 @@ def main(argv=None):
         help="Disable coloring on the branch names.",
     )
     p_ll.add_argument("-g", action="store_true", help="Show repo summaries by group.")
+    p_ll.add_argument(
+        "--json", action="store_true", help="Output configured status fields as JSON."
+    )
     p_ll.set_defaults(func=f_ll)
 
     p_context = subparsers.add_parser(

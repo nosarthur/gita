@@ -28,7 +28,12 @@ _gita_completions()
       color | flags)
         COMPREPLY=($(compgen -W "ll set" ${cur}))
         ;;
-      ll | context)
+      ll)
+        groups=`gita group ls`
+        COMPREPLY=($(compgen -W "${groups} -g -C --no-colors --json" ${cur}))
+        return
+        ;;
+      context)
         groups=`gita group ls`
         COMPREPLY=($(compgen -W "${groups}" ${cur}))
         return

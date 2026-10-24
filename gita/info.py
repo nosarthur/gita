@@ -125,7 +125,7 @@ def get_info_funcs(no_colors=False) -> List[Callable[[str], str]]:
         "branch_name": get_repo_branch,
         "commit_msg": get_commit_msg,
         "commit_time": get_commit_time,
-        "path": get_path,
+        "path": partial(get_path, no_colors=no_colors),
     }
     return [all_info_items[k] for k in to_display]
 
@@ -147,8 +147,9 @@ def get_info_items() -> List[str]:
     return display_items
 
 
-def get_path(prop: Dict[str, str], truncator: Truncate) -> str:
-    return f'{Color.cyan}{truncator.truncate("path", prop["path"])}{Color.end}'
+def get_path(prop: Dict[str, str], truncator: Truncate, no_colors=False) -> str:
+    path = truncator.truncate("path", prop["path"])
+    return path if no_colors else f"{Color.cyan}{path}{Color.end}"
 
 
 # TODO: do we need to add the flags here too?

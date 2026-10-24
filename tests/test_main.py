@@ -4,9 +4,10 @@ from pathlib import Path
 import argparse
 import asyncio
 import shlex
+import json
 
 from gita import __main__
-from gita import utils, info
+from gita import utils, info, common
 from conftest import (
     PATH_FNAME,
     PATH_FNAME_EMPTY,
@@ -104,6 +105,12 @@ class TestLsLl:
         assert "gita" in out
         assert info.Color.end.value not in out
 
+        __main__.main(["ll", "--json"])
+        out, err = capfd.readouterr()
+        assert err == ""
+        assert set(json.loads(out)["gita"]) == {"branch", "commit_msg", "commit_time"}
+        assert "\x1b" not in out
+
         __main__.main(["ls", "gita"])
         out, err = capfd.readouterr()
         assert err == ""
@@ -163,6 +170,52 @@ class TestLsLl:
         print(out)
         assert err == ""
         assert out == expected
+
+
+@pytest.mark.parametrize(
+    "arguments, context, expected",
+    [
+        ([], None, {"a", "b"}),
+        (["team"], None, {"a"}),
+        ([], "team", {"a"}),
+        (["empty"], None, set()),
+        (["-g"], None, {"team": {"a"}, "empty": set()}),
+        (["-g"], "team", {"team": {"a"}}),
+        (["-g", "empty"], None, {"empty": set()}),
+    ],
+)
+def test_ll_json(arguments, context, expected, monkeypatch, capfd, tmp_path):
+    repos = {
+        "b": {"path": "/b with spaces", "flags": [], "type": ""},
+        "a": {"path": "/a", "flags": [], "type": ""},
+    }
+    groups = {"team": {"repos": ["a", "removed"]}, "empty": {"repos": []}}
+    monkeypatch.setattr(utils, "get_repos", lambda: repos)
+    monkeypatch.setattr(utils, "get_groups", lambda: groups)
+    monkeypatch.setattr(
+        utils, "get_context", lambda: Path(context + ".context") if context else None
+    )
+    monkeypatch.setattr(common, "get_config_fname", lambda name: tmp_path / name)
+    monkeypatch.setattr(info, "get_info_items", lambda: ["path", "branch_name", "commit_msg"])
+    monkeypatch.setattr(info, "get_head", lambda path: "main")
+    message = 'Quote " and newline\n中文'
+    monkeypatch.setattr(info, "get_commit_msg", lambda prop, truncator: message)
+
+    __main__.main(["ll", "--json"] + arguments)
+    out, err = capfd.readouterr()
+    assert err == ""
+    assert "\x1b" not in out
+    result = json.loads(out)
+    if "-g" in arguments:
+        assert {name: set(value) for name, value in result.items()} == expected
+        descriptions = result.values()
+    else:
+        assert set(result) == expected
+        assert list(result) == sorted(result)
+        descriptions = [result]
+    for description in descriptions:
+        for name, fields in description.items():
+            assert fields == {"path": repos[name]["path"], "branch_name": "main", "commit_msg": message}
 
 
 @pytest.mark.parametrize(
