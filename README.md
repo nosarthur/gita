@@ -213,6 +213,11 @@ For example,
 ## <a name='shell'></a> Shell mode
 
 The shell mode delegates any shell command.
+With multiple repositories, commands run concurrently and output is collected
+per repository before being printed with its name. Failed shell commands are
+not automatically retried. Custom commands with `"shell": true` use the same
+shell execution mode, so pipelines and quoting are passed to the shell intact;
+set `"disable_async": true` on a custom command to run it sequentially.
 Usage:
 
 ```

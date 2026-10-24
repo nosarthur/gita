@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 import asyncio
 import shlex
+import sys
 
 from gita import __main__
 from gita import utils, info
@@ -327,6 +328,80 @@ def test_shell(mock_run, _, input):
     mock_run.assert_called_once_with(
         expected_cmds, cwd="path7", shell=True, stderr=-2, stdout=-1
     )
+
+
+@pytest.mark.parametrize("custom", [False, True])
+@pytest.mark.parametrize("fail", [False, True])
+def test_shell_concurrent_once(custom, fail, monkeypatch, capfd, tmp_path):
+    repos = {}
+    for name in ("a", "b"):
+        path = tmp_path / name
+        path.mkdir()
+        repos[name] = {"path": str(path), "flags": []}
+    script = tmp_path / "barrier script.py"
+    script.write_text(
+        "import sys, time\n"
+        "from pathlib import Path\n"
+        "root = Path(sys.argv[1])\n"
+        "name = Path.cwd().name\n"
+        "with (root / (name + '.count')).open('a') as f: f.write('run\\n')\n"
+        "(root / (name + '.ready')).touch()\n"
+        "deadline = time.monotonic() + 10\n"
+        "while len(list(root.glob('*.ready'))) != 2:\n"
+        "    if time.monotonic() > deadline: raise SystemExit('not concurrent')\n"
+        "    time.sleep(0.01)\n"
+        "print('both started ' + name)\n"
+        "raise SystemExit(1 if sys.argv[2] == 'fail' else 0)\n"
+    )
+    command = f'"{sys.executable}" "{script}" "{tmp_path}" {"fail" if fail else "ok"}'
+    monkeypatch.setattr(utils, "get_repos", lambda: repos)
+    monkeypatch.setattr(utils, "get_context", lambda: None)
+    monkeypatch.setattr(utils, "get_groups", lambda: {})
+    monkeypatch.setattr(
+        utils,
+        "get_cmds_from_files",
+        lambda: {"barrier": {"cmd": command, "help": "barrier", "shell": True, "allow_all": True}},
+    )
+    __main__.main(["barrier"] if custom else ["shell", command])
+    out, err = capfd.readouterr()
+    assert err == ""
+    for name in repos:
+        assert f"{name}: both started {name}" in out
+        assert (tmp_path / (name + ".count")).read_text() == "run\n"
+
+
+def test_custom_shell_single_word(monkeypatch, capfd, tmp_path):
+    repos = {name: {"path": str(tmp_path), "flags": []} for name in ("a", "b")}
+    monkeypatch.setattr(utils, "get_repos", lambda: repos)
+    monkeypatch.setattr(utils, "get_context", lambda: None)
+    monkeypatch.setattr(utils, "get_groups", lambda: {})
+    monkeypatch.setattr(
+        utils,
+        "get_cmds_from_files",
+        lambda: {"cwd": {"cmd": "echo", "help": "echo", "shell": True, "allow_all": True}},
+    )
+    __main__.main(["cwd"])
+    assert "a:" in capfd.readouterr().out
+
+
+@patch("subprocess.run")
+def test_custom_shell_disable_async(mock_run, monkeypatch, tmp_path):
+    repos = {name: {"path": str(tmp_path), "flags": []} for name in ("a", "b")}
+    command = 'echo "quoted spaces" | other-command'
+    monkeypatch.setattr(utils, "get_repos", lambda: repos)
+    monkeypatch.setattr(utils, "get_context", lambda: None)
+    monkeypatch.setattr(utils, "get_groups", lambda: {})
+    monkeypatch.setattr(
+        utils, "get_cmds_from_files", lambda: {
+            "example": {"cmd": command, "help": "example", "shell": True,
+                        "allow_all": True, "disable_async": True}
+        }
+    )
+    __main__.main(["example"])
+    assert mock_run.call_count == 2
+    for call in mock_run.call_args_list:
+        assert call.args == (command,)
+        assert call.kwargs == {"cwd": str(tmp_path), "shell": True}
 
 
 class TestContext:

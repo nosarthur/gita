@@ -366,17 +366,22 @@ def auto_group(repos: Dict[str, Dict[str, str]], paths: List[str]) -> Dict[str, 
     return new_groups
 
 
-async def run_async(repo_name: str, path: str, cmds: List[str]) -> Union[None, str]:
+async def run_async(
+    repo_name: str, path: str, cmds: List[str], shell: bool = False
+) -> Union[None, str]:
     """
     Run `cmds` asynchronously in `path` directory. Return the `path` if
     execution fails.
     """
-    # TODO: deprecated since 3.8, will be removed in 3.10
-    process = await asyncio.create_subprocess_exec(
-        *cmds,
+    create_process = (
+        asyncio.create_subprocess_shell if shell else asyncio.create_subprocess_exec
+    )
+    command = [" ".join(cmds)] if shell else cmds
+    process = await create_process(
+        *command,
         stdin=asyncio.subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT if shell else asyncio.subprocess.PIPE,
         start_new_session=True,
         cwd=path,
     )
