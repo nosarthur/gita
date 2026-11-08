@@ -332,9 +332,11 @@ def _generate_dir_hash(repo_path: str, paths: List[str]) -> Tuple[Tuple[str, ...
     then return (b, c, d)
     """
     for p in paths:
-        rel = get_relative_path(repo_path, p)[:-1]
-        if rel is not None:
-            break
+        rel = get_relative_path(repo_path, p)
+        if rel is None:
+            continue
+        rel = rel[:-1]
+        break
     else:
         return (), ""
     head, tail = os.path.split(p)
