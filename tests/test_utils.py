@@ -71,6 +71,12 @@ def test_parse_repos_and_rest(mock_path_fname, _, input, expected):
     "repo_path, paths, expected",
     [
         ("/a/b/c/repo", ["/a/b"], (("b", "c"), "/a")),
+        (
+            "/a/b/c/repo",
+            ["/a/README.md", "/a/b"],
+            (("b", "c"), "/a"),
+        ),
+        ("/a/b/c/repo", ["/elsewhere"], ((), "")),
     ],
 )
 def test_generate_dir_hash(repo_path, paths, expected):
