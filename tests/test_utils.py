@@ -71,6 +71,8 @@ def test_parse_repos_and_rest(mock_path_fname, _, input, expected):
     "repo_path, paths, expected",
     [
         ("/a/b/c/repo", ["/a/b"], (("b", "c"), "/a")),
+        ("/a/b/c/repo", ["/x/y", "/a/b"], (("b", "c"), "/a")),
+        ("/z/repo", ["/x/y", "/a/b"], ((), "")),
     ],
 )
 def test_generate_dir_hash(repo_path, paths, expected):
@@ -101,6 +103,11 @@ def test_generate_dir_hash(repo_path, paths, expected):
                 "b-c": {"repos": ["r1", "r2"], "path": "/a/b/c"},
                 "b": {"path": "/a/b", "repos": ["r1", "r2"]},
             },
+        ),
+        (
+            {"r9": {"path": "/z/repo9"}},
+            ["/x/y", "/a/b"],
+            {},
         ),
     ],
 )
